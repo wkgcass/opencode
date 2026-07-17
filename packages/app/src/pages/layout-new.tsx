@@ -52,7 +52,7 @@ export default function NewLayout(props: ParentProps) {
           <Suspense>{props.children}</Suspense>
         </main>
       </div>
-      {import.meta.env.DEV && <DebugBar inline />}
+      {import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BAR === "1" && <DebugBar inline />}
       <TabsInfoPopup />
       <ToastRegion v2 />
     </div>
