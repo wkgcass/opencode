@@ -9,6 +9,7 @@ import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform } from "@/context/platform"
+import { skinSettingsLocked } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "../updater-action"
@@ -29,6 +30,7 @@ import { Link } from "../link"
 import { SettingsListV2 } from "./parts/list"
 import { SettingsRowV2 } from "./parts/row"
 import { LayoutRetirementNotice, LayoutTransitionToggle } from "./interface-transition"
+import { SettingsSkinSelect, skinSettingsText } from "../settings-skin-select"
 import "./settings-v2.css"
 
 let demoSoundState = {
@@ -432,6 +434,7 @@ export const SettingsGeneralV2: Component<{
             gutter={6}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
           />
         </SettingsRowV2>
@@ -456,12 +459,22 @@ export const SettingsGeneralV2: Component<{
             gutter={6}
             value={(o) => o.id}
             label={(o) => o.name}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => {
               if (!option) return
               theme.setTheme(option.id)
             }}
           />
         </SettingsRowV2>
+
+        <Show when={desktop()}>
+          <SettingsRowV2
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
+          >
+            <SettingsSkinSelect variant="v2" />
+          </SettingsRowV2>
+        </Show>
 
         <SettingsRowV2
           title={language.t("settings.general.row.uiFont.title")}

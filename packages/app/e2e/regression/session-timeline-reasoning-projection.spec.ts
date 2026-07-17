@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 import {
   assistantMessage,
+  partDelta,
+  partUpdated,
   reasoningPart,
   setupTimeline,
   status,
@@ -54,6 +56,38 @@ const profiles = [
   },
 ] as const
 
+function reasoningTimelineMessages(reasoningID: string, reasoningCompleted: boolean) {
+  return [
+    userMessage(undefined, { id: "msg_reasoning_previous_user", created: 1699999990000 }),
+    assistantMessage(
+      [
+        textPart(
+          "prt_reasoning_previous_text",
+          Array.from({ length: 8 }, (_, index) => `Previous response ${index}`).join("\n\n"),
+        ),
+      ],
+      {
+        id: "msg_reasoning_previous_assistant",
+        parentID: "msg_reasoning_previous_user",
+        created: 1699999991000,
+      },
+    ),
+    userMessage(),
+    assistantMessage(
+      [
+        {
+          ...reasoningPart(
+            reasoningID,
+            Array.from({ length: 100 }, (_, index) => `Reasoning line ${index}`).join("\n\n"),
+          ),
+          time: { start: 1700000001000, ...(reasoningCompleted ? { end: 1700000002000 } : {}) },
+        },
+      ],
+      { completed: false },
+    ),
+  ]
+}
+
 for (const profile of profiles) {
   test(`projects busy reasoning profile ${profile.name}`, async ({ page }) => {
     const reasoningID = `prt_reasoning_matrix_${profiles.indexOf(profile)}`
@@ -90,4 +124,145 @@ test("does not infer reasoning visibility from provider identity", async ({ page
   await expect(page.locator('[data-timeline-row="Thinking"]')).toHaveCount(0)
   await expect(page.locator('[data-timeline-part-id*="reasoning"]')).toHaveCount(0)
   await expect(page.locator('[data-timeline-part-id="prt_provider_text"]')).toBeVisible()
+})
+
+test("reasoning is collapsed into a bounded scrollable panel", async ({ page }) => {
+  const reasoningID = "prt_reasoning_collapsible"
+  const timeline = await setupTimeline(page, {
+    messages: reasoningTimelineMessages(reasoningID, true),
+    settings: { showReasoningSummaries: true },
+    locale: "zh",
+  })
+  await timeline.send(status("busy"), 150)
+
+  const reasoning = page.locator(`[data-timeline-part-id="${reasoningID}"]`)
+  const trigger = reasoning.locator('[data-slot="collapsible-trigger"]')
+  const content = reasoning.locator('[data-slot="reasoning-part-content"]')
+  const viewport = page.locator(".scroll-view__viewport").filter({ has: reasoning })
+
+  await viewport.evaluate((element) => element.parentElement?.style.setProperty("height", "500px"))
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+  await expect(trigger).toContainText("已思考")
+  await expect(content).toBeHidden()
+
+  await trigger.click()
+
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect(content).toBeVisible()
+  await expect(content).toHaveCSS("max-height", "350px")
+  await expect(content).toHaveCSS("overflow-y", "auto")
+  expect(await content.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
+  await expect
+    .poll(async () => {
+      const [reasoningBox, viewportBox] = await Promise.all([reasoning.boundingBox(), viewport.boundingBox()])
+      if (!reasoningBox || !viewportBox) return Number.POSITIVE_INFINITY
+      return Math.abs(reasoningBox.y + reasoningBox.height - (viewportBox.y + viewportBox.height - 10))
+    })
+    .toBeLessThan(2)
+
+  await trigger.click()
+
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+  await expect(content).toBeHidden()
+
+  await viewport.evaluate((element) => element.parentElement?.style.setProperty("height", "260px"))
+  await trigger.scrollIntoViewIfNeeded()
+  await trigger.click()
+
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect
+    .poll(async () => {
+      return viewport.evaluate((element) => {
+        const trigger = element.querySelector<HTMLElement>('[data-slot="collapsible-trigger"][aria-expanded="true"]')
+        const header = element.querySelector<HTMLElement>("[data-session-title]")
+        if (!trigger) return Number.POSITIVE_INFINITY
+        const viewportRect = element.getBoundingClientRect()
+        const top = header ? Math.max(viewportRect.top, header.getBoundingClientRect().bottom) : viewportRect.top
+        return Math.abs(trigger.getBoundingClientRect().top - top)
+      })
+    })
+    .toBeLessThan(2)
+})
+
+test("streaming reasoning expands, follows its bottom, then collapses on completion", async ({ page }) => {
+  const reasoningID = "prt_reasoning_streaming"
+  const timeline = await setupTimeline(page, {
+    messages: reasoningTimelineMessages(reasoningID, false),
+    settings: { showReasoningSummaries: true },
+  })
+  await timeline.send(status("busy"), 150)
+
+  const reasoning = page.locator(`[data-timeline-part-id="${reasoningID}"]`)
+  const trigger = reasoning.locator('[data-slot="collapsible-trigger"]')
+  const content = reasoning.locator('[data-slot="reasoning-part-content"]')
+  const viewport = page.locator(".scroll-view__viewport").filter({ has: reasoning })
+
+  await viewport.evaluate((element) => element.parentElement?.style.setProperty("height", "500px"))
+  await viewport.evaluate((element) => {
+    element.scrollTop = element.scrollHeight
+  })
+
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect(trigger).toContainText("Thinking")
+  await expect(content).toBeVisible()
+  await expect
+    .poll(() => viewport.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThan(2)
+  await expect
+    .poll(() => content.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThan(2)
+
+  const previousHeight = await content.evaluate((element) => element.scrollHeight)
+  await timeline.send(
+    partDelta(
+      reasoningID,
+      "\n\n" + Array.from({ length: 20 }, (_, index) => `New streaming reasoning line ${index}`).join("\n\n"),
+    ),
+  )
+
+  await expect(content).toContainText("New streaming reasoning line 19")
+  await expect.poll(() => content.evaluate((element) => element.scrollHeight)).toBeGreaterThan(previousHeight)
+  await expect
+    .poll(() => content.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThan(2)
+  await expect
+    .poll(() => viewport.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThan(2)
+
+  await content.evaluate((element) => {
+    element.dispatchEvent(new WheelEvent("wheel", { deltaY: -100, bubbles: true }))
+    element.scrollTop = 0
+    element.dispatchEvent(new Event("scroll"))
+  })
+  await timeline.send(
+    partDelta(
+      reasoningID,
+      "\n\n" + Array.from({ length: 20 }, (_, index) => `Paused reasoning line ${index}`).join("\n\n"),
+    ),
+  )
+
+  await expect(content).toContainText("Paused reasoning line 19")
+  await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBeLessThan(2)
+
+  await content.evaluate((element) => {
+    element.scrollTop = element.scrollHeight
+    element.dispatchEvent(new Event("scroll"))
+  })
+  await timeline.send(partDelta(reasoningID, "\n\nFollowing resumed"))
+
+  await expect(content).toContainText("Following resumed")
+  await expect
+    .poll(() => content.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThan(2)
+
+  await timeline.send(
+    partUpdated({
+      ...reasoningPart(reasoningID, "Completed reasoning"),
+      time: { start: 1700000001000, end: 1700000002000 },
+    }),
+  )
+
+  await expect(trigger).toContainText("Thought")
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+  await expect(content).toBeHidden()
 })

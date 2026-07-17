@@ -235,6 +235,7 @@ export function TabNavItem(props: {
                   directory={session().directory}
                   sessionId={session().id}
                   server={props.server}
+                  progressIndicator="ring"
                 />
               )}
             </Show>
@@ -248,7 +249,7 @@ export function TabNavItem(props: {
             data-titlebar-tab-title
             class="min-w-0 flex-1 outline-none leading-4"
             classList={{
-              "overflow-hidden text-clip whitespace-nowrap": !editing(),
+              "overflow-hidden text-ellipsis whitespace-nowrap": !editing(),
               "select-text": editing(),
             }}
             contenteditable={editing() ? true : undefined}
@@ -378,7 +379,7 @@ export function DraftTabItem(props: {
         </span>
         <span
           data-titlebar-tab-title
-          class="min-w-0 flex-1 overflow-hidden text-clip whitespace-nowrap outline-none leading-4"
+          class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap outline-none leading-4"
         >
           {props.title}
         </span>
