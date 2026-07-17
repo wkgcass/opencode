@@ -712,6 +712,8 @@ export const dict = {
     "Wybierz, czy OpenCode ma używać motywu systemowego, jasnego czy ciemnego",
   "settings.general.row.theme.title": "Motyw",
   "settings.general.row.theme.description": "Dostosuj motyw OpenCode.",
+  "settings.general.row.skin.title": "Skórka",
+  "settings.general.row.skin.description": "Zastosuj dekoracje pulpitu i efekty paneli niezależnie od motywu kolorystycznego.",
   "settings.general.row.font.title": "Czcionka kodu",
   "settings.general.row.font.description": "Dostosuj czcionkę używaną w blokach kodu",
   "settings.general.row.terminalFont.title": "Czcionka terminala",

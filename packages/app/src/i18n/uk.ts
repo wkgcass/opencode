@@ -869,6 +869,8 @@ export const dict = {
   "settings.general.row.colorScheme.description": "Виберіть, чи OpenCode використовує системну, світлу або темну тему",
   "settings.general.row.theme.title": "Тема",
   "settings.general.row.theme.description": "Налаштуйте тему OpenCode.",
+  "settings.general.row.skin.title": "Оболонка",
+  "settings.general.row.skin.description": "Застосовуйте декоративне оформлення й ефекти панелей незалежно від колірної теми.",
   "settings.general.row.font.title": "Шрифт коду",
   "settings.general.row.font.description": "Налаштуйте шрифт, який використовується в блоках коду",
   "settings.general.row.terminalFont.title": "Шрифт термінала",

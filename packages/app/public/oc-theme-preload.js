@@ -12,9 +12,14 @@
   var scheme = localStorage.getItem("opencode-color-scheme") || "system"
   var isDark = scheme === "dark" || (scheme === "system" && matchMedia("(prefers-color-scheme: dark)").matches)
   var mode = isDark ? "dark" : "light"
+  var desktop = location.protocol === "oc:" || navigator.userAgent.indexOf("Electron") !== -1
+  var storedSkinId = localStorage.getItem("opencode-skin-id")
+  var skinId =
+    storedSkinId === "none" || storedSkinId === "miku-future" ? storedSkinId : desktop ? "miku-future" : "none"
 
   document.documentElement.dataset.theme = themeId
   document.documentElement.dataset.colorScheme = mode
+  document.documentElement.dataset.skin = skinId
   document.documentElement.style.backgroundColor = isDark ? "#080808" : "#fafafa"
 
   // Update theme-color meta tag to match app color scheme

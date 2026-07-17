@@ -68,6 +68,16 @@ function CodexSidebar() {
   const tabs = useTabs()
   const projects = layout.projects.list
   const selected = () => layout.home.selection().directory
+  const activeProject = (directory: string) => {
+    const route = layout.route()
+    if (route.type === "session") return false
+    if (route.type === "draft") {
+      return tabs.store.some(
+        (tab) => tab.type === "draft" && tab.draftID === route.draftID && tab.directory === directory,
+      )
+    }
+    return selected() === directory
+  }
   const activeSession = (id: string) => {
     const route = layout.route()
     return route.type === "session" && route.sessionId === id
@@ -96,9 +106,16 @@ function CodexSidebar() {
     >
       <div class="flex shrink-0 flex-col gap-1 px-1 pb-3 pt-2">
         <div class="mb-2 flex h-8 items-center px-2">
-          <span class="text-[17px] font-[600] tracking-[-0.2px] text-v2-text-text-base">opencode</span>
+          <div class="flex min-w-0 flex-col leading-none">
+            <span
+              data-slot="codex-sidebar-brand"
+              class="text-[17px] font-[600] tracking-[-0.2px] text-v2-text-text-base"
+            >
+              opencode
+            </span>
+          </div>
         </div>
-        <button type="button" class="codex-app-sidebar-row" onClick={() => newTask()}>
+        <button data-action="sidebar-new-session" type="button" class="codex-app-sidebar-row" onClick={() => newTask()}>
           <Icon name="edit" />
           <span>{language.t("command.session.new")}</span>
         </button>
@@ -117,8 +134,9 @@ function CodexSidebar() {
                     type="button"
                     class="codex-app-sidebar-row pr-10!"
                     classList={{
-                      "bg-v2-background-bg-layer-02 text-v2-text-text-base": selected() === project.worktree,
+                      "bg-v2-background-bg-layer-02 text-v2-text-text-base": activeProject(project.worktree),
                     }}
+                    aria-current={activeProject(project.worktree) ? "page" : undefined}
                     onClick={() => selectProject(project)}
                   >
                     <Icon name="folder" />
@@ -143,6 +161,7 @@ function CodexSidebar() {
                         type="button"
                         class="codex-app-sidebar-session"
                         classList={{ "text-v2-text-text-base": activeSession(session.id) }}
+                        aria-current={activeSession(session.id) ? "page" : undefined}
                         onClick={() => {
                           const tab = tabs.addSessionTab({ server: server.key, sessionId: session.id })
                           tabs.select(tab)

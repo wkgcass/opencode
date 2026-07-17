@@ -1,0 +1,238 @@
+/* Miku Future is loaded independently from the desktop base stylesheet. Every
+ * rule is scoped to the active skin so retaining the cached asset has no effect
+ * after another skin is selected. A future background asset can be supplied by
+ * changing --miku-art without changing the component structure. */
+html[data-opencode-desktop="true"][data-skin="miku-future"] {
+  --miku-cyan: #28cad3;
+  --miku-cyan-strong: #149da9;
+  --miku-pink: #ff9bd7;
+  --miku-purple: #8c86ef;
+  --miku-ink: #245b65;
+  --miku-muted: #668d95;
+  --miku-chrome: #eefcff;
+  --miku-panel: rgba(255, 255, 255, 0.86);
+  --miku-panel-strong: rgba(255, 255, 255, 0.94);
+  --miku-line: rgba(40, 202, 211, 0.3);
+  --miku-shadow: rgba(41, 121, 138, 0.12);
+  --miku-art: none;
+  --desktop-chrome: var(--miku-chrome);
+  --desktop-panel: var(--miku-panel);
+  --desktop-divider: var(--miku-line);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"][data-color-scheme="dark"] {
+  --miku-cyan: #45dce4;
+  --miku-cyan-strong: #8af3f5;
+  --miku-pink: #ff9bd7;
+  --miku-purple: #aaa4ff;
+  --miku-ink: #e1fbff;
+  --miku-muted: #94bdc4;
+  --miku-chrome: #102a30;
+  --miku-panel: rgba(16, 42, 48, 0.9);
+  --miku-panel-strong: rgba(20, 51, 58, 0.96);
+  --miku-line: rgba(69, 220, 228, 0.28);
+  --miku-shadow: rgba(0, 0, 0, 0.28);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] body,
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="codex-app-shell"] {
+  background-color: var(--miku-chrome);
+  background-image:
+    radial-gradient(circle at 9% 18%, color-mix(in srgb, var(--miku-cyan) 15%, transparent), transparent 29%),
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--miku-pink) 16%, transparent), transparent 25%),
+    linear-gradient(145deg, var(--miku-chrome), color-mix(in srgb, var(--miku-chrome) 88%, var(--miku-purple)));
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="titlebar-v2"] {
+  background: var(--miku-chrome);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="codex-app-sidebar"] {
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--miku-pink) 13%, transparent), transparent 28%),
+    linear-gradient(180deg, color-mix(in srgb, var(--miku-chrome) 94%, white), var(--miku-chrome));
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="codex-sidebar-brand"] {
+  color: var(--miku-cyan-strong);
+  font-style: italic;
+  letter-spacing: -0.45px;
+  text-shadow: 0 0 16px color-mix(in srgb, var(--miku-cyan) 28%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="codex-sidebar-brand"]::before {
+  content: "Miku ";
+  color: var(--miku-cyan);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="codex-sidebar-brand"]::after {
+  content: "Future skin ♫";
+  display: block;
+  margin-top: 3px;
+  color: var(--miku-muted);
+  font-size: 8px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-action="sidebar-new-session"] {
+  color: var(--miku-ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--miku-cyan) 14%, transparent), transparent);
+  box-shadow: inset 2px 0 var(--miku-cyan);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-row:hover,
+html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-session:hover {
+  color: var(--miku-ink);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--miku-cyan) 15%, transparent),
+    color-mix(in srgb, var(--miku-pink) 8%, transparent)
+  );
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-row[aria-current="page"],
+html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-session[aria-current="page"] {
+  color: var(--miku-ink);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--miku-cyan) 22%, transparent),
+    color-mix(in srgb, var(--miku-pink) 12%, transparent)
+  );
+  box-shadow: inset 2px 0 var(--miku-cyan);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-action {
+  color: var(--miku-cyan-strong);
+  background: color-mix(in srgb, var(--miku-panel-strong) 92%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="codex-main-workspace"] {
+  position: relative;
+  background-color: var(--miku-chrome);
+  background-image:
+    radial-gradient(circle, color-mix(in srgb, var(--miku-cyan) 25%, transparent) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 17%, color-mix(in srgb, var(--miku-pink) 19%, transparent), transparent 25%),
+    radial-gradient(circle at 18% 76%, color-mix(in srgb, var(--miku-cyan) 14%, transparent), transparent 31%),
+    var(--miku-art);
+  background-position:
+    0 0,
+    center,
+    center,
+    center;
+  background-size:
+    72px 72px,
+    auto,
+    auto,
+    cover;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="new-session-panel-shell"],
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="session-panel-row"] {
+  background: var(--miku-chrome);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="session-panel-frame"] {
+  background: var(--miku-panel);
+  border-color: var(--miku-line);
+  box-shadow: inset 1px 1px color-mix(in srgb, white 58%, transparent);
+  backdrop-filter: blur(18px) saturate(112%);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="desktop-new-session-design"] {
+  background:
+    radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--miku-purple) 13%, transparent), transparent 25%),
+    radial-gradient(circle at 35% 39%, color-mix(in srgb, var(--miku-cyan) 12%, transparent), transparent 28%),
+    transparent;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="desktop-new-session-hero"] {
+  gap: 15px;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="desktop-new-session-hero"]::before {
+  content: "MIKU FUTURE  ♫";
+  display: block;
+  padding: 5px 12px;
+  border: 1px solid var(--miku-line);
+  border-radius: 999px;
+  color: var(--miku-cyan-strong);
+  background: color-mix(in srgb, var(--miku-panel-strong) 78%, transparent);
+  box-shadow: 0 7px 22px var(--miku-shadow);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="desktop-new-session-hero"]::after {
+  content: "01  ✦";
+  position: absolute;
+  top: 8px;
+  right: 12%;
+  color: var(--miku-pink);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="desktop-new-session-glyph"] {
+  color: var(--miku-cyan);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--miku-cyan) 32%, transparent));
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="desktop-new-session-prompt"] {
+  color: var(--miku-ink);
+  text-shadow: 0 1px color-mix(in srgb, white 58%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="desktop-new-session-prompt"] span {
+  text-decoration-color: color-mix(in srgb, var(--miku-cyan) 65%, var(--miku-pink));
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--miku-panel-strong), var(--miku-panel-strong)) padding-box,
+    linear-gradient(
+        105deg,
+        var(--miku-cyan),
+        color-mix(in srgb, var(--miku-purple) 62%, var(--miku-pink)),
+        var(--miku-pink)
+      )
+      border-box;
+  box-shadow:
+    0 12px 34px var(--miku-shadow),
+    0 0 0 3px color-mix(in srgb, var(--miku-cyan) 7%, transparent);
+  backdrop-filter: blur(18px) saturate(115%);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="titlebar-tab-item"] {
+  --tab-bg: color-mix(in srgb, var(--miku-chrome) 90%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="titlebar-tab-item"][data-active="true"] {
+  --tab-bg: var(--miku-panel-strong);
+  box-shadow: inset 0 -2px color-mix(in srgb, var(--miku-cyan) 72%, var(--miku-pink));
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"] ::selection {
+  color: var(--miku-ink);
+  background: color-mix(in srgb, var(--miku-cyan) 28%, var(--miku-pink));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-opencode-desktop="true"][data-skin="miku-future"] *,
+  html[data-opencode-desktop="true"][data-skin="miku-future"] *::before,
+  html[data-opencode-desktop="true"][data-skin="miku-future"] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

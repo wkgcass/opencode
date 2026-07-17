@@ -12,6 +12,7 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
+import { useSkin } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -84,6 +85,7 @@ const playDemoSound = (id: string | undefined) => {
 
 export const SettingsGeneral: Component = () => {
   const theme = useTheme()
+  const skin = useSkin()
   const language = useLanguage()
   const permission = usePermission()
   const platform = usePlatform()
@@ -122,6 +124,7 @@ export const SettingsGeneral: Component = () => {
   const desktop = createMemo(() => platform.platform === "desktop")
 
   const themeOptions = createMemo<ThemeOption[]>(() => theme.ids().map((id) => ({ id, name: theme.name(id) })))
+  const skinOptions = createMemo(() => skin.skins().map((item) => ({ id: item.id, name: item.name })))
 
   const serverSync = useServerSync()
   const serverSdk = useServerSDK()
@@ -498,6 +501,25 @@ export const SettingsGeneral: Component = () => {
             triggerVariant="settings"
           />
         </SettingsRow>
+
+        <Show when={desktop()}>
+          <SettingsRow
+            title={language.t("settings.general.row.skin.title")}
+            description={language.t("settings.general.row.skin.description")}
+          >
+            <Select
+              data-action="settings-skin"
+              options={skinOptions()}
+              current={skinOptions().find((option) => option.id === skin.id())}
+              value={(option) => option.id}
+              label={(option) => option.name}
+              onSelect={(option) => option && skin.set(option.id)}
+              variant="secondary"
+              size="small"
+              triggerVariant="settings"
+            />
+          </SettingsRow>
+        </Show>
 
         <SettingsRow
           title={language.t("settings.general.row.uiFont.title")}

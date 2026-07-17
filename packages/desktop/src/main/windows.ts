@@ -100,14 +100,18 @@ function defaultBackgroundColor() {
   return oc2Background[tone()]
 }
 
+function titlebarColor(value: string | undefined, fallback: string) {
+  return value && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback
+}
+
 function overlay(theme: Partial<TitlebarTheme> = {}, zoom = 1) {
   const mode = theme.mode ?? tone()
   return {
     // This area is drawn by Windows rather than the renderer. An explicit
     // color prevents the window's white backing surface from showing through
     // beside the rendered grey titlebar.
-    color: mode === "dark" ? "#242424" : "#eef3f8",
-    symbolColor: mode === "dark" ? "white" : "black",
+    color: titlebarColor(theme.background, mode === "dark" ? "#242424" : "#eef3f8"),
+    symbolColor: titlebarColor(theme.symbolColor, mode === "dark" ? "#ffffff" : "#000000"),
     height: Math.max(titlebarHeight, Math.round(titlebarHeight * zoom)),
   }
 }

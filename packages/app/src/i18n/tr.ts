@@ -782,6 +782,8 @@ export const dict = {
     "OpenCode'un sistem, açık veya koyu temayı takip etip etmeyeceğini seçin",
   "settings.general.row.theme.title": "Tema",
   "settings.general.row.theme.description": "OpenCode'un temasını özelleştirin.",
+  "settings.general.row.skin.title": "Kaplama",
+  "settings.general.row.skin.description": "Masaüstü süslemelerini ve panel efektlerini renk temasından bağımsız uygulayın.",
   "settings.general.row.font.title": "Kod Yazı Tipi",
   "settings.general.row.font.description": "Kod bloklarında kullanılan yazı tipini özelleştirin",
   "settings.general.row.terminalFont.title": "Terminal yazı tipi",

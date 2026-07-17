@@ -766,6 +766,8 @@ export const dict = {
   "settings.general.row.colorScheme.description": "选择 OpenCode 跟随系统、浅色或深色主题",
   "settings.general.row.theme.title": "主题",
   "settings.general.row.theme.description": "自定义 OpenCode 的主题。",
+  "settings.general.row.skin.title": "皮肤",
+  "settings.general.row.skin.description": "独立于颜色主题，应用桌面装饰、窗口栏和面板效果。",
   "settings.general.row.font.title": "代码字体",
   "settings.general.row.font.description": "自定义代码块使用的字体",
   "settings.general.row.terminalFont.title": "终端字体",

@@ -707,6 +707,8 @@ export const dict = {
   "settings.general.row.colorScheme.description": "OpenCodeがシステム、ライト、またはダークテーマに従うかを選択します",
   "settings.general.row.theme.title": "テーマ",
   "settings.general.row.theme.description": "OpenCodeのテーマをカスタマイズします。",
+  "settings.general.row.skin.title": "スキン",
+  "settings.general.row.skin.description": "カラーテーマとは別に、デスクトップ装飾やパネル効果を適用します。",
   "settings.general.row.font.title": "コードフォント",
   "settings.general.row.font.description": "コードブロックで使用するフォントをカスタマイズします",
   "settings.general.row.terminalFont.title": "ターミナルのフォント",

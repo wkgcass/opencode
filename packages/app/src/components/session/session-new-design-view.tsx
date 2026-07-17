@@ -45,9 +45,18 @@ export function NewSessionDesignView(props: { children: JSX.Element; projectName
               stroke-width="3"
               stroke-linejoin="round"
             />
-            <path d="m17.5 21 3 3-3 3M25 28h5.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="m17.5 21 3 3-3 3M25 28h5.5"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
-          <div class="text-[28px] font-[400] leading-[1.35] tracking-[-0.6px] text-v2-text-text-base">
+          <div
+            data-slot="desktop-new-session-prompt"
+            class="text-[28px] font-[400] leading-[1.35] tracking-[-0.6px] text-v2-text-text-base"
+          >
             {prompt()[0]}
             <span class="underline decoration-v2-text-text-muted decoration-1 underline-offset-4">
               {props.projectName ?? "opencode"}

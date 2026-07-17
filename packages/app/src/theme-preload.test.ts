@@ -8,6 +8,7 @@ beforeEach(() => {
   document.head.innerHTML = ""
   document.documentElement.removeAttribute("data-theme")
   document.documentElement.removeAttribute("data-color-scheme")
+  document.documentElement.removeAttribute("data-skin")
   localStorage.clear()
   Object.defineProperty(window, "matchMedia", {
     value: () =>
@@ -42,5 +43,21 @@ describe("theme preload", () => {
 
     expect(document.documentElement.dataset.theme).toBe("nightowl")
     expect(document.getElementById("oc-theme-preload")?.textContent).toContain("--background-base:#fff;")
+  })
+
+  test("restores the selected skin before mount", () => {
+    localStorage.setItem("opencode-skin-id", "miku-future")
+
+    run()
+
+    expect(document.documentElement.dataset.skin).toBe("miku-future")
+  })
+
+  test("ignores unknown skin identifiers", () => {
+    localStorage.setItem("opencode-skin-id", "untrusted-skin")
+
+    run()
+
+    expect(document.documentElement.dataset.skin).toBe("none")
   })
 })

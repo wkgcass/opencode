@@ -9,6 +9,7 @@ import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform } from "@/context/platform"
+import { useSkin } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "../updater-action"
@@ -85,6 +86,7 @@ export const SettingsGeneralV2: Component<{
   sessionID?: string
 }> = (props) => {
   const theme = useTheme()
+  const skin = useSkin()
   const language = useLanguage()
   const permission = usePermission()
   const platform = usePlatform()
@@ -120,6 +122,7 @@ export const SettingsGeneralV2: Component<{
   const desktop = createMemo(() => platform.platform === "desktop")
 
   const themeOptions = createMemo<ThemeOption[]>(() => theme.ids().map((id) => ({ id, name: theme.name(id) })))
+  const skinOptions = createMemo(() => skin.skins().map((item) => ({ id: item.id, name: item.name })))
 
   const [shells] = createResource(
     () =>
@@ -459,6 +462,25 @@ export const SettingsGeneralV2: Component<{
             }}
           />
         </SettingsRowV2>
+
+        <Show when={desktop()}>
+          <SettingsRowV2
+            title={language.t("settings.general.row.skin.title")}
+            description={language.t("settings.general.row.skin.description")}
+          >
+            <SelectV2
+              appearance="inline"
+              data-action="settings-skin"
+              options={skinOptions()}
+              current={skinOptions().find((option) => option.id === skin.id())}
+              placement="bottom-end"
+              gutter={6}
+              value={(option) => option.id}
+              label={(option) => option.name}
+              onSelect={(option) => option && skin.set(option.id)}
+            />
+          </SettingsRowV2>
+        </Show>
 
         <SettingsRowV2
           title={language.t("settings.general.row.uiFont.title")}
