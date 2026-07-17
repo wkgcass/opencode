@@ -9,6 +9,7 @@ beforeEach(() => {
   document.documentElement.removeAttribute("data-theme")
   document.documentElement.removeAttribute("data-color-scheme")
   document.documentElement.removeAttribute("data-skin")
+  document.documentElement.removeAttribute("style")
   localStorage.clear()
   Object.defineProperty(window, "matchMedia", {
     value: () =>
@@ -46,11 +47,30 @@ describe("theme preload", () => {
   })
 
   test("restores the selected skin before mount", () => {
+    const meta = document.createElement("meta")
+    meta.name = "theme-color"
+    document.head.appendChild(meta)
     localStorage.setItem("opencode-skin-id", "miku-future")
+    localStorage.setItem("opencode-color-scheme", "dark")
 
     run()
 
     expect(document.documentElement.dataset.skin).toBe("miku-future")
+    expect(document.documentElement.dataset.colorScheme).toBe("light")
+    expect(localStorage.getItem("opencode-color-scheme")).toBe("light")
+    expect(document.documentElement.style.backgroundColor).toBe("#eefcff")
+    expect(meta.content).toBe("#eefcff")
+  })
+
+  test("keeps the selected colour scheme for the OpenCode skin", () => {
+    localStorage.setItem("opencode-skin-id", "none")
+    localStorage.setItem("opencode-color-scheme", "dark")
+
+    run()
+
+    expect(document.documentElement.dataset.skin).toBe("none")
+    expect(document.documentElement.dataset.colorScheme).toBe("dark")
+    expect(localStorage.getItem("opencode-color-scheme")).toBe("dark")
   })
 
   test("ignores unknown skin identifiers", () => {

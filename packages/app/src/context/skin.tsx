@@ -8,31 +8,20 @@ export const SKINS = [
   {
     id: "none",
     name: "OpenCode",
-    window: {
-      light: {},
-      dark: {},
-    },
+    window: {},
   },
   {
     id: "miku-future",
     name: "Miku Future",
     window: {
-      light: {
-        background: "#eefcff",
-        titlebar: "#eefcff",
-        symbols: "#245b65",
-      },
-      dark: {
-        background: "#0d2025",
-        titlebar: "#102a30",
-        symbols: "#dffbff",
-      },
+      background: "#eefcff",
+      titlebar: "#eefcff",
+      symbols: "#245b65",
     },
   },
 ] as const
 
 export type SkinID = (typeof SKINS)[number]["id"]
-type SkinMode = "light" | "dark"
 
 const STORAGE_KEY = "opencode-skin-id"
 
@@ -54,9 +43,9 @@ function readSkinID() {
   }
 }
 
-export function activeSkinWindow(mode: SkinMode) {
+export function activeSkinWindow() {
   const id = readSkinID() ?? (desktop() ? "miku-future" : "none")
-  return SKINS.find((skin) => skin.id === id)?.window[mode]
+  return SKINS.find((skin) => skin.id === id)?.window
 }
 
 export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
@@ -74,9 +63,14 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
     })
 
     createEffect(() => {
-      const mode = theme.mode()
       const skin = SKINS.find((item) => item.id === store.id) ?? SKINS[0]
-      const windowTheme = skin.window[mode]
+      if (skin.id !== "none" && theme.colorScheme() !== "light") {
+        theme.setColorScheme("light")
+        return
+      }
+
+      const mode = theme.mode()
+      const windowTheme = skin.window
       document.documentElement.dataset.skin = skin.id
 
       const fallback = getComputedStyle(document.documentElement).getPropertyValue("--background-base").trim()
@@ -100,6 +94,7 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       skins: () => SKINS,
       set: (id: SkinID) => {
         setStore("id", id)
+        if (id !== "none" && theme.colorScheme() !== "light") theme.setColorScheme("light")
         try {
           localStorage.setItem(STORAGE_KEY, id)
         } catch {}

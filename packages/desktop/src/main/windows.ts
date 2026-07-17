@@ -110,7 +110,7 @@ function overlay(theme: Partial<TitlebarTheme> = {}, zoom = 1) {
     // This area is drawn by Windows rather than the renderer. An explicit
     // color prevents the window's white backing surface from showing through
     // beside the rendered grey titlebar.
-    color: titlebarColor(theme.background, mode === "dark" ? "#242424" : "#eef3f8"),
+    color: titlebarColor(theme.background, mode === "dark" ? "#080808" : "#eef3f8"),
     symbolColor: titlebarColor(theme.symbolColor, mode === "dark" ? "#ffffff" : "#000000"),
     height: Math.max(titlebarHeight, Math.round(titlebarHeight * zoom)),
   }

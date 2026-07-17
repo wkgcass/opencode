@@ -20,20 +20,6 @@ html[data-opencode-desktop="true"][data-skin="miku-future"] {
   --desktop-divider: var(--miku-line);
 }
 
-html[data-opencode-desktop="true"][data-skin="miku-future"][data-color-scheme="dark"] {
-  --miku-cyan: #45dce4;
-  --miku-cyan-strong: #8af3f5;
-  --miku-pink: #ff9bd7;
-  --miku-purple: #aaa4ff;
-  --miku-ink: #e1fbff;
-  --miku-muted: #94bdc4;
-  --miku-chrome: #102a30;
-  --miku-panel: rgba(16, 42, 48, 0.9);
-  --miku-panel-strong: rgba(20, 51, 58, 0.96);
-  --miku-line: rgba(69, 220, 228, 0.28);
-  --miku-shadow: rgba(0, 0, 0, 0.28);
-}
-
 html[data-opencode-desktop="true"][data-skin="miku-future"] body,
 html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="codex-app-shell"] {
   background-color: var(--miku-chrome);
@@ -79,8 +65,6 @@ html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="codex-si
 
 html[data-opencode-desktop="true"][data-skin="miku-future"] [data-action="sidebar-new-session"] {
   color: var(--miku-ink);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--miku-cyan) 14%, transparent), transparent);
-  box-shadow: inset 2px 0 var(--miku-cyan);
 }
 
 html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-row:hover,

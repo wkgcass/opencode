@@ -6,6 +6,11 @@ html[data-opencode-desktop="true"] {
   --desktop-panel: #ffffff;
 }
 
+html[data-opencode-desktop="true"][data-color-scheme="dark"] {
+  --desktop-chrome: var(--v2-background-bg-deep);
+  --desktop-panel: var(--v2-background-bg-base);
+}
+
 html[data-opencode-desktop="true"] body,
 html[data-opencode-desktop="true"] [data-component="codex-app-shell"] {
   background: var(--desktop-chrome);

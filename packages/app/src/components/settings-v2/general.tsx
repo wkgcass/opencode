@@ -432,6 +432,7 @@ export const SettingsGeneralV2: Component<{
             gutter={6}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skin.id() !== "none"}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
           />
         </SettingsRowV2>

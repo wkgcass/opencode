@@ -363,7 +363,7 @@ export function AppBaseProviders(props: ParentProps<{ locale?: Locale }>) {
       <Font />
       <ThemeProvider
         onThemeApplied={(_, mode, scheme) => {
-          const skin = activeSkinWindow(mode)
+          const skin = activeSkinWindow()
           void window.api?.setTitlebar?.({
             mode,
             scheme,

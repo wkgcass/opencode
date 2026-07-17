@@ -469,6 +469,7 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skin.id() !== "none"}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"

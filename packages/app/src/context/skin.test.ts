@@ -8,13 +8,13 @@ beforeEach(() => {
 
 describe("desktop skin", () => {
   test("keeps the web presentation unskinned by default", () => {
-    expect(activeSkinWindow("light")).toEqual({})
+    expect(activeSkinWindow()).toEqual({})
   })
 
   test("uses Miku window colours when selected", () => {
     localStorage.setItem("opencode-skin-id", "miku-future")
 
-    expect(activeSkinWindow("light")).toEqual({
+    expect(activeSkinWindow()).toEqual({
       background: "#eefcff",
       titlebar: "#eefcff",
       symbols: "#245b65",
@@ -24,10 +24,10 @@ describe("desktop skin", () => {
   test("defaults the desktop renderer to Miku Future", () => {
     document.documentElement.dataset.opencodeDesktop = "true"
 
-    expect(activeSkinWindow("dark")).toEqual({
-      background: "#0d2025",
-      titlebar: "#102a30",
-      symbols: "#dffbff",
+    expect(activeSkinWindow()).toEqual({
+      background: "#eefcff",
+      titlebar: "#eefcff",
+      symbols: "#245b65",
     })
   })
 })
