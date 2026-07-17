@@ -34,6 +34,7 @@ import {
 } from "@opencode-ai/session-ui/v2/prompt-input/interaction"
 
 export type PromptInputV2ComposerProps = {
+  "data-component"?: string
   class?: string
   controller: PromptInputV2ComposerController
   borderUnderlay?: boolean
@@ -50,7 +51,7 @@ export function PromptInputV2Composer(props: PromptInputV2ComposerProps) {
   const language = useLanguage()
 
   return (
-    <div class="flex flex-col gap-3">
+    <div data-component={props["data-component"]} class="flex flex-col gap-3">
       <PromptInputV2
         controller={props.controller}
         borderUnderlay={props.borderUnderlay}

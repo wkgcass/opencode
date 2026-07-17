@@ -2,6 +2,7 @@ import { createEffect, on, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createEventListener } from "@solid-primitives/event-listener"
 import { createResizeObserver } from "@solid-primitives/resize-observer"
+import { shouldKeepAutoScrollPaused } from "./create-auto-scroll-state"
 
 export interface AutoScrollOptions {
   working: () => boolean
@@ -131,7 +132,9 @@ export function createAutoScroll(options: AutoScrollOptions) {
       return
     }
 
-    if (distanceFromBottom(el) < threshold()) {
+    const distance = distanceFromBottom(el)
+    if (distance < threshold()) {
+      if (shouldKeepAutoScrollPaused(store.userScrolled, distance)) return
       if (store.userScrolled) setStore("userScrolled", false)
       return
     }

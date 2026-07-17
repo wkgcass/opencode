@@ -557,6 +557,11 @@ export const dict = {
   "error.page.version": "版本：{{version}}",
   "error.dev.rootNotFound": "未找到根元素。你是不是忘了把它添加到 index.html？或者 id 属性拼写错了？",
   "error.serverSync.connectFailed": "无法连接到服务器。是否有服务器正在 `{{url}}` 运行？",
+  "session.server.connecting": "正在连接 {{server}}",
+  "session.server.connecting.description": "服务器准备就绪后，此标签页将自动加载。",
+  "session.error.serverUnavailable": "暂时无法连接 {{server}}",
+  "session.error.serverUnavailable.description": "服务器可能仍在启动，请稍候片刻后重试。",
+  "session.error.serverUnavailable.retry": "重试",
 
   "directory.error.invalidUrl": "URL 中的目录无效。",
 
@@ -613,6 +618,7 @@ export const dict = {
   "session.tab.review": "审查",
   "session.tab.context": "上下文",
   "session.tab.unknown": "未知会话",
+  "session.tab.connecting": "正在连接…",
   "session.panel.reviewAndFiles": "审查和文件",
   "session.error.notFound": "找不到此会话",
   "session.error.notFound.description": "此标签页指向的会话已不存在于此服务器上。",

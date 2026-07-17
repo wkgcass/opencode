@@ -11,6 +11,7 @@ import {
   type Platform,
   PlatformProvider,
   ServerConnection,
+  SkinProvider,
   useCommand,
   useWslServers,
 } from "@opencode-ai/app"
@@ -24,6 +25,7 @@ import pkg from "../../package.json"
 import { initI18n, t } from "./i18n"
 import { initializationData, initializationReady } from "./initialization"
 import { DesktopFirstLaunchOnboarding } from "./onboarding"
+import { initializeSkinStyles } from "./skins"
 import { resetZoom, setPinchZoomEnabled, webviewZoom, zoomIn, zoomOut } from "./webview-zoom"
 import { windowFullscreen } from "./window-fullscreen"
 import { availableStartupServer, readyWslConnections } from "./wsl/connections"
@@ -60,6 +62,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 }
 
 void initI18n()
+
+initializeSkinStyles()
 
 const [updaterState, setUpdaterState] = createSignal<UpdaterState>({ status: "disabled" })
 void window.api.updater.subscribe(setUpdaterState)
@@ -445,7 +449,9 @@ function DesktopRoot(props: { windowState: DesktopWindowState }) {
   return (
     <PlatformProvider value={platform}>
       <AppBaseProviders locale={locale.latest}>
-        <Show when={true}>{(_) => <App />}</Show>
+        <SkinProvider>
+          <Show when={true}>{(_) => <App />}</Show>
+        </SkinProvider>
       </AppBaseProviders>
     </PlatformProvider>
   )

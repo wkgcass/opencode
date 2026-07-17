@@ -23,6 +23,8 @@ interface SessionContextUsageProps {
   placement?: ComponentProps<typeof TooltipV2>["placement"]
 }
 
+const contextUsageProgressColor = "light-dark(var(--v2-blue-600), var(--v2-yellow-600))"
+
 function ContextTooltipRow(props: { name: JSX.Element; value: JSX.Element }) {
   return (
     <div class="flex min-w-0 items-center gap-4">
@@ -107,20 +109,26 @@ export function SessionContextUsage(props: SessionContextUsageProps) {
         size={16}
         strokeWidth={2}
         percentage={context()?.usage ?? 0}
-        style={
-          variant() === "indicator"
-            ? {
-                "--progress-circle-background": "var(--v2-background-bg-layer-04, var(--border-weak-base))",
-                "--progress-circle-background-overlay": "var(--v2-overlay-simple-overlay-pressed, transparent)",
-                "--progress-circle-progress": "var(--v2-icon-icon-base, var(--icon-base))",
-              }
-            : undefined
-        }
+        style={{
+          "--progress-circle-background":
+            variant() === "indicator"
+              ? "light-dark(var(--v2-blue-300), var(--v2-background-bg-layer-04, var(--border-weak-base)))"
+              : "light-dark(var(--v2-blue-300), var(--border-weak-base))",
+          "--progress-circle-background-overlay":
+            variant() === "indicator" ? "var(--v2-overlay-simple-overlay-pressed, transparent)" : undefined,
+          "--progress-circle-progress": contextUsageProgressColor,
+        }}
       />
     </div>
   )
   const circleV2 = () => (
-    <div class="flex items-center justify-center">
+    <div
+      class="flex items-center justify-center"
+      style={{
+        "--progress-circle-v2-background": "light-dark(var(--v2-blue-300), var(--v2-background-bg-layer-04))",
+        "--progress-circle-v2-progress": contextUsageProgressColor,
+      }}
+    >
       <ProgressCircleV2 percentage={context()?.usage ?? 0} />
     </div>
   )
