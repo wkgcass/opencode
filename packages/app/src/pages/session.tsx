@@ -334,6 +334,7 @@ function SessionRouteFrame(props: ParentProps<{ padded?: boolean }>) {
 function SessionPanelFrame(props: ParentProps<{ newLayout: boolean; raised?: boolean }>) {
   return (
     <div
+      data-component="session-panel-frame"
       classList={{
         "flex-1 min-h-0 flex flex-col": true,
         "bg-v2-background-bg-base": props.newLayout,
@@ -2235,6 +2236,7 @@ export default function Page() {
     <SessionRouteFrame>
       <SessionHeader />
       <div
+        data-component="session-panel-row"
         ref={panelRow}
         class="flex-1 min-h-0 flex flex-col md:flex-row"
         classList={{

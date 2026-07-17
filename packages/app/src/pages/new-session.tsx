@@ -33,6 +33,11 @@ import { Persist, persisted } from "@/utils/persist"
 import createPresence from "solid-presence"
 import { useLocal } from "@/context/local"
 import { createPromptModelSelection } from "@/pages/session/composer/prompt-model-selection"
+import { displayName } from "@/pages/layout/helpers"
+import { useLayout } from "@/context/layout"
+import { useTabs, type DraftTab } from "@/context/tabs"
+import { useGlobal } from "@/context/global"
+import { ServerConnection } from "@/context/server"
 
 const workspaceBarEnabled = import.meta.env.VITE_OPENCODE_CHANNEL !== "prod"
 const providerTipDismissalDuration = 30 * 24 * 60 * 60 * 1000
@@ -58,6 +63,9 @@ export default function NewSessionPage() {
   const route = useSessionKey()
   const [searchParams, setSearchParams] = useSearchParams<{ draftId?: string; prompt?: string }>()
   const local = useLocal()
+  const layout = useLayout()
+  const tabs = useTabs()
+  const global = useGlobal()
   const model = createPromptModelSelection({ agent: local.agent.current })
 
   useComposerCommands({ model })
@@ -90,6 +98,27 @@ export default function NewSessionPage() {
   const rightMount = useTitlebarRightMount()
 
   const showWorkspaceBar = createMemo(() => workspaceBarEnabled && sync().project?.vcs === "git")
+  const projectName = createMemo(() => {
+    const draft = tabs.store.find(
+      (item): item is DraftTab => item.type === "draft" && item.draftID === searchParams.draftId,
+    )
+    const directory = draft?.directory ?? sdk().directory ?? layout.home.selection().directory ?? ""
+    const conn = draft
+      ? global.servers.list().find((item) => ServerConnection.key(item) === draft.server)
+      : undefined
+    const project = conn
+      ? global
+          .ensureServerCtx(conn)
+          .projects.list()
+          .find((item) => item.worktree === directory || item.sandboxes?.includes(directory))
+      : undefined
+    if (project) return displayName(project)
+    const synced = sync().project
+    if (synced?.worktree === directory) return displayName(synced)
+    const selected = layout.home.selection().directory
+    const fallback = layout.projects.list().find((item) => item.worktree === selected)
+    return displayName(fallback ?? { worktree: directory || selected || "opencode" })
+  })
   const newSessionWorktree = createMemo(() => {
     if (!showWorkspaceBar()) return "main"
     if (store.worktree) return store.worktree
@@ -126,7 +155,7 @@ export default function NewSessionPage() {
   )
 
   return (
-    <div class="relative size-full overflow-hidden flex flex-col">
+    <div data-component="new-session-route" class="relative size-full overflow-hidden flex flex-col">
       <Show when={rightMount()}>
         {(mount) => (
           <Portal mount={mount()}>
@@ -138,10 +167,10 @@ export default function NewSessionPage() {
           </Portal>
         )}
       </Show>
-      <div class="flex-1 min-h-0 flex flex-col gap-2 p-2">
+      <div data-component="new-session-panel-shell" class="flex-1 min-h-0 flex flex-col gap-2 p-2">
         <div class="@container relative flex flex-col min-h-0 h-full flex-1">
-          <div class="flex-1 min-h-0 overflow-hidden rounded-[10px]">
-            <NewSessionDesignView>
+          <div data-component="new-session-panel" class="flex-1 min-h-0 overflow-hidden rounded-[10px]">
+            <NewSessionDesignView projectName={projectName()}>
               <div class={NEW_SESSION_CONTENT_WIDTH}>
                 <Show
                   when={prompt.ready() || promptReady()}

@@ -58,6 +58,7 @@ const registry = createWindowRegistry<BrowserWindow>({
     removeStoreFile(windowDataFile(id))
   },
 })
+// Keep Electron's native Windows caption buttons aligned with the renderer.
 const titlebarHeight = 40
 const maxZoomLevel = 10
 const minZoomLevel = 0.2
@@ -102,7 +103,10 @@ function defaultBackgroundColor() {
 function overlay(theme: Partial<TitlebarTheme> = {}, zoom = 1) {
   const mode = theme.mode ?? tone()
   return {
-    color: "#00000000",
+    // This area is drawn by Windows rather than the renderer. An explicit
+    // color prevents the window's white backing surface from showing through
+    // beside the rendered grey titlebar.
+    color: mode === "dark" ? "#242424" : "#eef3f8",
     symbolColor: mode === "dark" ? "white" : "black",
     height: Math.max(titlebarHeight, Math.round(titlebarHeight * zoom)),
   }

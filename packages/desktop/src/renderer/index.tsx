@@ -60,6 +60,10 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 
 void initI18n()
 
+// The desktop shell has its own, persistent-workspace treatment. Keep the
+// marker on the document so the shared app can retain its web presentation.
+document.documentElement.dataset.opencodeDesktop = "true"
+
 const [updaterState, setUpdaterState] = createSignal<UpdaterState>({ status: "disabled" })
 void window.api.updater.subscribe(setUpdaterState)
 
