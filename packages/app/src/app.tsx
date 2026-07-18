@@ -33,7 +33,6 @@ import { CommandProvider, useCommand, type CommandOption } from "@/context/comma
 import { CommentsProvider } from "@/context/comments"
 import { FileProvider } from "@/context/file"
 import { ServerSDKProvider } from "@/context/server-sdk"
-import { activeSkinWindow, SkinProvider } from "@/context/skin"
 import { ServerSyncProvider, useServerSync } from "@/context/server-sync"
 import { GlobalProvider, useGlobal } from "@/context/global"
 import { HighlightsProvider } from "@/context/highlights"
@@ -233,13 +232,7 @@ declare global {
       deepLinks?: string[]
     }
     api?: {
-      setTitlebar?: (theme: {
-        mode: "light" | "dark"
-        scheme?: "system" | "light" | "dark"
-        background?: string
-        symbolColor?: string
-      }) => Promise<void>
-      setBackgroundColor?: (color: string) => Promise<void>
+      setTitlebar?: (theme: { mode: "light" | "dark"; scheme?: "system" | "light" | "dark" }) => Promise<void>
       exportDebugLogs?: () => Promise<string>
     }
   }
@@ -363,37 +356,29 @@ export function AppBaseProviders(props: ParentProps<{ locale?: Locale }>) {
       <Font />
       <ThemeProvider
         onThemeApplied={(_, mode, scheme) => {
-          const skin = activeSkinWindow()
-          void window.api?.setTitlebar?.({
-            mode,
-            scheme,
-            background: skin && "titlebar" in skin ? skin.titlebar : undefined,
-            symbolColor: skin && "symbols" in skin ? skin.symbols : undefined,
-          })
+          void window.api?.setTitlebar?.({ mode, scheme })
         }}
       >
-        <SkinProvider>
-          <LanguageProvider locale={props.locale}>
-            <UiI18nBridge>
-              <ErrorBoundary
-                fallback={(error) => {
-                  Sentry.captureException(error)
-                  return <ErrorPage error={error} />
-                }}
-              >
-                <QueryProvider>
-                  <WslServersProvider>
-                    <DialogProvider>
-                      <MarkedProvider>
-                        <FileComponentProvider component={File}>{props.children}</FileComponentProvider>
-                      </MarkedProvider>
-                    </DialogProvider>
-                  </WslServersProvider>
-                </QueryProvider>
-              </ErrorBoundary>
-            </UiI18nBridge>
-          </LanguageProvider>
-        </SkinProvider>
+        <LanguageProvider locale={props.locale}>
+          <UiI18nBridge>
+            <ErrorBoundary
+              fallback={(error) => {
+                Sentry.captureException(error)
+                return <ErrorPage error={error} />
+              }}
+            >
+              <QueryProvider>
+                <WslServersProvider>
+                  <DialogProvider>
+                    <MarkedProvider>
+                      <FileComponentProvider component={File}>{props.children}</FileComponentProvider>
+                    </MarkedProvider>
+                  </DialogProvider>
+                </WslServersProvider>
+              </QueryProvider>
+            </ErrorBoundary>
+          </UiI18nBridge>
+        </LanguageProvider>
       </ThemeProvider>
     </MetaProvider>
   )

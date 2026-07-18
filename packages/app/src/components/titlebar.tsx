@@ -51,7 +51,7 @@ const tauriApi = () => (window as unknown as { __TAURI__?: TauriApi }).__TAURI__
 const currentDesktopWindow = () => tauriApi()?.window?.getCurrentWindow?.()
 const currentThemeWindow = () => tauriApi()?.webviewWindow?.getCurrentWebviewWindow?.()
 const legacyTitlebarHeight = 40
-const v2TitlebarHeight = 40
+const v2TitlebarHeight = 36
 const minTitlebarZoom = 0.25
 const windowsControlsBaseWidth = 138 // 3 native Windows caption buttons at 46px each.
 
@@ -230,7 +230,7 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
       data-slot={useV2Titlebar() ? "titlebar-v2" : undefined}
       classList={{
         "shrink-0 relative flex flex-row": true,
-        "h-10 bg-v2-background-bg-deep overflow-visible": useV2Titlebar(),
+        "h-9 bg-v2-background-bg-deep overflow-visible": useV2Titlebar(),
         "h-10 bg-background-base overflow-hidden": !useV2Titlebar(),
         "order-last": bottom(),
       }}
@@ -752,10 +752,7 @@ function ChannelIndicator() {
   return (
     <>
       {["beta", "dev"].includes(import.meta.env.VITE_OPENCODE_CHANNEL) && (
-        <div
-          data-component="channel-indicator"
-          class="bg-icon-interactive-base text-[#FFF] font-medium px-2 rounded-sm uppercase font-mono"
-        >
+        <div class="desktop-channel-indicator bg-icon-interactive-base text-[#FFF] font-medium px-2 rounded-sm uppercase font-mono">
           {import.meta.env.VITE_OPENCODE_CHANNEL.toUpperCase()}
         </div>
       )}

@@ -18,6 +18,13 @@ export type SkinDefinition = {
 
 export type SkinID = string
 
+type SkinTitlebarTheme = {
+  mode: "light" | "dark"
+  scheme?: "system" | "light" | "dark"
+  background?: string
+  symbolColor?: string
+}
+
 const STORAGE_KEY = "opencode-skin-id"
 const openCodeSkin: SkinDefinition = {
   id: "none",
@@ -47,8 +54,22 @@ function desktop() {
   return document.documentElement.dataset.opencodeDesktop === "true" || navigator.userAgent.includes("Electron")
 }
 
+function setBackgroundColor(color: string) {
+  const api: unknown = window.api
+  if (typeof api !== "object" || api === null) return
+  if (!("setBackgroundColor" in api) || typeof api.setBackgroundColor !== "function") return
+  void api.setBackgroundColor(color)
+}
+
+function setTitlebar(theme: SkinTitlebarTheme) {
+  const api: unknown = window.api
+  if (typeof api !== "object" || api === null) return
+  if (!("setTitlebar" in api) || typeof api.setTitlebar !== "function") return
+  void api.setTitlebar(theme)
+}
+
 function readSkinID(skins = availableSkins()) {
-  if (typeof localStorage !== "object") return
+  if (typeof localStorage !== "object") return undefined
   try {
     return normalizeSkinID(localStorage.getItem(STORAGE_KEY), skins)
   } catch {
@@ -96,10 +117,10 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       if (background) {
         document.documentElement.style.backgroundColor = background
         document.querySelector('meta[name="theme-color"]')?.setAttribute("content", background)
-        void window.api?.setBackgroundColor?.(background)
+        setBackgroundColor(background)
       }
 
-      void window.api?.setTitlebar?.({
+      setTitlebar({
         mode,
         scheme: theme.colorScheme(),
         background: skin.window.titlebar,

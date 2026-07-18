@@ -11,6 +11,7 @@ import {
   type Platform,
   PlatformProvider,
   ServerConnection,
+  SkinProvider,
   useCommand,
   useWslServers,
 } from "@opencode-ai/app"
@@ -61,9 +62,6 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 
 void initI18n()
 
-// The desktop shell has its own, persistent-workspace treatment. Keep the
-// marker on the document so the shared app can retain its web presentation.
-document.documentElement.dataset.opencodeDesktop = "true"
 initializeSkinStyles()
 
 const [updaterState, setUpdaterState] = createSignal<UpdaterState>({ status: "disabled" })
@@ -445,7 +443,9 @@ function DesktopRoot(props: { windowState: DesktopWindowState }) {
   return (
     <PlatformProvider value={platform}>
       <AppBaseProviders locale={locale.latest}>
-        <Show when={true}>{(_) => <App />}</Show>
+        <SkinProvider>
+          <Show when={true}>{(_) => <App />}</Show>
+        </SkinProvider>
       </AppBaseProviders>
     </PlatformProvider>
   )

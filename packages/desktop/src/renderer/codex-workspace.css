@@ -1,0 +1,256 @@
+/* Desktop-only Codex-style workspace chrome. The application package is also
+ * used on the web, so every override is scoped to the renderer marker. */
+html[data-opencode-desktop="true"] {
+  --desktop-chrome: #eef3f8;
+  --desktop-divider: color-mix(in srgb, var(--v2-text-text-base) 12%, transparent);
+  --desktop-panel: #ffffff;
+}
+
+html[data-opencode-desktop="true"][data-color-scheme="dark"] {
+  --desktop-chrome: var(--v2-background-bg-deep);
+  --desktop-panel: var(--v2-background-bg-base);
+}
+
+html[data-opencode-desktop="true"] body,
+html[data-opencode-desktop="true"] [data-component="codex-app-shell"] {
+  background: var(--desktop-chrome);
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] {
+  background: var(--desktop-chrome);
+  height: 40px;
+  min-height: 40px !important;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2-content"] {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+html[data-opencode-desktop="true"] .desktop-channel-indicator {
+  display: none;
+}
+
+html[data-opencode-desktop="true"] [data-component="codex-app-sidebar"] {
+  background: var(--desktop-chrome);
+  border: 0;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-row {
+  display: flex;
+  height: 30px;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 8px;
+  background: transparent;
+  color: var(--v2-text-text-muted);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+}
+
+html[data-opencode-desktop="true"] button.codex-app-sidebar-row {
+  cursor: pointer;
+}
+
+html[data-opencode-desktop="true"] button.codex-app-sidebar-row:hover,
+html[data-opencode-desktop="true"] button.codex-app-sidebar-row:focus-visible {
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+  outline: none;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-project {
+  position: relative;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-actions {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-project:hover .codex-app-sidebar-actions,
+html[data-opencode-desktop="true"] .codex-app-sidebar-project:focus-within .codex-app-sidebar-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-action {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 5px;
+  padding: 0;
+  background: var(--desktop-chrome);
+  color: var(--v2-text-text-muted);
+  cursor: pointer;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-action:hover,
+html[data-opencode-desktop="true"] .codex-app-sidebar-action:focus-visible {
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+  outline: none;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-session {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 10px 6px 34px;
+  background: transparent;
+  color: var(--v2-text-text-muted);
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-session:hover,
+html[data-opencode-desktop="true"] .codex-app-sidebar-session:focus-visible {
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+  outline: none;
+}
+
+html[data-opencode-desktop="true"] [data-component="codex-main-workspace"] {
+  background: var(--desktop-chrome);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* New tasks use a quiet project prompt in the center and keep the working
+ * composer, project selector, and submission behaviour at the bottom. */
+html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"] {
+  background: var(--desktop-panel);
+}
+
+html[data-opencode-desktop="true"] [data-component="new-session-panel-shell"] {
+  gap: 0;
+  padding: 0;
+}
+
+html[data-opencode-desktop="true"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"] [data-component="session-panel-frame"] {
+  background: var(--desktop-panel);
+  border: 1px solid var(--desktop-divider);
+  border-radius: 24px 0 0 0;
+  box-shadow: none;
+}
+
+html[data-opencode-desktop="true"] [data-component="session-panel-row"] {
+  padding: 0;
+}
+
+html[data-opencode-desktop="true"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"] {
+  min-height: 98px;
+  border: 1px solid var(--desktop-divider);
+  border-radius: 14px;
+  background: var(--desktop-panel);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--v2-text-text-base) 7%, transparent);
+}
+
+html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"] [data-component="prompt-input"] {
+  min-height: 52px;
+  padding: 14px 14px 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+html[data-opencode-desktop="true"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-design-text"] {
+  padding: 14px 14px 6px;
+  font-size: 14px;
+}
+
+html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"] [data-component="provider-tip"] {
+  display: none;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] [data-component="icon-button-v2"] {
+  border-radius: 6px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] [data-component="icon-button-v2"][data-size="normal"] {
+  width: 28px;
+  height: 28px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] [data-component="icon-button-v2"][data-size="large"] {
+  width: 32px;
+  height: 32px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] [data-component="desktop-icon-button"] {
+  height: 32px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"] {
+  height: 32px;
+  border-radius: 6px;
+  --tab-bg: var(--desktop-chrome);
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"][data-active="true"] {
+  --tab-bg: var(--v2-background-bg-base);
+}
+
+html[data-opencode-desktop="true"] [data-titlebar-tab-list] {
+  gap: 8px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"]:not([data-active="true"]):hover,
+html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"]:not([data-active="true"]):has(> a:focus-visible) {
+  --tab-bg: color-mix(in srgb, var(--desktop-chrome) 88%, var(--v2-text-text-base));
+}
+
+html[data-opencode-desktop="true"] [data-titlebar-tab] [data-slot="tab-close"] {
+  top: 6px;
+}
+
+html[data-opencode-desktop="true"] [data-titlebar-tab] [data-slot="tab-close"]::before {
+  height: 32px;
+}
+
+html[data-opencode-desktop="true"] [data-titlebar-tab-slot]:not(:first-child):not([data-active="true"])::before {
+  top: 10px;
+  left: -4px;
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-tabs-fade-left"] {
+  background: linear-gradient(to right, var(--desktop-chrome), transparent);
+}
+
+html[data-opencode-desktop="true"] [data-slot="titlebar-tabs-fade-right"] {
+  background: linear-gradient(to left, var(--desktop-chrome), transparent);
+}
+
+html[data-opencode-desktop="true"] [data-component="button"],
+html[data-opencode-desktop="true"] [data-component="button-v2"] {
+  border-radius: 6px;
+}

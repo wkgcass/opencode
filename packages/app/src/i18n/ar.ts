@@ -702,8 +702,6 @@ export const dict = {
   "settings.general.row.colorScheme.description": "اختر ما إذا كان OpenCode يتبع سمة النظام أو الفاتح أو الداكن",
   "settings.general.row.theme.title": "السمة",
   "settings.general.row.theme.description": "تخصيص سمة OpenCode.",
-  "settings.general.row.skin.title": "المظهر الزخرفي",
-  "settings.general.row.skin.description": "طبّق زخارف سطح المكتب وتأثيرات اللوحات بشكل مستقل عن سمة الألوان.",
   "settings.general.row.font.title": "خط الكود",
   "settings.general.row.font.description": "خصّص الخط المستخدم في كتل التعليمات البرمجية",
   "settings.general.row.terminalFont.title": "خط الطرفية",

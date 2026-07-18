@@ -28,4 +28,4 @@ export {
 } from "./wsl/types"
 export { ServerConnection } from "./context/server"
 export { handleNotificationClick } from "./utils/notification-click"
-export { registerSkins, type SkinDefinition } from "./context/skin"
+export { registerSkins, SkinProvider, type SkinDefinition } from "./context/skin"

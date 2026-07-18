@@ -771,8 +771,6 @@ export const dict = {
   "settings.general.row.colorScheme.description": "Vælg om OpenCode følger systemets, lyst eller mørkt tema",
   "settings.general.row.theme.title": "Tema",
   "settings.general.row.theme.description": "Tilpas hvordan OpenCode er temabestemt.",
-  "settings.general.row.skin.title": "Udseende",
-  "settings.general.row.skin.description": "Anvend dekorative skrivebords- og paneleffekter uafhængigt af farvetemaet.",
   "settings.general.row.font.title": "Kode-skrifttype",
   "settings.general.row.font.description": "Tilpas skrifttypen, der bruges i kodeblokke",
   "settings.general.row.terminalFont.title": "Terminalskrifttype",

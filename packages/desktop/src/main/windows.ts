@@ -58,7 +58,6 @@ const registry = createWindowRegistry<BrowserWindow>({
     removeStoreFile(windowDataFile(id))
   },
 })
-// Keep Electron's native Windows caption buttons aligned with the renderer.
 const titlebarHeight = 40
 const maxZoomLevel = 10
 const minZoomLevel = 0.2
@@ -100,31 +99,26 @@ function defaultBackgroundColor() {
   return oc2Background[tone()]
 }
 
-function titlebarColor(value: string | undefined, fallback: string) {
-  return value && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback
-}
-
 function overlay(theme: Partial<TitlebarTheme> = {}, zoom = 1) {
   const mode = theme.mode ?? tone()
   return {
-    // This area is drawn by Windows rather than the renderer. An explicit
-    // color prevents the window's white backing surface from showing through
-    // beside the rendered grey titlebar.
-    color: titlebarColor(theme.background, mode === "dark" ? "#080808" : "#eef3f8"),
-    symbolColor: titlebarColor(theme.symbolColor, mode === "dark" ? "#ffffff" : "#000000"),
+    color: theme.background ?? "#00000000",
+    symbolColor: theme.symbolColor ?? (mode === "dark" ? "white" : "black"),
     height: Math.max(titlebarHeight, Math.round(titlebarHeight * zoom)),
   }
 }
 
 export function setTitlebar(win: BrowserWindow, theme: Partial<TitlebarTheme> = {}) {
-  titlebarThemes.set(win, theme)
+  // Theme and skin updates arrive independently, so preserve fields omitted by either source.
+  const next = { ...titlebarThemes.get(win), ...theme }
+  titlebarThemes.set(win, next)
   // macOS draws the window frame hairline and shadow using the NSWindow
   // appearance, which follows nativeTheme rather than the rendered content.
   // Align it with the app theme so a light app on a dark system does not get
   // the dark-appearance border and shadow. A "system" scheme must map to
   // "system" (not the resolved mode) or prefers-color-scheme stops tracking
   // OS appearance changes in the renderer.
-  if (process.platform === "darwin") nativeTheme.themeSource = theme.scheme ?? theme.mode ?? "system"
+  if (process.platform === "darwin") nativeTheme.themeSource = next.scheme ?? next.mode ?? "system"
   updateTitlebar(win)
 }
 

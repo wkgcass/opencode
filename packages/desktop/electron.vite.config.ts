@@ -2,7 +2,7 @@ import { sentryVitePlugin } from "@sentry/vite-plugin"
 import { defineConfig } from "electron-vite"
 import appPlugin from "@opencode-ai/app/vite"
 import * as fs from "node:fs/promises"
-import { defaultDesktopSkinID, desktopSkins } from "./src/renderer/skins/catalog"
+import { desktopSkinPreloadPlugin } from "./src/renderer/skins/vite"
 
 const OPENCODE_SERVER_DIST = "../opencode/dist/node"
 
@@ -92,29 +92,11 @@ const require = __cjs_mod__.createRequire(import.meta.url);
     },
   },
   renderer: {
-    plugins: [
-      {
-        name: "opencode:desktop-skin-preload",
-        transformIndexHtml: {
-          order: "pre",
-          handler() {
-            return [
-              {
-                tag: "script",
-                children: `window.__OPENCODE__ ??= {}; window.__OPENCODE__.skins = ${JSON.stringify(desktopSkins)}; window.__OPENCODE__.skinDefaultID = ${JSON.stringify(defaultDesktopSkinID)};`,
-                injectTo: "head-prepend",
-              },
-            ]
-          },
-        },
-      },
-      appPlugin,
-      sentry,
-    ],
+    plugins: [desktopSkinPreloadPlugin, appPlugin, sentry],
     publicDir: "../../../app/public",
     root: "src/renderer",
     build: {
-      sourcemap: process.env.OPENCODE_SOURCEMAP !== "0",
+      sourcemap: true,
       rollupOptions: {
         input: {
           main: "src/renderer/index.html",

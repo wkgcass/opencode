@@ -12,7 +12,6 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
-import { useSkin } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -32,6 +31,7 @@ import { decode64 } from "@/utils/base64"
 import { playSoundById, SOUND_OPTIONS } from "@/utils/sound"
 import { Link } from "./link"
 import { SettingsList } from "./settings-list"
+import { SettingsSkinSelect, skinSettingsText } from "./settings-skin-select"
 
 let demoSoundState = {
   cleanup: undefined as (() => void) | undefined,
@@ -85,7 +85,6 @@ const playDemoSound = (id: string | undefined) => {
 
 export const SettingsGeneral: Component = () => {
   const theme = useTheme()
-  const skin = useSkin()
   const language = useLanguage()
   const permission = usePermission()
   const platform = usePlatform()
@@ -124,7 +123,6 @@ export const SettingsGeneral: Component = () => {
   const desktop = createMemo(() => platform.platform === "desktop")
 
   const themeOptions = createMemo<ThemeOption[]>(() => theme.ids().map((id) => ({ id, name: theme.name(id) })))
-  const skinOptions = createMemo(() => skin.skins().map((item) => ({ id: item.id, name: item.name })))
 
   const serverSync = useServerSync()
   const serverSdk = useServerSDK()
@@ -469,7 +467,6 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
-            disabled={skin.id() !== "none"}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"
@@ -505,20 +502,10 @@ export const SettingsGeneral: Component = () => {
 
         <Show when={desktop()}>
           <SettingsRow
-            title={language.t("settings.general.row.skin.title")}
-            description={language.t("settings.general.row.skin.description")}
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
           >
-            <Select
-              data-action="settings-skin"
-              options={skinOptions()}
-              current={skinOptions().find((option) => option.id === skin.id())}
-              value={(option) => option.id}
-              label={(option) => option.name}
-              onSelect={(option) => option && skin.set(option.id)}
-              variant="secondary"
-              size="small"
-              triggerVariant="settings"
-            />
+            <SettingsSkinSelect variant="legacy" />
           </SettingsRow>
         </Show>
 

@@ -1,10 +1,13 @@
 import { registerSkins } from "@opencode-ai/app"
 import { defaultDesktopSkinID, desktopSkins } from "./catalog"
 import { desktopSkinStyles } from "./styles"
+import "../codex-workspace.css"
 
 const loaded = new Set<string>()
 
 export function initializeSkinStyles() {
+  // Scope the shared application's workspace treatment to the desktop renderer.
+  document.documentElement.dataset.opencodeDesktop = "true"
   registerSkins(desktopSkins, defaultDesktopSkinID)
 
   const root = document.documentElement
