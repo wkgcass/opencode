@@ -11,6 +11,16 @@ beforeEach(() => {
   document.documentElement.removeAttribute("data-skin")
   document.documentElement.removeAttribute("style")
   localStorage.clear()
+  const target = window as Window & {
+    __OPENCODE__?: {
+      skins?: Array<{ id: string; window: { background: string } }>
+      skinDefaultID?: string
+    }
+  }
+  target.__OPENCODE__ = {
+    skins: [{ id: "test-skin", window: { background: "#f1f2f3" } }],
+    skinDefaultID: "test-skin",
+  }
   Object.defineProperty(window, "matchMedia", {
     value: () =>
       ({
@@ -50,16 +60,16 @@ describe("theme preload", () => {
     const meta = document.createElement("meta")
     meta.name = "theme-color"
     document.head.appendChild(meta)
-    localStorage.setItem("opencode-skin-id", "miku-future")
+    localStorage.setItem("opencode-skin-id", "test-skin")
     localStorage.setItem("opencode-color-scheme", "dark")
 
     run()
 
-    expect(document.documentElement.dataset.skin).toBe("miku-future")
+    expect(document.documentElement.dataset.skin).toBe("test-skin")
     expect(document.documentElement.dataset.colorScheme).toBe("light")
     expect(localStorage.getItem("opencode-color-scheme")).toBe("light")
-    expect(document.documentElement.style.backgroundColor).toBe("#eefcff")
-    expect(meta.content).toBe("#eefcff")
+    expect(document.documentElement.style.backgroundColor).toBe("#f1f2f3")
+    expect(meta.content).toBe("#f1f2f3")
   })
 
   test("keeps the selected colour scheme for the OpenCode skin", () => {

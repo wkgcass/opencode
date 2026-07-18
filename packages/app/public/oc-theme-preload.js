@@ -10,9 +10,20 @@
   }
 
   var desktop = location.protocol === "oc:" || navigator.userAgent.indexOf("Electron") !== -1
+  var skinRegistry = window.__OPENCODE__
+  var skins = skinRegistry && Array.isArray(skinRegistry.skins) ? skinRegistry.skins : []
+  var skinDefaultID = skinRegistry && skinRegistry.skinDefaultID
   var storedSkinId = localStorage.getItem("opencode-skin-id")
-  var skinId =
-    storedSkinId === "none" || storedSkinId === "miku-future" ? storedSkinId : desktop ? "miku-future" : "none"
+  var storedSkin = skins.find(function (skin) {
+    return skin.id === storedSkinId
+  })
+  var defaultSkin = desktop
+    ? skins.find(function (skin) {
+        return skin.id === skinDefaultID
+      })
+    : undefined
+  var skin = storedSkinId === "none" ? undefined : (storedSkin ?? defaultSkin)
+  var skinId = skin ? skin.id : "none"
   var scheme = localStorage.getItem("opencode-color-scheme") || "system"
   if (skinId !== "none") {
     scheme = "light"
@@ -20,7 +31,7 @@
   }
   var isDark = scheme === "dark" || (scheme === "system" && matchMedia("(prefers-color-scheme: dark)").matches)
   var mode = isDark ? "dark" : "light"
-  var background = skinId === "miku-future" ? "#eefcff" : isDark ? "#080808" : "#fafafa"
+  var background = skin?.window?.background || (isDark ? "#080808" : "#fafafa")
 
   document.documentElement.dataset.theme = themeId
   document.documentElement.dataset.colorScheme = mode
