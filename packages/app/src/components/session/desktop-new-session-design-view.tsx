@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/language"
 import { useLayout } from "@/context/layout"
 import { useSDK } from "@/context/sdk"
 import { ServerConnection } from "@/context/server"
+import { useSkin } from "@/context/skin"
 import { useSync } from "@/context/sync"
 import { useTabs, type DraftTab } from "@/context/tabs"
 import { displayName } from "@/pages/layout/helpers"
@@ -15,6 +16,7 @@ export function DesktopNewSessionDesignView(props: { children: JSX.Element }) {
   const language = useLanguage()
   const layout = useLayout()
   const sdk = useSDK()
+  const skin = useSkin()
   const sync = useSync()
   const tabs = useTabs()
   const [searchParams] = useSearchParams<{ draftId?: string }>()
@@ -38,6 +40,11 @@ export function DesktopNewSessionDesignView(props: { children: JSX.Element }) {
     return displayName(fallback ?? { worktree: directory || selected || "opencode" })
   })
   const prompt = () => {
+    if (skin.id() === "yu7-gt") {
+      if (language.locale() === "zh") return ["让 ", " 的代码，突破圈速。"]
+      if (language.locale() === "zht") return ["讓 ", " 的程式碼，突破圈速。"]
+      return ["Push ", "'s code beyond the lap record."]
+    }
     if (language.locale() === "zh") return ["我们应该在 ", " 中构建什么？"]
     if (language.locale() === "zht") return ["我們應該在 ", " 中建構什麼？"]
     return ["What should we build in ", "?"]

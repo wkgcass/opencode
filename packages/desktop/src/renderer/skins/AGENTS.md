@@ -18,7 +18,9 @@ Preserve these behaviours when merging or refactoring:
 - Do not move, reformat, or rename unrelated upstream code. A small explicit hook is easier to replay than a clever structural rewrite.
 - Prefer stable `data-component`, `data-slot`, and dedicated class hooks over selectors that depend on DOM depth, utility-class order, or translated text.
 - Add a hook to shared application markup only when no existing semantic hook can express the target. Keep the original element structure and behaviour unchanged.
+- Keep localized or dynamic user-facing copy in real application markup, not CSS generated content. If a skin needs different copy, branch only inside an already desktop-only component, preserve the default presentation, and provide the same locale coverage as the original copy.
 - Scope every desktop workspace or skin override through `html[data-opencode-desktop="true"]`. Scope skin-specific rules further through `html[data-skin="<id>"]`. Never add an unscoped `body`, component, or utility-class override.
+- Decorative pseudo-elements must use `pointer-events: none`. When decoration shares space with hover- or focus-revealed controls, hide the decoration on both `:hover` and `:focus-within` so it cannot obscure the controls.
 - Keep skin CSS lazy-loaded. Do not statically import every skin stylesheet into the renderer entry point.
 - Keep the shared app independent of the desktop package. `packages/app` may define the generic skin context and types; it must not import a desktop skin or desktop renderer module.
 - Keep theme-lock integration in upstream files narrow:
@@ -86,6 +88,14 @@ For a skin with ID `<id>`:
 8. Extend `vite.test.ts` when selection, persistence, theme cache invalidation, colour scheme, theme, or prepaint behaviour changes.
 
 The catalog and lazy-style map are deliberately separate: the catalog must be serializable during HTML transformation, while `styles.ts` creates renderer chunks. Keep their IDs in sync.
+
+## Assets and visual QA
+
+- Keep skin assets colocated with the skin and reference them through the stylesheet so Vite fingerprints and packages them. Do not load runtime artwork from a remote URL.
+- Prefer original or generated artwork over copied promotional or news images. Avoid watermarks and optimize raster assets before committing without making gradients or dark detail visibly banded.
+- Inspect each source image before editing it, then render the finished skin in its actual desktop composition. Check at least a representative desktop viewport and any narrow layout affected by responsive rules.
+- Verify asset cropping, text contrast, titlebar button clearance, sidebar selection, and hover/focus-revealed actions. A source image that looks correct by itself is not sufficient visual verification.
+- Temporary HTML fixtures and local preview servers are for inspection only. Remove fixtures, close preview tabs, and stop servers before the final status check.
 
 ## Verification
 
