@@ -21,7 +21,14 @@ export const desktopSkinPreloadPlugin = {
   var skin = storedID === "none" ? undefined : (stored || fallback)
   document.documentElement.dataset.skin = skin ? skin.id : "none"
   if (!skin) return
-  localStorage.setItem("opencode-color-scheme", "light")
+
+  var appearance = skin.appearance || {}
+  var theme = appearance.theme || "oc-2"
+  localStorage.setItem("opencode-color-scheme", appearance.colorScheme || "light")
+  if (localStorage.getItem("opencode-theme-id") === theme) return
+  localStorage.setItem("opencode-theme-id", theme)
+  localStorage.removeItem("opencode-theme-css-light")
+  localStorage.removeItem("opencode-theme-css-dark")
 })()`,
           injectTo: "head-prepend" as const,
         },

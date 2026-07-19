@@ -12,6 +12,7 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
+import { skinSettingsLocked } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -467,6 +468,7 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"
@@ -490,6 +492,7 @@ export const SettingsGeneral: Component = () => {
             current={themeOptions().find((o) => o.id === theme.themeId())}
             value={(o) => o.id}
             label={(o) => o.name}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => {
               if (!option) return
               theme.setTheme(option.id)

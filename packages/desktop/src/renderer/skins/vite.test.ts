@@ -29,6 +29,7 @@ function environment() {
     localStorage: {
       clear: () => values.clear(),
       getItem: (key: string) => values.get(key) ?? null,
+      removeItem: (key: string) => values.delete(key),
       setItem: (key: string, value: string) => values.set(key, value),
     },
     meta,
@@ -50,11 +51,18 @@ beforeEach(() => {
 describe("desktop skin preload", () => {
   test("selects the desktop default before the shared theme preload", () => {
     env.localStorage.setItem("opencode-color-scheme", "dark")
+    env.localStorage.setItem("opencode-theme-id", "nightowl")
+    env.localStorage.setItem("opencode-theme-css-light", "stale light")
+    env.localStorage.setItem("opencode-theme-css-dark", "stale dark")
 
     run(beforeTheme?.children)
 
+    const skin = desktopSkins.find((item) => item.id === defaultDesktopSkinID)
     expect(env.document.documentElement.dataset.skin).toBe(defaultDesktopSkinID)
-    expect(env.localStorage.getItem("opencode-color-scheme")).toBe("light")
+    expect(env.localStorage.getItem("opencode-color-scheme")).toBe(skin?.appearance?.colorScheme ?? "light")
+    expect(env.localStorage.getItem("opencode-theme-id")).toBe(skin?.appearance?.theme ?? "oc-2")
+    expect(env.localStorage.getItem("opencode-theme-css-light")).toBeNull()
+    expect(env.localStorage.getItem("opencode-theme-css-dark")).toBeNull()
   })
 
   test("applies the selected background after the shared theme preload", () => {
@@ -70,12 +78,14 @@ describe("desktop skin preload", () => {
   test("preserves the colour scheme when the OpenCode skin is selected", () => {
     env.localStorage.setItem("opencode-skin-id", "none")
     env.localStorage.setItem("opencode-color-scheme", "dark")
+    env.localStorage.setItem("opencode-theme-id", "nightowl")
 
     run(beforeTheme?.children)
     run(afterTheme?.children)
 
     expect(env.document.documentElement.dataset.skin).toBe("none")
     expect(env.localStorage.getItem("opencode-color-scheme")).toBe("dark")
+    expect(env.localStorage.getItem("opencode-theme-id")).toBe("nightowl")
     expect(env.document.documentElement.style.backgroundColor).toBe("")
   })
 })

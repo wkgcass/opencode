@@ -10,9 +10,15 @@ export type SkinWindow = {
   symbols?: string
 }
 
+export type SkinAppearance = {
+  colorScheme?: "light" | "dark"
+  theme?: string
+}
+
 export type SkinDefinition = {
   id: string
   name: string
+  appearance?: SkinAppearance
   window: SkinWindow
 }
 
@@ -26,6 +32,8 @@ type SkinTitlebarTheme = {
 }
 
 const STORAGE_KEY = "opencode-skin-id"
+const DEFAULT_COLOR_SCHEME = "light"
+const DEFAULT_THEME = "oc-2"
 const openCodeSkin: SkinDefinition = {
   id: "none",
   name: "OpenCode",
@@ -35,10 +43,12 @@ const registry = {
   skins: [] as readonly SkinDefinition[],
   defaultID: openCodeSkin.id,
 }
+const [active, setActive] = createStore({ id: openCodeSkin.id })
 
 export function registerSkins(skins: readonly SkinDefinition[], defaultID = openCodeSkin.id) {
   registry.skins = skins.filter((skin) => skin.id !== openCodeSkin.id)
   registry.defaultID = registry.skins.some((skin) => skin.id === defaultID) ? defaultID : openCodeSkin.id
+  setActive("id", readSkinID() ?? defaultSkinID())
 }
 
 function availableSkins() {
@@ -81,10 +91,29 @@ function defaultSkinID() {
   return desktop() ? registry.defaultID : openCodeSkin.id
 }
 
-export function activeSkinWindow() {
-  const skins = availableSkins()
+function activeSkin(skins = availableSkins()) {
   const id = readSkinID(skins) ?? defaultSkinID()
-  return skins.find((skin) => skin.id === id)?.window
+  return skins.find((skin) => skin.id === id) ?? openCodeSkin
+}
+
+function skinAppearance(skin: SkinDefinition) {
+  if (skin.id === openCodeSkin.id) return
+  return {
+    colorScheme: skin.appearance?.colorScheme ?? DEFAULT_COLOR_SCHEME,
+    theme: skin.appearance?.theme ?? DEFAULT_THEME,
+  }
+}
+
+export function activeSkinWindow() {
+  return activeSkin().window
+}
+
+export function activeSkinAppearance() {
+  return skinAppearance(activeSkin())
+}
+
+export function skinSettingsLocked() {
+  return active.id !== openCodeSkin.id
 }
 
 export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
@@ -95,22 +124,35 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
     const [store, setStore] = createStore({
       id: readSkinID(skins) ?? defaultSkinID(),
     })
+    setActive("id", store.id)
+
+    const select = (id: SkinID) => {
+      setStore("id", id)
+      setActive("id", id)
+    }
 
     makeEventListener(window, "storage", (event) => {
       if (event.key !== STORAGE_KEY) return
       const id = normalizeSkinID(event.newValue, skins)
-      if (id) setStore("id", id)
+      if (id) select(id)
     })
 
     createEffect(() => {
       const skin = skins.find((item) => item.id === store.id) ?? openCodeSkin
-      if (skin.id !== openCodeSkin.id && theme.colorScheme() !== "light") {
-        theme.setColorScheme("light")
+      const appearance = skinAppearance(skin)
+      document.documentElement.dataset.skin = skin.id
+
+      if (
+        appearance &&
+        (theme.colorScheme() !== appearance.colorScheme || theme.themeId() !== appearance.theme)
+      ) {
+        if (theme.colorScheme() !== appearance.colorScheme) theme.setColorScheme(appearance.colorScheme)
+        if (theme.themeId() !== appearance.theme) theme.setTheme(appearance.theme)
         return
       }
+      if (appearance && !theme.themes()[appearance.theme]) return
 
       const mode = theme.mode()
-      document.documentElement.dataset.skin = skin.id
 
       const fallback = getComputedStyle(document.documentElement).getPropertyValue("--background-base").trim()
       const background = skin.window.background ?? fallback
@@ -133,8 +175,7 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       skins: () => skins,
       set: (id: SkinID) => {
         const next = normalizeSkinID(id, skins) ?? openCodeSkin.id
-        setStore("id", next)
-        if (next !== openCodeSkin.id && theme.colorScheme() !== "light") theme.setColorScheme("light")
+        select(next)
         try {
           localStorage.setItem(STORAGE_KEY, next)
         } catch {}
