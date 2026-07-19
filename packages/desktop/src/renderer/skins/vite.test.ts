@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from "bun:test"
 import { defaultDesktopSkinID, desktopSkins } from "./catalog"
+import { Su7UltraSkin } from "./su7ultra/skin"
 import { desktopSkinPreloadPlugin } from "./vite"
 import { Yu7GtSkin } from "./yu7gt/skin"
 
@@ -93,6 +94,25 @@ describe("desktop skin preload", () => {
     expect(env.localStorage.getItem("opencode-theme-css-dark")).toBeNull()
     expect(env.document.documentElement.style.backgroundColor).toBe(Yu7GtSkin.window.background)
     expect(env.meta.content).toBe(Yu7GtSkin.window.background)
+  })
+
+  test("preloads the SU7 Ultra dark cockpit appearance", () => {
+    env.localStorage.setItem("opencode-skin-id", Su7UltraSkin.id)
+    env.localStorage.setItem("opencode-color-scheme", "light")
+    env.localStorage.setItem("opencode-theme-id", "nightowl")
+    env.localStorage.setItem("opencode-theme-css-light", "stale light")
+    env.localStorage.setItem("opencode-theme-css-dark", "stale dark")
+
+    run(beforeTheme?.children)
+    run(afterTheme?.children)
+
+    expect(env.document.documentElement.dataset.skin).toBe(Su7UltraSkin.id)
+    expect(env.localStorage.getItem("opencode-color-scheme")).toBe("dark")
+    expect(env.localStorage.getItem("opencode-theme-id")).toBe("oc-2")
+    expect(env.localStorage.getItem("opencode-theme-css-light")).toBeNull()
+    expect(env.localStorage.getItem("opencode-theme-css-dark")).toBeNull()
+    expect(env.document.documentElement.style.backgroundColor).toBe(Su7UltraSkin.window.background)
+    expect(env.meta.content).toBe(Su7UltraSkin.window.background)
   })
 
   test("preserves the colour scheme when the OpenCode skin is selected", () => {

@@ -40,6 +40,11 @@ export function DesktopNewSessionDesignView(props: { children: JSX.Element }) {
     return displayName(fallback ?? { worktree: directory || selected || "opencode" })
   })
   const prompt = () => {
+    if (skin.id() === "su7-ultra") {
+      if (language.locale() === "zh") return ["让 ", " 的下一次提交，快过上一圈。"]
+      if (language.locale() === "zht") return ["讓 ", " 的下一次提交，快過上一圈。"]
+      return ["Make ", "'s next commit its fastest lap yet."]
+    }
     if (skin.id() === "yu7-gt") {
       if (language.locale() === "zh") return ["让 ", " 的代码，突破圈速。"]
       if (language.locale() === "zht") return ["讓 ", " 的程式碼，突破圈速。"]
