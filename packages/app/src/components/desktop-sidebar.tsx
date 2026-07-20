@@ -1,10 +1,15 @@
-import { createSignal, For } from "solid-js"
-import { produce } from "solid-js/store"
+import { createEffect, createMemo, createSignal, For, type Accessor } from "solid-js"
+import { createStore, produce } from "solid-js/store"
 import { useNavigate } from "@solidjs/router"
+import { type CollisionDetector, CollisionPriority, CollisionType } from "@dnd-kit/abstract"
+import { DragDropProvider, PointerSensor, useDroppable } from "@dnd-kit/solid"
+import { useSortable } from "@dnd-kit/solid/sortable"
+import { PointerActivationConstraints } from "@dnd-kit/dom"
 import { Icon } from "@opencode-ai/ui/icon"
 import { ButtonV2 } from "@opencode-ai/ui/v2/button-v2"
 import { DialogFooter, DialogHeader, DialogTitleGroup, DialogV2 } from "@opencode-ai/ui/v2/dialog-v2"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { type Session } from "@opencode-ai/sdk/v2/client"
 import { useLanguage } from "@/context/language"
 import { useLayout, type LocalProject } from "@/context/layout"
 import { useServer } from "@/context/server"
@@ -12,9 +17,281 @@ import { useServerSDK } from "@/context/server-sdk"
 import { useServerSync } from "@/context/server-sync"
 import { useTabs } from "@/context/tabs"
 import { notifySessionTabsRemoved } from "@/components/titlebar-session-events"
+import {
+  applySessionOrder,
+  rememberSessionOrder,
+  reorderByInsertion,
+  reorderSessionOrder,
+  sortableDropIndex,
+  sortableInsertionIndex,
+  type DesktopSidebarOrder,
+  useDesktopSidebarOrder,
+} from "@/components/desktop-sidebar-order"
 import { displayName, errorMessage, sortedRootSessions } from "@/pages/layout/helpers"
 import { sessionTitle } from "@/utils/session-title"
 import { showToast } from "@/utils/toast"
+
+const PROJECT_DRAG_TYPE = "desktop-project"
+const PROJECT_DROP_PREFIX = "desktop-project-drop:"
+const SESSION_DRAG_TYPE = "desktop-session"
+const SESSION_DROP_PREFIX = "desktop-session-drop:"
+const pointerCollision: CollisionDetector = ({ dragOperation, droppable }) => {
+  const disabled = droppable.data.disabled
+  if (typeof disabled === "function" && disabled()) return null
+  const point = dragOperation.position.current
+  if (!droppable.shape?.containsPoint(point)) return null
+  const distance = Math.hypot(droppable.shape.center.x - point.x, droppable.shape.center.y - point.y)
+  return {
+    id: droppable.id,
+    value: 1 / Math.max(distance, 1),
+    type: CollisionType.PointerIntersection,
+    priority: CollisionPriority.Highest,
+  }
+}
+
+const sessionCollision: CollisionDetector = ({ dragOperation, droppable }) => {
+  const disabled = droppable.data.disabled
+  if (typeof disabled === "function" && disabled()) return null
+  const shape = droppable.shape
+  if (!shape) return null
+  const point = dragOperation.position.current
+  const bounds = shape.boundingRectangle
+  if (point.x < bounds.left || point.x > bounds.right) return null
+  // Session rows are 30px tall, so the nearest boundary covers either half without adding visible spacing.
+  const distance = Math.abs(shape.center.y - point.y)
+  if (distance > 18) return null
+  return {
+    id: droppable.id,
+    value: 1 / Math.max(distance, 1),
+    type: CollisionType.Collision,
+    priority: CollisionPriority.Highest,
+  }
+}
+
+function SortableDropZone(props: {
+  id: Accessor<string>
+  accept: string
+  disabled?: Accessor<boolean>
+  collisionDetector?: CollisionDetector
+  compact?: boolean
+  projectGap?: boolean
+}) {
+  const droppable = useDroppable({
+    get id() {
+      return props.id()
+    },
+    type: "desktop-sortable-drop",
+    accept: props.accept,
+    data: { disabled: props.disabled },
+    collisionPriority: CollisionPriority.Highest,
+    collisionDetector: props.collisionDetector ?? pointerCollision,
+  })
+
+  return (
+    <div
+      ref={droppable.ref}
+      data-sidebar-sortable-drop-zone
+      class="pointer-events-none relative z-10 flex h-3 shrink-0 items-center px-2"
+      classList={{ "-my-1.5": props.compact, "-my-0.5": props.projectGap }}
+    >
+      <div class="flex w-full items-center">
+        <div
+          class="size-1.5 shrink-0 rounded-full border border-transparent"
+          classList={{ "border-v2-text-text-accent": droppable.isDropTarget() }}
+        />
+        <div
+          class="-ml-px h-px flex-1 rounded-r-full"
+          classList={{ "bg-v2-text-text-accent": droppable.isDropTarget() }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SortableSession(props: {
+  session: Session
+  index: Accessor<number>
+  active: Accessor<boolean>
+  onOpen: () => void
+  onDelete: (title: string) => void
+}) {
+  const language = useLanguage()
+  const sortable = useSortable({
+    get id() {
+      return props.session.id
+    },
+    get index() {
+      return props.index()
+    },
+    type: SESSION_DRAG_TYPE,
+    disabled: { draggable: false, droppable: true },
+  })
+  const title = () => sessionTitle(props.session.title) ?? language.t("command.session.new")
+
+  return (
+    <div
+      ref={sortable.ref}
+      data-sidebar-session-sortable
+      class="codex-app-sidebar-session-row"
+      classList={{ "opacity-50": sortable.isDragSource() }}
+    >
+      <button
+        type="button"
+        class="codex-app-sidebar-session pr-10!"
+        classList={{ "text-v2-text-text-base": props.active() }}
+        aria-current={props.active() ? "page" : undefined}
+        onClick={props.onOpen}
+      >
+        {title()}
+      </button>
+      <div class="codex-app-sidebar-actions">
+        <button
+          data-action="sidebar-delete-session"
+          type="button"
+          class="codex-app-sidebar-action"
+          title={language.t("session.delete.title")}
+          aria-label={`${language.t("session.delete.title")}: ${title()}`}
+          onClick={() => props.onDelete(title())}
+        >
+          <Icon name="trash" size="small" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SortableProject(props: {
+  project: Accessor<LocalProject>
+  index: Accessor<number>
+  order: DesktopSidebarOrder
+  activeProject: Accessor<boolean>
+  activeSession: (id: string) => boolean
+  onSelect: () => void
+  onNewTask: () => void
+  onOpenSession: (id: string) => void
+  onDeleteSession: (id: string, title: string) => void
+}) {
+  const language = useLanguage()
+  const serverSync = useServerSync()
+  const sortable = useSortable({
+    get id() {
+      return props.project().worktree
+    },
+    get index() {
+      return props.index()
+    },
+    type: PROJECT_DRAG_TYPE,
+    disabled: { draggable: false, droppable: true },
+  })
+  const [sync] = serverSync().child(props.project().worktree, { bootstrap: true })
+  const rootSessions = createMemo(() => sortedRootSessions(sync, Date.now()))
+  const liveSessionIDs = createMemo(() => rootSessions().map((session) => session.id))
+  const storedSessionIDs = () => props.order.session(props.project().worktree)
+  const orderedSessionIDs = createMemo(() => applySessionOrder(liveSessionIDs(), storedSessionIDs()))
+  const sessions = createMemo(() => {
+    const byID = new Map(rootSessions().map((session) => [session.id, session]))
+    return orderedSessionIDs()
+      .map((id) => byID.get(id))
+      .filter((session): session is Session => !!session)
+      .slice(0, 6)
+  })
+  const [sessionDrag, setSessionDrag] = createStore({ source: "" })
+  const sessionDropDisabled = (insertion: number) => {
+    const current = orderedSessionIDs()
+    const source = current.indexOf(sessionDrag.source)
+    return sortableDropIndex(current.length, source, insertion) === source
+  }
+  createEffect(() => {
+    props.order.setSession(props.project().worktree, rememberSessionOrder(liveSessionIDs(), storedSessionIDs()))
+  })
+
+  return (
+    <div ref={sortable.ref} data-sidebar-project-sortable classList={{ "opacity-50": sortable.isDragSource() }}>
+      <div class="codex-app-sidebar-project">
+        <button
+          type="button"
+          class="codex-app-sidebar-row pr-10!"
+          classList={{
+            "bg-v2-background-bg-layer-02 text-v2-text-text-base": props.activeProject(),
+          }}
+          aria-current={props.activeProject() ? "page" : undefined}
+          onClick={props.onSelect}
+        >
+          <Icon name="folder" />
+          <span class="min-w-0 truncate">{displayName(props.project())}</span>
+        </button>
+        <div class="codex-app-sidebar-actions">
+          <button
+            type="button"
+            class="codex-app-sidebar-action"
+            title={language.t("command.session.new")}
+            aria-label={`${language.t("command.session.new")}: ${displayName(props.project())}`}
+            onClick={props.onNewTask}
+          >
+            <Icon name="edit" size="small" />
+          </button>
+        </div>
+      </div>
+      <DragDropProvider
+        sensors={[
+          PointerSensor.configure({
+            activationConstraints: [new PointerActivationConstraints.Distance({ value: 4 })],
+            preventActivation: (event) =>
+              event.target instanceof Element && !!event.target.closest(".codex-app-sidebar-action"),
+          }),
+        ]}
+        onDragStart={(event) => {
+          setSessionDrag("source", event.operation.source?.id.toString() ?? "")
+        }}
+        onDragEnd={(event) => {
+          const source = event.operation.source
+          const target = event.operation.target
+          setSessionDrag("source", "")
+          if (event.canceled || !source || !target) return
+          const targetID = target.id.toString()
+          const current = orderedSessionIDs()
+          const sourceID = source.id.toString()
+          const sourceIndex = current.indexOf(sourceID)
+          const insertion = sortableInsertionIndex(current, targetID, SESSION_DROP_PREFIX)
+          if (insertion === undefined) return
+          const next = reorderByInsertion(current, sourceIndex, insertion)
+          if (next === current) return
+          props.order.setSession(props.project().worktree, reorderSessionOrder(next, storedSessionIDs()))
+        }}
+      >
+        <div class="flex flex-col">
+          <SortableDropZone
+            id={() => `${SESSION_DROP_PREFIX}start`}
+            accept={SESSION_DRAG_TYPE}
+            disabled={() => sessionDropDisabled(0)}
+            collisionDetector={sessionCollision}
+            compact
+          />
+          <For each={sessions()}>
+            {(session, index) => (
+              <>
+                <SortableSession
+                  session={session}
+                  index={index}
+                  active={() => props.activeSession(session.id)}
+                  onOpen={() => props.onOpenSession(session.id)}
+                  onDelete={(title) => props.onDeleteSession(session.id, title)}
+                />
+                <SortableDropZone
+                  id={() => `${SESSION_DROP_PREFIX}after:${session.id}`}
+                  accept={SESSION_DRAG_TYPE}
+                  disabled={() => sessionDropDisabled(index() + 1)}
+                  collisionDetector={sessionCollision}
+                  compact
+                />
+              </>
+            )}
+          </For>
+        </div>
+      </DragDropProvider>
+    </div>
+  )
+}
 
 export function DesktopSidebar() {
   const language = useLanguage()
@@ -22,10 +299,18 @@ export function DesktopSidebar() {
   const navigate = useNavigate()
   const dialog = useDialog()
   const server = useServer()
+  const sidebarOrder = useDesktopSidebarOrder(() => server.scope())
   const serverSDK = useServerSDK()
   const serverSync = useServerSync()
   const tabs = useTabs()
   const projects = layout.projects.list
+  const projectIDs = () => projects().map((project) => project.worktree)
+  const [projectDrag, setProjectDrag] = createStore({ source: "" })
+  const projectDropDisabled = (insertion: number) => {
+    const current = projectIDs()
+    const source = current.indexOf(projectDrag.source)
+    return sortableDropIndex(current.length, source, insertion) === source
+  }
   const selected = () => layout.home.selection().directory
   const activeProject = (directory: string) => {
     const route = layout.route()
@@ -101,6 +386,10 @@ export function DesktopSidebar() {
         draft.session = draft.session.filter((item) => !removed.has(item.id))
       }),
     )
+    sidebarOrder.setSession(
+      directory,
+      sidebarOrder.session(directory).filter((id) => !removed.has(id)),
+    )
     notifySessionTabsRemoved({
       server: server.key,
       directory: session.directory,
@@ -170,86 +459,77 @@ export function DesktopSidebar() {
       </div>
 
       <div class="px-3 pb-2 text-[12px] text-v2-text-text-faint">Projects</div>
-      <div class="min-h-0 flex-1 overflow-y-auto px-1 pb-4 no-scrollbar">
-        <For each={projects()}>
-          {(project) => {
-            const [sync] = serverSync().child(project.worktree, { bootstrap: true })
-            const sessions = () => sortedRootSessions(sync, Date.now()).slice(0, 6)
-            return (
-              <div class="mb-2">
-                <div class="codex-app-sidebar-project">
-                  <button
-                    type="button"
-                    class="codex-app-sidebar-row pr-10!"
-                    classList={{
-                      "bg-v2-background-bg-layer-02 text-v2-text-text-base": activeProject(project.worktree),
+      <DragDropProvider
+        sensors={[
+          PointerSensor.configure({
+            activationConstraints: [new PointerActivationConstraints.Distance({ value: 4 })],
+            preventActivation: (event) =>
+              event.target instanceof Element &&
+              !!event.target.closest("[data-sidebar-session-sortable], .codex-app-sidebar-action"),
+          }),
+        ]}
+        onDragStart={(event) => {
+          setProjectDrag("source", event.operation.source?.id.toString() ?? "")
+        }}
+        onDragEnd={(event) => {
+          const source = event.operation.source
+          const target = event.operation.target
+          setProjectDrag("source", "")
+          if (event.canceled || !source || !target) return
+          const targetID = target.id.toString()
+          const current = projectIDs()
+          const sourceID = source.id.toString()
+          const insertion = sortableInsertionIndex(current, targetID, PROJECT_DROP_PREFIX)
+          if (insertion === undefined) return
+          const index = sortableDropIndex(
+            current.length,
+            current.indexOf(sourceID),
+            insertion,
+          )
+          if (index === undefined || index === current.indexOf(sourceID)) return
+          layout.projects.move(sourceID, index)
+        }}
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto px-1 pb-4 no-scrollbar">
+          <SortableDropZone
+            id={() => `${PROJECT_DROP_PREFIX}start`}
+            accept={PROJECT_DRAG_TYPE}
+            disabled={() => projectDropDisabled(0)}
+            compact
+          />
+          <For each={projectIDs()}>
+            {(directory, index) => {
+              const project = () => projects().find((item) => item.worktree === directory)!
+              return (
+                <>
+                  <SortableProject
+                    project={project}
+                    index={index}
+                    order={sidebarOrder}
+                    activeProject={() => activeProject(directory)}
+                    activeSession={activeSession}
+                    onSelect={() => selectProject(project())}
+                    onNewTask={() => newTask(project())}
+                    onOpenSession={(id) => {
+                      const tab = tabs.addSessionTab({ server: server.key, sessionId: id })
+                      tabs.select(tab)
                     }}
-                    aria-current={activeProject(project.worktree) ? "page" : undefined}
-                    onClick={() => selectProject(project)}
-                  >
-                    <Icon name="folder" />
-                    <span class="min-w-0 truncate">{displayName(project)}</span>
-                  </button>
-                  <div class="codex-app-sidebar-actions">
-                    <button
-                      type="button"
-                      class="codex-app-sidebar-action"
-                      title={language.t("command.session.new")}
-                      aria-label={`${language.t("command.session.new")}: ${displayName(project)}`}
-                      onClick={() => newTask(project)}
-                    >
-                      <Icon name="edit" size="small" />
-                    </button>
-                  </div>
-                </div>
-                <div class="flex flex-col">
-                  <For each={sessions()}>
-                    {(session) => {
-                      const title = () => sessionTitle(session.title) ?? language.t("command.session.new")
-                      return (
-                        <div class="codex-app-sidebar-session-row">
-                          <button
-                            type="button"
-                            class="codex-app-sidebar-session pr-10!"
-                            classList={{ "text-v2-text-text-base": activeSession(session.id) }}
-                            aria-current={activeSession(session.id) ? "page" : undefined}
-                            onClick={() => {
-                              const tab = tabs.addSessionTab({ server: server.key, sessionId: session.id })
-                              tabs.select(tab)
-                            }}
-                          >
-                            {title()}
-                          </button>
-                          <div class="codex-app-sidebar-actions">
-                            <button
-                              data-action="sidebar-delete-session"
-                              type="button"
-                              class="codex-app-sidebar-action"
-                              title={language.t("session.delete.title")}
-                              aria-label={`${language.t("session.delete.title")}: ${title()}`}
-                              onClick={() =>
-                                dialog.show(() => (
-                                  <DialogDeleteSession
-                                    directory={project.worktree}
-                                    sessionID={session.id}
-                                    title={title()}
-                                  />
-                                ))
-                              }
-                            >
-                              <Icon name="trash" size="small" />
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    }}
-                  </For>
-                </div>
-              </div>
-            )
-          }}
-        </For>
-      </div>
+                    onDeleteSession={(id, title) =>
+                      dialog.show(() => <DialogDeleteSession directory={directory} sessionID={id} title={title} />)
+                    }
+                  />
+                  <SortableDropZone
+                    id={() => `${PROJECT_DROP_PREFIX}after:${directory}`}
+                    accept={PROJECT_DRAG_TYPE}
+                    disabled={() => projectDropDisabled(index() + 1)}
+                    projectGap
+                  />
+                </>
+              )
+            }}
+          </For>
+        </div>
+      </DragDropProvider>
     </aside>
   )
 }
