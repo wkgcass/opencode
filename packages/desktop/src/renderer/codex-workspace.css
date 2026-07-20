@@ -68,6 +68,10 @@ html[data-opencode-desktop="true"] .codex-app-sidebar-project {
   position: relative;
 }
 
+html[data-opencode-desktop="true"] .codex-app-sidebar-session-row {
+  position: relative;
+}
+
 html[data-opencode-desktop="true"] .codex-app-sidebar-actions {
   position: absolute;
   top: 50%;
@@ -82,7 +86,9 @@ html[data-opencode-desktop="true"] .codex-app-sidebar-actions {
 }
 
 html[data-opencode-desktop="true"] .codex-app-sidebar-project:hover .codex-app-sidebar-actions,
-html[data-opencode-desktop="true"] .codex-app-sidebar-project:focus-within .codex-app-sidebar-actions {
+html[data-opencode-desktop="true"] .codex-app-sidebar-project:focus-within .codex-app-sidebar-actions,
+html[data-opencode-desktop="true"] .codex-app-sidebar-session-row:hover .codex-app-sidebar-actions,
+html[data-opencode-desktop="true"] .codex-app-sidebar-session-row:focus-within .codex-app-sidebar-actions {
   opacity: 1;
   pointer-events: auto;
 }

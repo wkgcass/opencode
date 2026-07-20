@@ -169,9 +169,11 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"]
   .codex-app-sidebar-project:focus-within
   > .codex-app-sidebar-row[aria-current="page"]::after,
 html[data-opencode-desktop="true"][data-skin="su7-ultra"]
-  .codex-app-sidebar-session[aria-current="page"]:hover::after,
+  .codex-app-sidebar-session-row:hover
+  > .codex-app-sidebar-session[aria-current="page"]::after,
 html[data-opencode-desktop="true"][data-skin="su7-ultra"]
-  .codex-app-sidebar-session[aria-current="page"]:focus-within::after {
+  .codex-app-sidebar-session-row:focus-within
+  > .codex-app-sidebar-session[aria-current="page"]::after {
   opacity: 0;
 }
 
