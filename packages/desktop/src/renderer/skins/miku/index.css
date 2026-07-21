@@ -93,6 +93,22 @@ html[data-opencode-desktop="true"][data-skin="miku-future"] .codex-app-sidebar-a
   background: color-mix(in srgb, var(--miku-panel-strong) 92%, transparent);
 }
 
+html[data-opencode-desktop="true"][data-skin="miku-future"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-dot"] {
+  border-color: var(--miku-pink);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--miku-cyan) 22%, transparent),
+    0 0 7px color-mix(in srgb, var(--miku-pink) 48%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="miku-future"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-line"] {
+  background: linear-gradient(90deg, var(--miku-cyan), var(--miku-purple) 58%, var(--miku-pink));
+  box-shadow: 0 0 5px color-mix(in srgb, var(--miku-cyan) 42%, transparent);
+}
+
 html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="codex-main-workspace"] {
   position: relative;
   background-color: var(--miku-chrome);

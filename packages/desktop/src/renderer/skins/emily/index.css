@@ -97,6 +97,26 @@ html[data-opencode-desktop="true"][data-skin="emily"] .codex-app-sidebar-action 
   border: 1px solid color-mix(in srgb, var(--emily-line) 72%, transparent);
 }
 
+html[data-opencode-desktop="true"][data-skin="emily"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-dot"] {
+  border-color: color-mix(in srgb, var(--emily-moss) 82%, var(--emily-blush));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--emily-ivory) 72%, transparent),
+    0 1px 5px color-mix(in srgb, var(--emily-moss) 28%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="emily"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-line"] {
+  background: linear-gradient(
+    90deg,
+    var(--emily-moss),
+    color-mix(in srgb, var(--emily-meadow) 72%, var(--emily-blush))
+  );
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--emily-moss) 22%, transparent);
+}
+
 html[data-opencode-desktop="true"][data-skin="emily"] [data-component="codex-main-workspace"] {
   position: relative;
   background-color: var(--emily-chrome);

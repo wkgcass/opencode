@@ -94,12 +94,18 @@ function SortableDropZone(props: {
       class="pointer-events-none relative z-10 flex h-3 shrink-0 items-center px-2"
       classList={{ "-my-1.5": props.compact, "-my-0.5": props.projectGap }}
     >
-      <div class="flex w-full items-center">
+      <div
+        data-slot="sidebar-drop-indicator"
+        data-active={droppable.isDropTarget() ? "true" : undefined}
+        class="flex w-full items-center"
+      >
         <div
+          data-slot="sidebar-drop-indicator-dot"
           class="size-1.5 shrink-0 rounded-full border border-transparent"
           classList={{ "border-v2-text-text-accent": droppable.isDropTarget() }}
         />
         <div
+          data-slot="sidebar-drop-indicator-line"
           class="-ml-px h-px flex-1 rounded-r-full"
           classList={{ "bg-v2-text-text-accent": droppable.isDropTarget() }}
         />

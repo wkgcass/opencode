@@ -189,6 +189,27 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-act
   border-color: rgba(242, 230, 0, 0.3);
 }
 
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-dot"] {
+  border-color: var(--su7-yellow-hot);
+  box-shadow:
+    0 0 0 1px rgba(242, 230, 0, 0.16),
+    0 0 7px rgba(242, 230, 0, 0.48);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-line"] {
+  background: linear-gradient(
+    90deg,
+    var(--su7-yellow-hot),
+    var(--su7-yellow) 72%,
+    var(--su7-yellow-deep)
+  );
+  box-shadow: 0 0 5px rgba(242, 230, 0, 0.34);
+}
+
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="codex-main-workspace"] {
   position: relative;
   background-color: var(--su7-cockpit);
