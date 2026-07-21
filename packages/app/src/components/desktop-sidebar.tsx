@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, For, type Accessor } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Show, type Accessor } from "solid-js"
 import { createStore, produce } from "solid-js/store"
 import { useNavigate } from "@solidjs/router"
 import { type CollisionDetector, CollisionPriority, CollisionType } from "@dnd-kit/abstract"
@@ -16,6 +16,7 @@ import { useServer } from "@/context/server"
 import { useServerSDK } from "@/context/server-sdk"
 import { useServerSync } from "@/context/server-sync"
 import { useTabs } from "@/context/tabs"
+import { SessionProgressRing } from "@/components/session-progress-ring"
 import { notifySessionTabsRemoved } from "@/components/titlebar-session-events"
 import {
   applySessionOrder,
@@ -28,6 +29,7 @@ import {
   useDesktopSidebarOrder,
 } from "@/components/desktop-sidebar-order"
 import { displayName, errorMessage, sortedRootSessions } from "@/pages/layout/helpers"
+import { useSessionTabAvatarState } from "@/pages/layout/project-avatar-state"
 import { sessionTitle } from "@/utils/session-title"
 import { showToast } from "@/utils/toast"
 
@@ -122,6 +124,12 @@ function SortableSession(props: {
   onDelete: (title: string) => void
 }) {
   const language = useLanguage()
+  const server = useServer()
+  const state = useSessionTabAvatarState(
+    () => server.key,
+    () => props.session.directory,
+    () => props.session.id,
+  )
   const sortable = useSortable({
     get id() {
       return props.session.id
@@ -138,6 +146,7 @@ function SortableSession(props: {
     <div
       ref={sortable.ref}
       data-sidebar-session-sortable
+      data-working={state.loading() ? "true" : undefined}
       class="codex-app-sidebar-session-row"
       classList={{ "opacity-50": sortable.isDragSource() }}
     >
@@ -162,6 +171,11 @@ function SortableSession(props: {
           <Icon name="trash" size="small" />
         </button>
       </div>
+      <Show when={state.loading()}>
+        <div class="codex-app-sidebar-progress">
+          <SessionProgressRing class="size-[14px]" />
+        </div>
+      </Show>
     </div>
   )
 }

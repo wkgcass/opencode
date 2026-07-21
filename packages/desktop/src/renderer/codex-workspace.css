@@ -93,6 +93,32 @@ html[data-opencode-desktop="true"] .codex-app-sidebar-session-row:focus-within .
   pointer-events: auto;
 }
 
+html[data-opencode-desktop="true"] .codex-app-sidebar-progress {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  display: flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease;
+}
+
+html[data-opencode-desktop="true"] .codex-app-sidebar-session-row:hover .codex-app-sidebar-progress,
+html[data-opencode-desktop="true"] .codex-app-sidebar-session-row:focus-within .codex-app-sidebar-progress {
+  opacity: 0;
+  visibility: hidden;
+}
+
+html[data-opencode-desktop="true"]
+  .codex-app-sidebar-session-row[data-sidebar-session-sortable][data-working="true"]
+  > .codex-app-sidebar-session::after {
+  opacity: 0;
+}
+
 html[data-opencode-desktop="true"] .codex-app-sidebar-action {
   display: flex;
   width: 24px;

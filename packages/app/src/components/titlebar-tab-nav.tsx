@@ -259,6 +259,7 @@ export function TabNavItem(props: {
                   directory={session().directory}
                   sessionId={session().id}
                   server={props.server}
+                  progressIndicator="ring"
                 />
               )}
             </Show>
