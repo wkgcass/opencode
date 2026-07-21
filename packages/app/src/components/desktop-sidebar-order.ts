@@ -8,6 +8,12 @@ export type DesktopSidebarOrderState = {
   sessions: Record<string, Record<string, string[]>>
 }
 
+export type DesktopSidebarScopedOrder = {
+  ready: Accessor<boolean>
+  session: (directory: string) => string[]
+  setSession: (directory: string, sessionIDs: string[]) => void
+}
+
 export function createDesktopSidebarOrder(input: {
   scope: Accessor<ServerScope>
   store: Store<DesktopSidebarOrderState>
@@ -15,24 +21,32 @@ export function createDesktopSidebarOrder(input: {
   ready?: Accessor<boolean>
 }) {
   const ready = input.ready ?? (() => true)
-  const session = (directory: string) => {
-    if (!ready()) return []
-    return input.store.sessions[input.scope()]?.[pathKey(directory)] ?? []
-  }
+  const scoped = (scope: Accessor<ServerScope>): DesktopSidebarScopedOrder => {
+    const session = (directory: string) => {
+      if (!ready()) return []
+      return input.store.sessions[scope()]?.[pathKey(directory)] ?? []
+    }
 
+    return {
+      ready,
+      session,
+      setSession(directory: string, sessionIDs: string[]) {
+        if (!ready()) return
+        const currentScope = scope()
+        const key = pathKey(directory)
+        const current = session(directory)
+        if (current.length === sessionIDs.length && current.every((id, index) => id === sessionIDs[index])) return
+        input.setStore("sessions", currentScope, {
+          ...input.store.sessions[currentScope],
+          [key]: sessionIDs,
+        })
+      },
+    }
+  }
   return {
-    ready,
-    session,
-    setSession(directory: string, sessionIDs: string[]) {
-      if (!ready()) return
-      const scope = input.scope()
-      const key = pathKey(directory)
-      const current = session(directory)
-      if (current.length === sessionIDs.length && current.every((id, index) => id === sessionIDs[index])) return
-      input.setStore("sessions", scope, {
-        ...input.store.sessions[scope],
-        [key]: sessionIDs,
-      })
+    ...scoped(input.scope),
+    forScope(scope: ServerScope) {
+      return scoped(() => scope)
     },
   }
 }

@@ -1,7 +1,7 @@
 import { Icon as IconV2 } from "@opencode-ai/ui/v2/icon"
 import { IconButtonV2 } from "@opencode-ai/ui/v2/icon-button-v2"
 import { MenuV2 } from "@opencode-ai/ui/v2/menu-v2"
-import { type Component, Show } from "solid-js"
+import { type Component, createSignal, Show } from "solid-js"
 import { useServerManagementController } from "@/components/dialog-select-server"
 import { useLanguage } from "@/context/language"
 import { ServerConnection } from "@/context/server"
@@ -17,9 +17,25 @@ export const ServerRowMenu: Component<{
   const key = ServerConnection.key(props.server)
   const builtin = ServerConnection.builtin(props.server)
   const isDefault = () => props.controller.defaultKey() === key
+  const [open, setOpen] = createSignal(false)
+  const handleOpenChange = (value: boolean) => {
+    setOpen(value)
+    props.onOpenChange?.(value)
+  }
+  const handleRemove = () => {
+    // Keep the menu owner alive until its controlled close has removed Kobalte's dismissal layer.
+    handleOpenChange(false)
+    queueMicrotask(() => void props.controller.handleRemove(key))
+  }
 
   return (
-    <MenuV2 gutter={6} modal={false} placement="bottom-end" open={props.open} onOpenChange={props.onOpenChange}>
+    <MenuV2
+      gutter={6}
+      modal={false}
+      placement="bottom-end"
+      open={props.open ?? open()}
+      onOpenChange={handleOpenChange}
+    >
       <MenuV2.Trigger
         as={IconButtonV2}
         variant="ghost-muted"
@@ -48,7 +64,7 @@ export const ServerRowMenu: Component<{
               </MenuV2.Item>
             </Show>
             <MenuV2.Separator />
-            <MenuV2.Item disabled={builtin} onSelect={() => props.controller.handleRemove(key)}>
+            <MenuV2.Item disabled={builtin} onSelect={handleRemove}>
               {language.t("dialog.server.menu.delete")}
             </MenuV2.Item>
           </MenuV2.Group>

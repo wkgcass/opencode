@@ -31,6 +31,23 @@ describe("desktop sidebar order", () => {
     })
   })
 
+  test("provides stable per-server order views", () => {
+    createRoot((dispose) => {
+      const [store, setStore] = createStore({ sessions: {} })
+      const order = createDesktopSidebarOrder({ scope: () => ServerScope.local, store, setStore })
+      const remoteScope = ServerScope.fromServerKey(ServerConnection.Key.make("wsl:Ubuntu"))
+      const local = order.forScope(ServerScope.local)
+      const remote = order.forScope(remoteScope)
+
+      local.setSession("/repo", ["local-session"])
+      remote.setSession("/repo", ["remote-session"])
+
+      expect(local.session("/repo")).toEqual(["local-session"])
+      expect(remote.session("/repo")).toEqual(["remote-session"])
+      dispose()
+    })
+  })
+
   test("does not overwrite session order before persistence is ready", () => {
     createRoot((dispose) => {
       const [ready, setReady] = createSignal(false)

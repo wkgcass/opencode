@@ -9,7 +9,7 @@ import { TextField } from "@opencode-ai/ui/text-field"
 import { useMutation } from "@tanstack/solid-query"
 import { showToast } from "@/utils/toast"
 import { useNavigate } from "@solidjs/router"
-import { createEffect, createMemo, createResource, Show } from "solid-js"
+import { createEffect, createMemo, createResource, createSignal, Show } from "solid-js"
 import { createStore } from "solid-js/store"
 import { ServerHealthIndicator, ServerRow } from "@/components/server/server-row"
 import { useGlobal } from "@/context/global"
@@ -575,6 +575,7 @@ export function ServerConnectionList(props: { controller: ReturnType<typeof useS
       >
         {(i) => {
           const key = ServerConnection.key(i)
+          const [menuOpen, setMenuOpen] = createSignal(false)
           return (
             <div class="flex items-center gap-3 min-w-0 flex-1 w-full group/item">
               <div class="flex flex-col h-full items-center w-5">
@@ -600,7 +601,7 @@ export function ServerConnectionList(props: { controller: ReturnType<typeof useS
                 </Show>
 
                 <Show when={i.type === "http"}>
-                  <DropdownMenu>
+                  <DropdownMenu open={menuOpen()} onOpenChange={setMenuOpen}>
                     <DropdownMenu.Trigger
                       as={IconButton}
                       icon="dot-grid"
@@ -633,7 +634,11 @@ export function ServerConnectionList(props: { controller: ReturnType<typeof useS
                         </Show>
                         <DropdownMenu.Separator />
                         <DropdownMenu.Item
-                          onSelect={() => props.controller.handleRemove(ServerConnection.key(i))}
+                          onSelect={() => {
+                            // Removing this row before the menu closes leaves its dismissal layer mounted.
+                            setMenuOpen(false)
+                            queueMicrotask(() => void props.controller.handleRemove(key))
+                          }}
                           class="text-text-on-critical-base hover:bg-surface-critical-weak"
                         >
                           <DropdownMenu.ItemLabel>{language.t("dialog.server.menu.delete")}</DropdownMenu.ItemLabel>
