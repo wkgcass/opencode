@@ -140,6 +140,12 @@ html[data-opencode-desktop="true"] .codex-app-sidebar-session:focus-visible {
   outline: none;
 }
 
+html[data-opencode-desktop="true"][data-skin="none"] .codex-app-sidebar-row[aria-current="page"],
+html[data-opencode-desktop="true"][data-skin="none"] .codex-app-sidebar-session[aria-current="page"] {
+  background: color-mix(in srgb, var(--v2-text-text-base) 7%, transparent);
+  color: var(--v2-text-text-base);
+}
+
 html[data-opencode-desktop="true"] [data-component="codex-main-workspace"] {
   background: var(--desktop-chrome);
   border: 0;
