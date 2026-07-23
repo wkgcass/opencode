@@ -95,7 +95,12 @@ import { Identifier } from "@/utils/id"
 import { diffs as list } from "@/utils/diffs"
 import { Persist, persisted } from "@/utils/persist"
 import { extractPromptFromParts } from "@/utils/prompt"
-import { formatServerError, isLocalSessionNotFoundError, isSessionNotFoundError } from "@/utils/server-errors"
+import {
+  formatServerError,
+  isLocalSessionNotFoundError,
+  isSessionNotFoundError,
+  isTransientServerConnectionError,
+} from "@/utils/server-errors"
 import { legacySessionHref, requireServerKey, sessionHref } from "@/utils/session-route"
 import { useUsageExceededDialogs } from "./session/usage-exceeded-dialogs"
 import { createSessionOwnership } from "./session/session-ownership"
@@ -180,11 +185,16 @@ export function SessionRouteErrorBoundary(
   const settings = useSettings()
   return (
     <ErrorBoundary
-      fallback={(error) =>
+      fallback={(error, reset) =>
         settings.general.newLayoutDesigns() ? (
           <SessionRouteFrame padded={props.padded}>
             <SessionPanelFrame newLayout raised={!!props.sessionID}>
-              <SessionErrorFallback error={error} sessionID={props.sessionID} serverKey={props.serverKey} />
+              <SessionErrorFallback
+                error={error}
+                sessionID={props.sessionID}
+                serverKey={props.serverKey}
+                reset={reset}
+              />
             </SessionPanelFrame>
           </SessionRouteFrame>
         ) : (
@@ -197,7 +207,12 @@ export function SessionRouteErrorBoundary(
   )
 }
 
-function SessionErrorFallback(props: { error: unknown; sessionID?: string; serverKey?: ServerConnection.Key }) {
+function SessionErrorFallback(props: {
+  error: unknown
+  sessionID?: string
+  serverKey?: ServerConnection.Key
+  reset: () => void
+}) {
   const language = useLanguage()
   const server = useServer()
   const tabs = useTabs()
@@ -209,6 +224,25 @@ function SessionErrorFallback(props: { error: unknown; sessionID?: string; serve
   const closeTab = () => {
     if (!props.sessionID) return
     tabs.removeSessionTab({ server: props.serverKey ?? server.key, sessionId: props.sessionID })
+  }
+  if (isTransientServerConnectionError(props.error)) {
+    return (
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <div class="h-full px-6 pb-42 -mt-4 flex flex-col items-center justify-center text-center gap-4">
+          <div class="flex flex-col items-center gap-2">
+            <div class="text-16-medium text-text max-w-md">
+              {language.t("session.error.serverUnavailable", { server: displayServer() })}
+            </div>
+            <div class="text-13-regular text-text-weak max-w-md">
+              {language.t("session.error.serverUnavailable.description")}
+            </div>
+          </div>
+          <ButtonV2 variant="neutral" size="normal" onClick={props.reset}>
+            {language.t("session.error.serverUnavailable.retry")}
+          </ButtonV2>
+        </div>
+      </div>
+    )
   }
   if (isCurrentSessionNotFoundError(props.error, props.sessionID)) {
     return (
@@ -242,7 +276,6 @@ function SessionErrorFallback(props: { error: unknown; sessionID?: string; serve
 
 function ResolvedTargetSessionRoute() {
   const params = useParams<{ serverKey: string; id: string }>()
-  const tabs = useTabs()
   const sync = useServerSync()
   const serverKey = createMemo(() => requireServerKey(params.serverKey))
   const current = createSessionLineage(
@@ -251,15 +284,6 @@ function ResolvedTargetSessionRoute() {
   )
   const directory = createMemo(() => current()?.session.directory)
   const targetDirectory = () => directory()!
-
-  createEffect(() => {
-    const session = current()
-    if (!session) return
-    tabs.addSessionTab({
-      server: serverKey(),
-      sessionId: session.root.id,
-    })
-  })
 
   return (
     // Non-keyed: closes only while the target's directory is unknown (uncached
@@ -2154,7 +2178,7 @@ export default function Page() {
 
   const sessionErrorFallback = (error: unknown, reset: () => void) => {
     createEffect(on(sessionKey, reset, { defer: true }))
-    return <SessionErrorFallback error={error} sessionID={params.id} />
+    return <SessionErrorFallback error={error} sessionID={params.id} reset={reset} />
   }
 
   const sessionPanelContent = () => (

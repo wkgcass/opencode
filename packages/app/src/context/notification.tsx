@@ -176,7 +176,11 @@ export const { use: useNotification, provider: NotificationProvider } = createSi
 
     onCleanup(() => states.forEach((value) => value.dispose()))
 
-    const selected = () => ensure(activeServer())
+    const selected = () => {
+      const key = activeServer()
+      if (global.servers.list().some((conn) => ServerConnection.key(conn) === key)) return ensure(key)
+      return ensure(server.key)
+    }
 
     return {
       ready: () => selected().ready(),

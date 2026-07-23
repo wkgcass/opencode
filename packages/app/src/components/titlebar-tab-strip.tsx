@@ -89,7 +89,6 @@ function SessionTabSlot(props: {
       data-tab-key={props.id}
       data-active={props.active()}
       class="relative flex w-56 min-w-7 max-w-56 flex-shrink"
-      classList={{ hidden: !session() && !missingSession() && !persisted()?.title }}
     >
       <TabNavItem
         ref={(el) => {
@@ -98,7 +97,10 @@ function SessionTabSlot(props: {
         href={tabHref(props.tab)}
         server={props.tab.server}
         session={session}
-        fallbackTitle={persisted()?.title ?? (missingSession() ? language.t("session.tab.unknown") : undefined)}
+        fallbackTitle={
+          persisted()?.title ??
+          (missingSession() ? language.t("session.tab.unknown") : language.t("session.tab.connecting"))
+        }
         onTitleChange={(title) => {
           const value = session()
           const ctx = props.serverCtx()

@@ -7,6 +7,7 @@ import { MarkedProvider } from "@opencode-ai/ui/context/marked"
 import { File } from "@opencode-ai/session-ui/file"
 import { Font } from "@opencode-ai/ui/font"
 import { Splash } from "@opencode-ai/ui/logo"
+import { Spinner } from "@opencode-ai/ui/spinner"
 import { ThemeProvider } from "@opencode-ai/ui/theme/context"
 import { MetaProvider } from "@solidjs/meta"
 import { type BaseRouterProps, Navigate, Route, Router, useNavigate, useParams, useSearchParams } from "@solidjs/router"
@@ -27,6 +28,7 @@ import {
   onCleanup,
   type ParentProps,
   Show,
+  untrack,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
 import { CommandProvider, useCommand, type CommandOption } from "@/context/command"
@@ -100,28 +102,63 @@ const SessionRoute = () => {
 function TargetServerRoute(props: ParentProps) {
   const params = useParams<{ serverKey: string; id: string }>()
   const global = useGlobal()
+  const serverKey = createMemo(() => requireServerKey(params.serverKey))
   const conn = createMemo(() => {
-    const key = requireServerKey(params.serverKey)
-    return global.servers.list().find((item) => ServerConnection.key(item) === key)
+    return global.servers.list().find((item) => ServerConnection.key(item) === serverKey())
   })
 
   return (
     // Owns the server-identity remount. Session changes must NOT remount this
     // subtree (SessionRouteErrorBoundary resets and createSessionLineage
     // re-resolves reactively instead); both rely on this key for server changes.
-    <Show when={requireServerKey(params.serverKey)} keyed>
-      <ServerSDKProvider server={conn}>
-        <ServerSyncProvider server={conn}>{props.children}</ServerSyncProvider>
-      </ServerSDKProvider>
+    <Show when={serverKey()} keyed>
+      <Show when={conn()} fallback={<TargetServerWaiting server={serverKey()} />}>
+        <ServerSDKProvider server={conn}>
+          <ServerSyncProvider server={conn}>{props.children}</ServerSyncProvider>
+        </ServerSDKProvider>
+      </Show>
     </Show>
   )
 }
 
-const TargetSessionRoute = () => (
-  <TargetServerRoute>
-    <TargetSessionRouteContent />
-  </TargetServerRoute>
-)
+function TargetServerWaiting(props: { server: ServerConnection.Key }) {
+  const language = useLanguage()
+  return (
+    <div class="relative size-full overflow-hidden flex flex-col p-2">
+      <div class="flex-1 min-h-0 flex flex-col items-center justify-center text-center gap-3 rounded-[10px] bg-v2-background-bg-base shadow-[var(--v2-elevation-raised)]">
+        <Spinner class="size-5" />
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="text-16-medium text-text max-w-md">
+            {language.t("session.server.connecting", {
+              server: props.server.startsWith("wsl:") ? props.server.slice("wsl:".length) : props.server,
+            })}
+          </div>
+          <div class="text-13-regular text-text-weak max-w-md">
+            {language.t("session.server.connecting.description")}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TargetSessionRoute() {
+  const params = useParams<{ serverKey: string; id: string }>()
+  const tabs = useTabs()
+  const serverKey = createMemo(() => requireServerKey(params.serverKey))
+
+  createEffect(() => {
+    if (!tabs.ready()) return
+    const tab = { server: serverKey(), sessionId: params.id }
+    untrack(() => tabs.addSessionTab(tab))
+  })
+
+  return (
+    <TargetServerRoute>
+      <TargetSessionRouteContent />
+    </TargetServerRoute>
+  )
+}
 
 function LegacyTargetSessionRoute() {
   const params = useParams<{ serverKey: string; id: string }>()
