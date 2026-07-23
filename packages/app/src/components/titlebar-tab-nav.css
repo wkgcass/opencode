@@ -13,6 +13,12 @@
   display: none;
 }
 
+[data-titlebar-tab]:is(:hover, [data-active="true"]):not([data-editing="true"]) [data-slot="tab-link"],
+[data-titlebar-tab]:has([data-slot="tab-close"] [data-component="icon-button-v2"]:focus-visible)
+  [data-slot="tab-link"] {
+  padding-right: 22px;
+}
+
 [data-titlebar-tab-list] {
   gap: 13.5px;
 }
