@@ -32,6 +32,7 @@ export interface BasicToolProps {
   open?: boolean
   onOpenChange?: (open: boolean) => void
   forceOpen?: boolean
+  forceClose?: boolean
   defer?: boolean
   locked?: boolean
   animated?: boolean
@@ -125,6 +126,18 @@ export function BasicTool(props: BasicToolProps) {
     if (open()) return
     setOpen(true)
   })
+
+  createEffect(
+    on(
+      () => props.forceClose,
+      (value) => {
+        if (!value) return
+        if (!open()) return
+        setOpen(false)
+      },
+      { defer: true },
+    ),
+  )
 
   createEffect(
     on(

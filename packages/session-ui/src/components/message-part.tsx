@@ -2240,12 +2240,51 @@ ToolRegistry.register({
     const i18n = useI18n()
     const pending = () => props.status === "pending" || props.status === "running"
     const sawPending = pending()
+    const command = createMemo(() => props.input.command ?? props.metadata.command ?? "")
+    const output = createMemo(() => stripAnsi(props.output || props.metadata.output || "").replace(/\r\n?/g, "\n"))
     const text = createMemo(() => {
-      const cmd = props.input.command ?? props.metadata.command ?? ""
-      const out = stripAnsi(props.output || props.metadata.output || "").replace(/\r\n?/g, "\n")
-      return `$ ${cmd}${out ? "\n\n" + out : ""}`
+      return `$ ${command()}${output() ? "\n\n" + output() : ""}`
     })
     const [copied, setCopied] = createSignal(false)
+    let scroll: HTMLDivElement | undefined
+    let scrollFrame: number | undefined
+    let followOutput = true
+
+    const scrollOutputToBottom = () => {
+      if (!followOutput || !pending() || !scroll?.isConnected) return
+      if (scrollFrame !== undefined) return
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = undefined
+        if (!followOutput || !pending() || !scroll?.isConnected) return
+        scroll.scrollTop = scroll.scrollHeight
+      })
+    }
+
+    const handleScroll = () => {
+      if (!scroll) return
+      if (scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop <= 1) followOutput = true
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0) followOutput = false
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (["ArrowUp", "PageUp", "Home"].includes(event.key)) followOutput = false
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.buttons === 1) followOutput = false
+    }
+
+    createEffect(() => {
+      output()
+      scrollOutputToBottom()
+    })
+
+    onCleanup(() => {
+      if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame)
+    })
 
     const handleCopy = async () => {
       const content = text()
@@ -2260,14 +2299,16 @@ ToolRegistry.register({
       <BasicTool
         {...props}
         icon="console"
+        forceOpen={pending() && !!output()}
+        forceClose={!pending() && sawPending}
         trigger={(open) => (
           <div data-slot="basic-tool-tool-info-structured">
             <div data-slot="basic-tool-tool-info-main">
               <span data-slot="basic-tool-tool-title">
                 <TextShimmer text={i18n.t("ui.tool.shell")} active={pending()} />
               </span>
-              <Show when={!pending() && !open() && props.input.command}>
-                <ShellSubmessage text={props.input.command} animate={sawPending} />
+              <Show when={!open() && command()}>
+                <ShellSubmessage text={command()} animate={sawPending} />
               </Show>
             </div>
           </div>
@@ -2287,11 +2328,19 @@ ToolRegistry.register({
             </TooltipV2>
           </div>
           <div
+            ref={(element) => {
+              scroll = element
+              scrollOutputToBottom()
+            }}
             data-slot="bash-scroll"
             data-scrollable
             tabIndex={0}
             role="region"
             aria-label={i18n.t("ui.scrollView.ariaLabel")}
+            onScroll={handleScroll}
+            onWheel={handleWheel}
+            onKeyDown={handleKeyDown}
+            onPointerMove={handlePointerMove}
           >
             <pre data-slot="bash-pre">
               <code>{text()}</code>

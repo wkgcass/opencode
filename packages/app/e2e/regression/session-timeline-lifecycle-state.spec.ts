@@ -32,6 +32,52 @@ for (const expanded of [false, true]) {
   })
 }
 
+test("shows a shell command on start and streams output while it runs", async ({ page }) => {
+  const id = "prt_shell_streaming"
+  const command = "bun test src/streaming.test.ts"
+  const timeline = await setupTimeline(page, {
+    messages: [userMessage(), assistantMessage([shell(id, "pending", "", command)], { completed: false })],
+    settings: { shellToolPartsExpanded: false },
+  })
+  const part = page.locator(`[data-timeline-part-id="${id}"]`)
+  const trigger = part.locator('[data-slot="collapsible-trigger"]')
+
+  await expect(trigger).toContainText(command)
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+
+  await timeline.send(partUpdated(shell(id, "running", "first chunk", command)), 180)
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect(part.locator('[data-slot="bash-pre"]')).toContainText(`$ ${command}\n\nfirst chunk`)
+
+  const scroll = part.locator('[data-slot="bash-scroll"]')
+  await timeline.send(partUpdated(shell(id, "running", lines(40), command)), 180)
+  await expect
+    .poll(() => scroll.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThanOrEqual(1)
+
+  await scroll.dispatchEvent("wheel", { deltaY: -100 })
+  await scroll.evaluate((element) => {
+    element.scrollTop = 0
+  })
+  await timeline.send(partUpdated(shell(id, "running", lines(45), command)), 180)
+  await expect.poll(() => scroll.evaluate((element) => element.scrollTop)).toBeLessThanOrEqual(1)
+
+  await scroll.evaluate((element) => {
+    element.scrollTop = element.scrollHeight
+    element.dispatchEvent(new Event("scroll"))
+  })
+  await timeline.send(partUpdated(shell(id, "running", lines(50), command)), 180)
+  await expect
+    .poll(() => scroll.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
+    .toBeLessThanOrEqual(1)
+
+  await timeline.send(partUpdated(shell(id, "completed", lines(50), command)), 180)
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+
+  await trigger.click()
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+})
+
 test("transitions thinking and hidden reasoning through busy to idle", async ({ page }) => {
   const reasoningID = "prt_reasoning_hidden"
   const assistant = assistantMessage([reasoningPart(reasoningID, "## Inspecting stability")], { completed: false })
