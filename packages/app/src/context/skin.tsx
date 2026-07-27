@@ -162,10 +162,12 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
         setBackgroundColor(background)
       }
 
+      const chromeBackground =
+        getComputedStyle(document.documentElement).getPropertyValue("--desktop-chrome").trim() || undefined
       setTitlebar({
         mode,
         scheme: theme.colorScheme(),
-        background: skin.window.titlebar,
+        background: skin.window.titlebar ?? chromeBackground,
         symbolColor: skin.window.symbols,
       })
     })
