@@ -35,8 +35,9 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="codex
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-v2"] {
   color: var(--su7-white);
   background:
+    linear-gradient(90deg, transparent, transparent calc(100% - 140px), var(--su7-carbon)),
     repeating-linear-gradient(135deg, transparent 0 8px, rgba(255, 255, 255, 0.012) 8px 9px),
-    linear-gradient(180deg, rgba(16, 18, 20, 0.995), rgba(8, 9, 10, 0.995));
+    linear-gradient(180deg, rgba(24, 26, 29, 0.995), rgba(8, 9, 10, 0.995));
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.04),
     0 5px 20px rgba(0, 0, 0, 0.3);
