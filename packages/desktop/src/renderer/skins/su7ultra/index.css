@@ -68,21 +68,26 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-t
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] {
-  --tab-bg: rgba(243, 244, 238, 0.025);
+  --tab-bg: color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%);
   color: var(--su7-muted);
   border-radius: 3px;
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"]:hover {
-  --tab-bg: rgba(242, 230, 0, 0.07);
+  --tab-bg: color-mix(in srgb, var(--su7-carbon) 93%, var(--su7-yellow) 7%);
   color: var(--su7-white);
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"][data-active="true"] {
-  --tab-bg: linear-gradient(180deg, rgba(243, 244, 238, 0.075), rgba(243, 244, 238, 0.025));
+  --tab-bg: linear-gradient(180deg, color-mix(in srgb, var(--su7-carbon) 92.5%, var(--su7-white) 7.5%), color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%));
+  background: var(--tab-bg);
   --desktop-active-tab-accent: var(--su7-yellow);
   color: var(--su7-white);
   box-shadow: 0 3px 14px rgba(242, 230, 0, 0.08);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] [data-slot="tab-close"] {
+  background: transparent;
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"]
