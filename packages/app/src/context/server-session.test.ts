@@ -4,6 +4,7 @@ import type { OpenCodeEvent, SessionApi } from "@opencode-ai/client/promise"
 import type { Message, OpencodeClient, Part, Session } from "@opencode-ai/sdk/v2/client"
 import { createServerSession } from "./server-session"
 import type { ServerApi } from "@/utils/server"
+import { Identifier } from "@/utils/id"
 
 type MessageApi = ServerApi["message"]
 
@@ -162,6 +163,34 @@ function setup(sessions: Record<string, Session>) {
 }
 
 describe("server session", () => {
+  test("generates monotonic per-session message IDs from 24 hours ago", () => {
+    const ctx = setup({ child: session("child") })
+    const before = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() - 24 * 60 * 60 * 1_000))!
+    const first = ctx.store.nextMessageID("child")
+    const after = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() - 24 * 60 * 60 * 1_000))!
+    const second = ctx.store.nextMessageID("child")
+
+    expect(Identifier.timestamp(first)).toBeGreaterThanOrEqual(before)
+    expect(Identifier.timestamp(first)).toBeLessThanOrEqual(after)
+    expect(Identifier.timestamp(second)).toBe(Identifier.timestamp(first)! + 1)
+  })
+
+  test("advances the message ID base from event and fetched server messages", async () => {
+    const eventTimestamp = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() + 10_000))!
+    const eventID = Identifier.ascendingAt("message", eventTimestamp)
+    const ctx = setup({ child: session("child") })
+    ctx.store.apply({ type: "message.updated", properties: { info: userMessage(eventID) } })
+
+    expect(Identifier.timestamp(ctx.store.nextMessageID("child"))).toBe(eventTimestamp + 1)
+
+    const fetchedTimestamp = eventTimestamp + 10_000
+    const fetchedID = Identifier.ascendingAt("message", fetchedTimestamp)
+    const store = createServerSession(messageClient(response([{ info: userMessage(fetchedID), parts: [] }])))
+    await store.sync("child")
+
+    expect(Identifier.timestamp(store.nextMessageID("child"))).toBe(fetchedTimestamp + 1)
+  })
+
   test("projects V2 session events into current and legacy message state", () => {
     const ctx = setup({ child: session("child") })
     ctx.store.remember(session("child"))
