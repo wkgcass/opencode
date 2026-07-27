@@ -43,6 +43,8 @@ const APP_IDS = {
 
 const getBase = (appId: string): Configuration => ({
   artifactName: "opencode-desktop-${os}-${arch}.${ext}",
+  // Skip SHASUMS256.txt checksum download from GitHub so cached Electron zip is used directly.
+  electronDownload: { isVerifyChecksum: false },
   directories: {
     output: "dist",
     buildResources: "resources",
