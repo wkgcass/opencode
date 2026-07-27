@@ -4,6 +4,7 @@ html[data-opencode-desktop="true"] {
   --desktop-chrome: #eef3f8;
   --desktop-divider: color-mix(in srgb, var(--v2-text-text-base) 12%, transparent);
   --desktop-panel: #ffffff;
+  --desktop-sidebar-width: 262px;
 }
 
 html[data-opencode-desktop="true"][data-color-scheme="dark"] {
