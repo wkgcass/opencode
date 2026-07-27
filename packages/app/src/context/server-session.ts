@@ -19,6 +19,7 @@ import { sessionNotFoundError } from "@/utils/server-errors"
 import { rootSession } from "@/utils/session-route"
 import { normalizeSessionInfo } from "@/utils/session"
 import { normalizeSessionMessages } from "@/utils/session-message"
+import { Identifier } from "@/utils/id"
 import { dropSessionCaches, pickSessionCacheEvictions, SESSION_CACHE_LIMIT } from "./global-sync/session-cache"
 import { createV2SessionReducer, type V2SessionReduction } from "./server-session-v2-reducer"
 import type { ServerApi } from "@/utils/server"
@@ -32,6 +33,8 @@ const initialMessagePageSize = 20
 const historyMessagePageSize = 200
 const sessionInfoLimit = 2_048
 const emptyIDs: ReadonlySet<string> = new Set()
+const messageIDOffset = 24 * 60 * 60 * 1_000
+const messageIDTimestampRange = 2 ** 36
 
 function needsOlderTurnRoot(source: readonly SessionMessageInfo[]) {
   const boundary = source.find(
@@ -218,6 +221,19 @@ export function createServerSession(
   const orphanParts = new Map<string, Set<string>>()
   const removedMessages = new Map<string, Set<string>>()
   const deltaBases = new Map<string, { base: string; sessionID: string }>()
+  const messageIDBase = new Map<string, number>()
+  const observeMessageID = (sessionID: string, messageID: string) => {
+    const timestamp = Identifier.timestamp(messageID)
+    if (timestamp === undefined) return
+    const next = timestamp + 1
+    const current = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % messageIDTimestampRange
+    if (next > current) messageIDBase.set(sessionID, next)
+  }
+  const nextMessageID = (sessionID: string) => {
+    const base = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % messageIDTimestampRange
+    messageIDBase.set(sessionID, base + 1)
+    return Identifier.ascendingAt("message", base)
+  }
   const deleteMessageParts = (
     cache: { part: Record<string, Part[] | undefined>; part_text_accum_delta: Record<string, string | undefined> },
     messageID: string,
@@ -679,6 +695,7 @@ export function createServerSession(
     preserveUnfetched: boolean | ((message: Message) => boolean),
     cleanupOrphans: boolean,
   ) => {
+    page.session.forEach((message) => observeMessageID(sessionID, message.id))
     const source = page.source
       ? (() => {
           const incoming = new Map(page.source.map((message) => [message.id, message]))
@@ -1011,6 +1028,7 @@ export function createServerSession(
         const sessionID = properties.info?.id ?? properties.sessionID
         if (!sessionID) return
         infoSeen.delete(sessionID)
+        messageIDBase.delete(sessionID)
         setData(
           "info",
           produce((draft) => void delete draft[sessionID]),
@@ -1030,6 +1048,7 @@ export function createServerSession(
       }
       case "message.updated": {
         const info = cleanMessage((event.properties as { info: Message }).info)
+        observeMessageID(info.sessionID, info.id)
         indexLegacyMessage(info)
         const load = messageLoads.get(info.sessionID)
         load?.touchedMessages.add(info.id)
@@ -1300,6 +1319,7 @@ export function createServerSession(
     get: (sessionID: string) => data.info[sessionID],
     peek: (sessionID: string) => data.info[sessionID],
     remember,
+    nextMessageID,
     resolve,
     lineage: {
       peek: peekLineage,

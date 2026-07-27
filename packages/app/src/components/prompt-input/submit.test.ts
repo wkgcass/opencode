@@ -40,6 +40,7 @@ let selected = "/repo/worktree-a"
 let variant: string | undefined
 let permissionServer = "server-a"
 let createSessionGate: Promise<void> | undefined
+let messageID = 0
 
 let promptValue: Prompt = [{ type: "text", content: "ls", start: 0, end: 2 }]
 const [promptStore, setPromptStore] = createStore<PromptStore>({
@@ -235,6 +236,7 @@ beforeAll(async () => {
   mock.module("@/context/server-sync", () => ({
     useServerSync: () => () => ({
       session: {
+        nextMessageID: () => `msg_test_${++messageID}`,
         remember: () => undefined,
         set: () => undefined,
         sync: async () => {
@@ -300,6 +302,7 @@ beforeEach(() => {
   variant = undefined
   permissionServer = "server-a"
   createSessionGate = undefined
+  messageID = 0
   serverSessionSyncs = 0
   for (const key of Object.keys(storedSessions)) delete storedSessions[key]
 })
