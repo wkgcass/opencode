@@ -415,7 +415,7 @@
   [data-slot="bash-copy"] {
     position: absolute;
     top: 4px;
-    right: 4px;
+    right: 17px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease;
@@ -432,11 +432,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     max-height: 240px;
-
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
   }
 
   [data-slot="bash-pre"] {
