@@ -38,6 +38,9 @@ const PROJECT_DRAG_TYPE = "desktop-project"
 const PROJECT_DROP_PREFIX = "desktop-project-drop:"
 const SESSION_DRAG_TYPE = "desktop-session"
 const SESSION_DROP_PREFIX = "desktop-session-drop:"
+
+/** Fixed sidebar width in pixels. Mirrors `--desktop-sidebar-width` in codex-workspace.css. */
+export const DESKTOP_SIDEBAR_WIDTH = 262
 type DesktopSidebarProject = {
   server: ServerConnection.Key
   ctx: ServerCtx
@@ -483,7 +486,7 @@ export function DesktopSidebar() {
   return (
     <aside
       data-component="codex-app-sidebar"
-      class="hidden h-full w-[262px] shrink-0 flex-col overflow-hidden bg-v2-background-bg-deep lg:flex"
+      class="hidden h-full w-[var(--desktop-sidebar-width)] shrink-0 flex-col overflow-hidden bg-v2-background-bg-deep lg:flex"
       aria-label="opencode"
     >
       <div class="flex shrink-0 flex-col gap-1 px-1 pb-3 pt-2">
