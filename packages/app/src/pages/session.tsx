@@ -24,6 +24,7 @@ import { createMediaQuery } from "@solid-primitives/media"
 import { createResizeObserver } from "@solid-primitives/resize-observer"
 import { debounce } from "@solid-primitives/scheduled"
 import { useLocal } from "@/context/local"
+import { useGlobal } from "@/context/global"
 import { FileProvider, selectionFromLines, useFile, type FileSelection, type SelectedLineRange } from "@/context/file"
 import { createStore } from "solid-js/store"
 import type { SessionReviewLineComment } from "@opencode-ai/session-ui/session-review"
@@ -217,6 +218,7 @@ function SessionErrorFallback(props: {
   reset: () => void
 }) {
   const language = useLanguage()
+  const global = useGlobal()
   const server = useServer()
   const tabs = useTabs()
   const displayServer = createMemo(() => {
@@ -227,6 +229,12 @@ function SessionErrorFallback(props: {
   const closeTab = () => {
     if (!props.sessionID) return
     tabs.removeSessionTab({ server: props.serverKey ?? server.key, sessionId: props.sessionID })
+  }
+  const retry = () => {
+    const key = props.serverKey ?? server.key
+    const conn = server.list.find((item) => ServerConnection.key(item) === key)
+    if (conn) global.refreshServerCtx(conn)
+    props.reset()
   }
   if (isTransientServerConnectionError(props.error)) {
     return (
@@ -240,7 +248,7 @@ function SessionErrorFallback(props: {
               {language.t("session.error.serverUnavailable.description")}
             </div>
           </div>
-          <ButtonV2 variant="neutral" size="normal" onClick={props.reset}>
+          <ButtonV2 variant="neutral" size="normal" onClick={retry}>
             {language.t("session.error.serverUnavailable.retry")}
           </ButtonV2>
         </div>

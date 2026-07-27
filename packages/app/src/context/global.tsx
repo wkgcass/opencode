@@ -1,5 +1,5 @@
 import { createSimpleContext } from "@opencode-ai/ui/context"
-import { createEffect, createMemo, createRoot } from "solid-js"
+import { createEffect, createMemo, createRoot, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createServerProjects, RECENTLY_CLOSED_DISPLAY_LIMIT, ServerConnection, useServer } from "./server"
 import { pathKey } from "@/utils/path-key"
@@ -39,10 +39,12 @@ export const { use: useGlobal, provider: GlobalProvider } = createSimpleContext(
       ServerConnection.Key,
       { dispose: () => void; serverCtx: ReturnType<typeof createServerCtx> }
     >()
+    const [serverCtxVersion, setServerCtxVersion] = createSignal(0)
 
     const owner = getOwner()
 
     const ensureServerCtx = (conn: ServerConnection.Any) => {
+      serverCtxVersion()
       const key = ServerConnection.key(conn)
       const existing = serverCtxs.get(key)
       if (existing) return existing.serverCtx
@@ -52,6 +54,14 @@ export const { use: useGlobal, provider: GlobalProvider } = createSimpleContext(
       }, owner as any)
       serverCtxs.set(key, root)
       return root.serverCtx
+    }
+
+    const refreshServerCtx = (conn: ServerConnection.Any) => {
+      const key = ServerConnection.key(conn)
+      serverCtxs.get(key)?.dispose()
+      serverCtxs.delete(key)
+      setServerCtxVersion((version) => version + 1)
+      return ensureServerCtx(conn)
     }
 
     createMemo(() => {
@@ -88,6 +98,9 @@ export const { use: useGlobal, provider: GlobalProvider } = createSimpleContext(
       },
       ensureServerCtx(conn: ServerConnection.Any) {
         return ensureServerCtx(conn)
+      },
+      refreshServerCtx(conn: ServerConnection.Any) {
+        return refreshServerCtx(conn)
       },
     }
   },
