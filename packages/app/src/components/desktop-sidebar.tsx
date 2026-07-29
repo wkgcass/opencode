@@ -39,6 +39,12 @@ const PROJECT_DROP_PREFIX = "desktop-project-drop:"
 const SESSION_DRAG_TYPE = "desktop-session"
 const SESSION_DROP_PREFIX = "desktop-session-drop:"
 
+function serverColor(key: string) {
+  let hash = 0
+  for (const char of key) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
+  return `hsl(${hash % 360}, 65%, 60%)`
+}
+
 /** Fixed sidebar width in pixels. Mirrors `--desktop-sidebar-width` in codex-workspace.css. */
 export const DESKTOP_SIDEBAR_WIDTH = 262
 type DesktopSidebarProject = {
@@ -248,7 +254,7 @@ function SortableProject(props: {
           aria-current={props.activeProject() ? "page" : undefined}
           onClick={props.onSelect}
         >
-          <Icon name={props.local ? "folder" : "cloud"} />
+          <Icon name={props.local ? "folder" : "cloud"} style={props.local ? undefined : { color: serverColor(props.server) }} />
           <span class="min-w-0 truncate">{displayName(props.project())}</span>
         </button>
         <div class="codex-app-sidebar-actions">
