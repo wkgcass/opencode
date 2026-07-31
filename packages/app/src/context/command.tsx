@@ -261,6 +261,11 @@ function isEditableTarget(target: EventTarget | null) {
   return false
 }
 
+function isTerminalTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return false
+  return !!target.closest('[data-component="terminal"]')
+}
+
 export const { use: useCommand, provider: CommandProvider } = createSimpleContext({
   name: "Command",
   init: () => {
@@ -396,6 +401,10 @@ export const { use: useCommand, provider: CommandProvider } = createSimpleContex
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (suspended() || dialog.active) return
+      // When the terminal is focused, hand all keystrokes (including ones that
+      // match a registered keybind like ctrl+b for tmux) to the PTY instead of
+      // letting the global handler intercept them.
+      if (isTerminalTarget(event.target)) return
 
       const sig = signatureFromEvent(event)
       const isPalette = palette().has(sig)

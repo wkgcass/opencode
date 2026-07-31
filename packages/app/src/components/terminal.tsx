@@ -7,7 +7,6 @@ import { showToast } from "@/utils/toast"
 import type { FitAddon, Ghostty, Terminal as Term } from "ghostty-web"
 import { type ComponentProps, createEffect, createMemo, onCleanup, onMount, splitProps } from "solid-js"
 import { SerializeAddon } from "@/addons/serialize"
-import { matchKeybind, parseKeybind } from "@/context/command"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
 import { useSDK } from "@/context/sdk"
@@ -18,8 +17,6 @@ import { disposeIfDisposable, getHoveredLinkText, setOptionIfSupported } from "@
 import { terminalWriter } from "@/utils/terminal-writer"
 import { terminalWebSocketURL } from "@/utils/terminal-websocket-url"
 
-const TOGGLE_TERMINAL_ID = "terminal.toggle"
-const DEFAULT_TOGGLE_TERMINAL_KEYBIND = "ctrl+`"
 export interface TerminalProps extends ComponentProps<"div"> {
   pty: LocalPTY
   autoFocus?: boolean
@@ -428,11 +425,9 @@ export const Terminal = (props: TerminalProps) => {
           return true
         }
 
-        // allow for toggle terminal keybinds in parent
-        const config = settings.keybinds.get(TOGGLE_TERMINAL_ID) ?? DEFAULT_TOGGLE_TERMINAL_KEYBIND
-        const keybinds = parseKeybind(config)
-
-        return matchKeybind(keybinds, event)
+        // Hand every other key to the PTY; the global keybind handler skips
+        // the terminal entirely (see command.tsx isTerminalTarget).
+        return false
       })
 
       const fit = new mod.FitAddon()
