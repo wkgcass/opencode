@@ -4,6 +4,7 @@ import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
 import { ButtonV2 } from "@opencode-ai/ui/v2/button-v2"
 import { Icon } from "@opencode-ai/ui/v2/icon"
 import { KeybindV2 } from "@opencode-ai/ui/v2/keybind-v2"
+import { LoaderV2 } from "@opencode-ai/ui/v2/loader-v2"
 import { TooltipV2 } from "@opencode-ai/ui/v2/tooltip-v2"
 import type { ReferenceInfo } from "@opencode-ai/sdk/v2/client"
 import { createEffect, createMemo, on, Show } from "solid-js"
@@ -62,6 +63,7 @@ export function PromptInputV2Composer(props: PromptInputV2ComposerProps) {
         modelControl={
           <PromptInputV2ModelControl
             loading={props.controller.model.loading}
+            switching={props.controller.model.switching}
             paid={props.controller.model.paid}
             title={language.t("command.model.choose")}
             keybind={command.keybindParts("model.choose")}
@@ -388,6 +390,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
               current: () => props.controls.agents.current,
               onSelect: (value: string) => props.controls.agents.select(value),
               keybind: () => command.keybindParts("agent.cycle"),
+              disabled: () => props.controls.agents.switching,
             }
           : undefined
       },
@@ -467,6 +470,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
 
 function PromptInputV2ModelControl(props: {
   loading: boolean
+  switching: boolean
   paid: boolean
   title: string
   keybind: string[]
@@ -496,53 +500,68 @@ function PromptInputV2ModelControl(props: {
   )
   return (
     <Show when={!props.loading}>
-      <TooltipV2
-        placement="top"
-        gutter={4}
-        value={
-          <>
-            {props.title}
-            <KeybindV2 keys={props.keybind} variant="neutral" />
-          </>
+      <Show
+        when={!props.switching}
+        fallback={
+          <ButtonV2
+            variant="ghost-muted"
+            size="normal"
+            disabled
+            style={{ height: "28px" }}
+            class="min-w-0 max-w-[220px] justify-start ![font-weight:440]"
+          >
+            <LoaderV2 class="size-4 shrink-0" />
+          </ButtonV2>
         }
       >
-        <Show
-          when={props.paid}
-          fallback={
-            <ButtonV2
-              data-action="prompt-model"
-              data-control-type="dialog"
-              variant="ghost-muted"
-              size="normal"
-              class="min-w-0 max-w-[220px] justify-start ![font-weight:440] group"
-              classList={{ "animate-in fade-in": shouldAnimate() }}
-              style={{ height: "28px" }}
-              onClick={props.onUnpaidClick}
-            >
-              {content()}
-            </ButtonV2>
+        <TooltipV2
+          placement="top"
+          gutter={4}
+          value={
+            <>
+              {props.title}
+              <KeybindV2 keys={props.keybind} variant="neutral" />
+            </>
           }
         >
-          <ModelSelectorPopoverV2
-            model={props.model}
-            trigger={(triggerProps) => (
+          <Show
+            when={props.paid}
+            fallback={
               <ButtonV2
-                {...triggerProps}
+                data-action="prompt-model"
+                data-control-type="dialog"
                 variant="ghost-muted"
                 size="normal"
-                style={{ height: "28px" }}
                 class="min-w-0 max-w-[220px] justify-start ![font-weight:440] group"
                 classList={{ "animate-in fade-in": shouldAnimate() }}
-                data-action="prompt-model"
-                data-control-type="popover"
+                style={{ height: "28px" }}
+                onClick={props.onUnpaidClick}
               >
                 {content()}
               </ButtonV2>
-            )}
-            onClose={props.onClose}
-          />
-        </Show>
-      </TooltipV2>
+            }
+          >
+            <ModelSelectorPopoverV2
+              model={props.model}
+              trigger={(triggerProps) => (
+                <ButtonV2
+                  {...triggerProps}
+                  variant="ghost-muted"
+                  size="normal"
+                  style={{ height: "28px" }}
+                  class="min-w-0 max-w-[220px] justify-start ![font-weight:440] group"
+                  classList={{ "animate-in fade-in": shouldAnimate() }}
+                  data-action="prompt-model"
+                  data-control-type="popover"
+                >
+                  {content()}
+                </ButtonV2>
+              )}
+              onClose={props.onClose}
+            />
+          </Show>
+        </TooltipV2>
+      </Show>
     </Show>
   )
 }

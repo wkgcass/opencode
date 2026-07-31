@@ -286,6 +286,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "コマンドの送信に失敗しました",
   "prompt.toast.promptSendFailed.title": "プロンプトの送信に失敗しました",
   "prompt.toast.promptSendFailed.description": "セッションを取得できませんでした",
+  "prompt.toast.agentSwitchFailed.title": "エージェントの切り替えに失敗しました",
+  "prompt.toast.modelSwitchFailed.title": "モデルの切り替えに失敗しました",
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{total}}個中{{enabled}}個が有効",
   "dialog.mcp.empty": "MCPが設定されていません",

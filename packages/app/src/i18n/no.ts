@@ -298,6 +298,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Kunne ikke sende kommando",
   "prompt.toast.promptSendFailed.title": "Kunne ikke sende forespørsel",
   "prompt.toast.promptSendFailed.description": "Kunne ikke hente økt",
+  "prompt.toast.agentSwitchFailed.title": "Kunne ikke bytte agent",
+  "prompt.toast.modelSwitchFailed.title": "Kunne ikke bytte modell",
 
   "dialog.mcp.title": "MCP-er",
   "dialog.mcp.description": "{{enabled}} av {{total}} aktivert",

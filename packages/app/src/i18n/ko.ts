@@ -274,6 +274,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "명령 전송 실패",
   "prompt.toast.promptSendFailed.title": "프롬프트 전송 실패",
   "prompt.toast.promptSendFailed.description": "세션을 가져올 수 없습니다",
+  "prompt.toast.agentSwitchFailed.title": "에이전트 전환 실패",
+  "prompt.toast.modelSwitchFailed.title": "모델 전환 실패",
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{total}}개 중 {{enabled}}개 활성화됨",
   "dialog.mcp.empty": "구성된 MCP 없음",

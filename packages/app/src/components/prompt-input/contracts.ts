@@ -16,6 +16,7 @@ export type PromptInputControls = {
     options: string[]
     current: string
     loading: boolean
+    switching: boolean
     visible: boolean
     select: (name: string | undefined) => void
   }
@@ -23,6 +24,7 @@ export type PromptInputControls = {
     selection: ReturnType<typeof useLocal>["model"]
     paid: boolean
     loading: boolean
+    switching: boolean
   }
   session: {
     id?: string

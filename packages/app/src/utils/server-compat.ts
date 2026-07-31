@@ -197,6 +197,12 @@ function createV1Api(input: CompatibleInput): CompatibleApi {
       async interrupt(value: Parameters<ServerApi["session"]["interrupt"]>[0]) {
         await legacy().session.abort(value)
       },
+      async switchAgent(value: Parameters<ServerApi["session"]["switchAgent"]>[0]) {
+        // v1 servers carry agent per-prompt; no separate switch endpoint exists
+      },
+      async switchModel(value: Parameters<ServerApi["session"]["switchModel"]>[0]) {
+        // v1 servers carry model per-prompt; no separate switch endpoint exists
+      },
       async prompt(value: SessionPromptInput & LegacyPrompt) {
         await legacy().session.promptAsync({
           sessionID: value.sessionID,

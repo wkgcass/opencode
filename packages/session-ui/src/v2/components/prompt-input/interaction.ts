@@ -24,6 +24,7 @@ export type PromptInputV2SelectControl = {
   current: Accessor<string>
   onSelect: (id: string) => void
   keybind?: Accessor<string[]>
+  disabled?: Accessor<boolean>
 }
 
 export type PromptInputV2ViewConfig = {

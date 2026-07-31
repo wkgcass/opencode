@@ -307,6 +307,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Fallo al enviar comando",
   "prompt.toast.promptSendFailed.title": "Fallo al enviar prompt",
   "prompt.toast.promptSendFailed.description": "No se pudo recuperar la sesión",
+  "prompt.toast.agentSwitchFailed.title": "Error al cambiar agente",
+  "prompt.toast.modelSwitchFailed.title": "Error al cambiar modelo",
 
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} de {{total}} habilitados",

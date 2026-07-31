@@ -293,6 +293,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Befehl konnte nicht gesendet werden",
   "prompt.toast.promptSendFailed.title": "Eingabe konnte nicht gesendet werden",
   "prompt.toast.promptSendFailed.description": "Sitzung konnte nicht abgerufen werden",
+  "prompt.toast.agentSwitchFailed.title": "Agent konnte nicht gewechselt werden",
+  "prompt.toast.modelSwitchFailed.title": "Modell konnte nicht gewechselt werden",
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} von {{total}} aktiviert",
   "dialog.mcp.empty": "Keine MCPs konfiguriert",

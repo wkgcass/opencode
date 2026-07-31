@@ -309,6 +309,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Не вдалося надіслати команду",
   "prompt.toast.promptSendFailed.title": "Не вдалося надіслати запит",
   "prompt.toast.promptSendFailed.description": "Не вдалося отримати сесію",
+  "prompt.toast.agentSwitchFailed.title": "Не вдалося змінити агента",
+  "prompt.toast.modelSwitchFailed.title": "Не вдалося змінити модель",
 
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{enabled}} з {{total}} увімкнено",

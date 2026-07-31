@@ -326,6 +326,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "发送命令失败",
   "prompt.toast.promptSendFailed.title": "发送提示失败",
   "prompt.toast.promptSendFailed.description": "无法获取会话",
+  "prompt.toast.agentSwitchFailed.title": "切换代理失败",
+  "prompt.toast.modelSwitchFailed.title": "切换模型失败",
 
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "已启用 {{enabled}} / {{total}}",

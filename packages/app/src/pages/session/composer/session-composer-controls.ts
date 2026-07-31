@@ -40,6 +40,7 @@ export function createPromptInputController(input: {
         options: local.agent.list().map((agent) => agent.name),
         current: local.agent.current()?.name ?? "",
         loading: agentsQuery.isLoading,
+        switching: local.agent.switching(),
         visible: local.agent.visible(),
         select: local.agent.set,
       },
@@ -50,6 +51,7 @@ export function createPromptInputController(input: {
           (local.agent.visible() && agentsQuery.isLoading) ||
           providersQuery.isLoading ||
           globalProvidersQuery.isLoading,
+        switching: local.model.switching(),
       },
       session: {
         id: input.sessionID(),

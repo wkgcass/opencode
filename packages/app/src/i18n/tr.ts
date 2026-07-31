@@ -312,6 +312,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Komut gönderilemedi",
   "prompt.toast.promptSendFailed.title": "Komut gönderilemedi",
   "prompt.toast.promptSendFailed.description": "Oturum alınamadı",
+  "prompt.toast.agentSwitchFailed.title": "Ajan değiştirilemedi",
+  "prompt.toast.modelSwitchFailed.title": "Model değiştirilemedi",
 
   "dialog.mcp.title": "MCP'ler",
   "dialog.mcp.description": "{{total}} içerisinden {{enabled}} etkin",

@@ -308,6 +308,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Neuspješno slanje komande",
   "prompt.toast.promptSendFailed.title": "Neuspješno slanje upita",
   "prompt.toast.promptSendFailed.description": "Nije moguće dohvatiti sesiju",
+  "prompt.toast.agentSwitchFailed.title": "Neuspješno mijenjanje agenta",
+  "prompt.toast.modelSwitchFailed.title": "Neuspješno mijenjanje modela",
 
   "dialog.mcp.title": "MCP-ovi",
   "dialog.mcp.description": "{{enabled}} od {{total}} omogućeno",
