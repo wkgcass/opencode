@@ -108,10 +108,15 @@ const useTerminalUiBindings = (input: {
     input.term.paste(text)
   }
 
-  const handleTextareaFocus = () => {
+  // ghostty-web focuses the contenteditable container (not the textarea), so
+  // focus bounces between the two while the terminal stays active. Listen on
+  // the container with bubbling focusin/focusout so any in-container transfer
+  // keeps the cursor blinking, and only stop once focus truly leaves.
+  const handleFocusIn = () => {
     input.term.options.cursorBlink = true
   }
-  const handleTextareaBlur = () => {
+  const handleFocusOut = (event: FocusEvent) => {
+    if (input.container.contains(event.relatedTarget as Node | null)) return
     input.term.options.cursorBlink = false
   }
 
@@ -133,10 +138,10 @@ const useTerminalUiBindings = (input: {
     }),
   )
 
-  input.term.textarea?.addEventListener("focus", handleTextareaFocus)
-  input.term.textarea?.addEventListener("blur", handleTextareaBlur)
-  input.cleanups.push(() => input.term.textarea?.removeEventListener("focus", handleTextareaFocus))
-  input.cleanups.push(() => input.term.textarea?.removeEventListener("blur", handleTextareaBlur))
+  input.container.addEventListener("focusin", handleFocusIn)
+  input.cleanups.push(() => input.container.removeEventListener("focusin", handleFocusIn))
+  input.container.addEventListener("focusout", handleFocusOut)
+  input.cleanups.push(() => input.container.removeEventListener("focusout", handleFocusOut))
 }
 
 const persistTerminal = (input: {
@@ -735,7 +740,7 @@ export const Terminal = (props: TerminalProps) => {
       data-component="terminal"
       data-prevent-autofocus
       tabIndex={-1}
-      style={{ "background-color": terminalColors().background }}
+      style={{ "background-color": terminalColors().background, "caret-color": "transparent" }}
       classList={{
         ...local.classList,
         "select-text": true,
