@@ -68,19 +68,21 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-t
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] {
-  --tab-bg: color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%);
+  --tab-base: color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%);
+  --tab-overlay: transparent;
   color: var(--su7-muted);
   border-radius: 3px;
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"]:hover {
-  --tab-bg: color-mix(in srgb, var(--su7-carbon) 93%, var(--su7-yellow) 7%);
+  --tab-base: color-mix(in srgb, var(--su7-carbon) 93%, var(--su7-yellow) 7%) !important;
+  --tab-overlay: transparent !important;
   color: var(--su7-white);
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"][data-active="true"] {
-  --tab-bg: linear-gradient(180deg, color-mix(in srgb, var(--su7-carbon) 92.5%, var(--su7-white) 7.5%), color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%));
-  background: var(--tab-bg);
+  --tab-base: linear-gradient(180deg, color-mix(in srgb, var(--su7-carbon) 92.5%, var(--su7-white) 7.5%), color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%)) !important;
+  --tab-overlay: transparent !important;
   --desktop-active-tab-accent: var(--su7-yellow);
   color: var(--su7-white);
   box-shadow: 0 3px 14px rgba(242, 230, 0, 0.08);

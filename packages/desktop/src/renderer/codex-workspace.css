@@ -262,11 +262,13 @@ html[data-opencode-desktop="true"] [data-slot="titlebar-v2"] [data-component="de
 html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"] {
   height: 32px;
   border-radius: 6px;
-  --tab-bg: var(--desktop-chrome);
+  --tab-base: var(--desktop-chrome);
+  --tab-overlay: transparent;
 }
 
 html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"][data-active="true"] {
-  --tab-bg: var(--v2-background-bg-base);
+  --tab-base: var(--v2-background-bg-base);
+  --tab-overlay: transparent;
 }
 
 /* Repaint the skin's original inset accent above the long-title fade and close control. */
@@ -285,11 +287,6 @@ html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"][data-active="
 
 html[data-opencode-desktop="true"] [data-titlebar-tab-list] {
   gap: 8px;
-}
-
-html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"]:not([data-active="true"]):hover,
-html[data-opencode-desktop="true"] [data-slot="titlebar-tab-item"]:not([data-active="true"]):has(> a:focus-visible) {
-  --tab-bg: color-mix(in srgb, var(--desktop-chrome) 88%, var(--v2-text-text-base));
 }
 
 html[data-opencode-desktop="true"] [data-titlebar-tab] [data-slot="tab-close"] {

@@ -260,11 +260,13 @@ html[data-opencode-desktop="true"][data-skin="emily"]
 }
 
 html[data-opencode-desktop="true"][data-skin="emily"] [data-slot="titlebar-tab-item"] {
-  --tab-bg: color-mix(in srgb, var(--emily-chrome) 91%, transparent);
+  --tab-base: color-mix(in srgb, var(--emily-chrome) 91%, transparent);
+  --tab-overlay: transparent;
 }
 
 html[data-opencode-desktop="true"][data-skin="emily"] [data-slot="titlebar-tab-item"][data-active="true"] {
-  --tab-bg: var(--emily-panel-strong);
+  --tab-base: var(--emily-panel-strong) !important;
+  --tab-overlay: transparent !important;
   --desktop-active-tab-accent: color-mix(in srgb, var(--emily-meadow) 68%, var(--emily-blush));
 }
 
