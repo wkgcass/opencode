@@ -35,7 +35,7 @@ function NewSessionContent(props: {
 }): JSX.Element {
   return (
     <div class="flex flex-col gap-8">
-      <PromptInputV2Composer controller={props.input} />
+      <PromptInputV2Composer data-component="session-new-composer" controller={props.input} />
       <Show when={props.project.empty()}>
         <PromptProjectAddButton controller={props.project} />
       </Show>
