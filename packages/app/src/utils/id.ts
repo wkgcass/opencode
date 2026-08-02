@@ -17,8 +17,18 @@ export namespace Identifier {
     return generateID(prefix, false, given)
   }
 
+  export function ascendingAt(prefix: Prefix, timestamp: number) {
+    return create(prefix, false, timestamp)
+  }
+
   export function descending(prefix: Prefix, given?: string) {
     return generateID(prefix, true, given)
+  }
+
+  export function timestamp(id: string): number | undefined {
+    const hex = id.match(/^[^_]+_([0-9a-fA-F]{12})/)?.[1]
+    if (!hex) return undefined
+    return Number(BigInt(`0x${hex}`) / BigInt(0x1000))
   }
 }
 

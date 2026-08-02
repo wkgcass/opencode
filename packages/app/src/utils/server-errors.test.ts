@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test"
+import { ClientError } from "@opencode-ai/client"
 import type { SessionNotFoundError } from "@opencode-ai/sdk/v2/client"
 import type { ConfigInvalidError, ProviderModelNotFoundError } from "./server-errors"
-import { formatServerError, isSessionNotFoundError, parseReadableConfigInvalidError } from "./server-errors"
+import {
+  formatServerError,
+  isSessionNotFoundError,
+  isTransientServerConnectionError,
+  parseReadableConfigInvalidError,
+} from "./server-errors"
 
 function fill(text: string, vars?: Record<string, string | number>) {
   if (!vars) return text
@@ -171,5 +177,22 @@ describe("isSessionNotFoundError", () => {
         "ses_tab",
       ),
     ).toBe(false)
+  })
+})
+
+describe("isTransientServerConnectionError", () => {
+  test("matches the browser fetch failure emitted while a server is starting", () => {
+    expect(isTransientServerConnectionError(new TypeError("Failed to fetch"))).toBe(true)
+    expect(
+      isTransientServerConnectionError(
+        new ClientError("Transport", { cause: new TypeError("Failed to fetch") }),
+      ),
+    ).toBe(true)
+  })
+
+  test("does not hide persistent server and application errors", () => {
+    expect(isTransientServerConnectionError(new Error("Failed to fetch"))).toBe(false)
+    expect(isTransientServerConnectionError(new TypeError("Request failed with status 500"))).toBe(false)
+    expect(isTransientServerConnectionError(new ClientError("UnexpectedStatus"))).toBe(false)
   })
 })

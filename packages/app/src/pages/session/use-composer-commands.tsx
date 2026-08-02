@@ -53,6 +53,7 @@ export const useComposerCommands = (input: { model?: ModelSelection } = {}) => {
       description: language.t("command.model.choose.description"),
       keybind: "mod+'",
       slash: "model",
+      disabled: local.model.switching(),
       onSelect: chooseModel,
     }),
     modelCommand({
@@ -60,6 +61,7 @@ export const useComposerCommands = (input: { model?: ModelSelection } = {}) => {
       title: language.t("command.model.variant.cycle"),
       description: language.t("command.model.variant.cycle.description"),
       keybind: "shift+mod+d",
+      disabled: local.model.switching(),
       onSelect: () => model.variant.cycle(),
     }),
     agentCommand({
@@ -68,7 +70,7 @@ export const useComposerCommands = (input: { model?: ModelSelection } = {}) => {
       description: language.t("command.agent.cycle.description"),
       keybind: "mod+.",
       slash: "agent",
-      disabled: !local.agent.visible(),
+      disabled: !local.agent.visible() || local.agent.switching(),
       onSelect: () => local.agent.move(1),
     }),
     agentCommand({
@@ -76,7 +78,7 @@ export const useComposerCommands = (input: { model?: ModelSelection } = {}) => {
       title: language.t("command.agent.cycle.reverse"),
       description: language.t("command.agent.cycle.reverse.description"),
       keybind: "shift+mod+.",
-      disabled: !local.agent.visible(),
+      disabled: !local.agent.visible() || local.agent.switching(),
       onSelect: () => local.agent.move(-1),
     }),
   ])

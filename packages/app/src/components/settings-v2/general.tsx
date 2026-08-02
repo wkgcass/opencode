@@ -7,6 +7,7 @@ import { TextInputV2 } from "@opencode-ai/ui/v2/text-input-v2"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
+import { skinSettingsLocked } from "@/context/skin"
 import { useUpdaterAction } from "../updater-action"
 import { useSettings } from "@/context/settings"
 import { ExternalLink } from "../external-link"
@@ -25,6 +26,7 @@ import {
   type ShellSettingsController,
   type SoundSettingsController,
 } from "./general-controllers"
+import { SettingsSkinSelect, skinSettingsText } from "../settings-skin-select"
 import "./settings-v2.css"
 
 const schemeOptions: ("system" | "light" | "dark")[] = ["system", "light", "dark"]
@@ -121,6 +123,8 @@ const ShellSetting: Component<{ controller: ShellSettingsController }> = (props)
 
 const AppearanceSection: Component<{ controller: AppearanceSettingsController }> = (props) => {
   const language = useLanguage()
+  const platform = usePlatform()
+  const desktop = createMemo(() => platform.platform === "desktop")
   return (
     <div class="settings-v2-section">
       <h3 class="settings-v2-section-title">{language.t("settings.general.section.appearance")}</h3>
@@ -136,6 +140,7 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
             current={schemeOptions.find((option) => option === props.controller.scheme.current())}
             placement="bottom-end"
             gutter={6}
+            disabled={skinSettingsLocked()}
             label={(option) => {
               if (option === "system") return language.t("theme.scheme.system")
               if (option === "light") return language.t("theme.scheme.light")
@@ -165,9 +170,19 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
             gutter={6}
             value={(option) => option.id}
             label={(option) => option.name}
+            disabled={skinSettingsLocked()}
             onSelect={props.controller.theme.select}
           />
         </SettingsRowV2>
+
+        <Show when={desktop()}>
+          <SettingsRowV2
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
+          >
+            <SettingsSkinSelect variant="v2" />
+          </SettingsRowV2>
+        </Show>
 
         <FontSetting kind="ui" fonts={props.controller.fonts} />
         <FontSetting kind="code" fonts={props.controller.fonts} />

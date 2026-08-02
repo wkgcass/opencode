@@ -1,0 +1,444 @@
+/* SU7 Ultra turns the desktop shell into a lightning-yellow time-attack
+ * cockpit. Yellow is reserved for timing, focus, and selected state so the
+ * working surfaces stay calm during long sessions. */
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] {
+  --su7-yellow: #f2e600;
+  --su7-yellow-hot: #fff329;
+  --su7-yellow-deep: #8f8700;
+  --su7-carbon: #08090a;
+  --su7-cockpit: #0f1113;
+  --su7-asphalt: #191c1f;
+  --su7-asphalt-raised: #22262a;
+  --su7-white: #f3f4ee;
+  --su7-steel: #9ca1a7;
+  --su7-muted: #747a81;
+  --su7-line: rgba(243, 244, 238, 0.11);
+  --su7-yellow-line: rgba(242, 230, 0, 0.48);
+  --su7-panel: rgba(15, 17, 19, 0.9);
+  --su7-panel-strong: rgba(20, 23, 26, 0.96);
+  --desktop-chrome: var(--su7-carbon);
+  --desktop-panel: var(--su7-panel);
+  --desktop-divider: var(--su7-line);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] body,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="codex-app-shell"] {
+  color: var(--su7-white);
+  background-color: var(--su7-carbon);
+  background-image:
+    radial-gradient(circle at 86% 0%, rgba(242, 230, 0, 0.085), transparent 24%),
+    linear-gradient(145deg, var(--su7-carbon), var(--su7-cockpit));
+}
+
+/* Carbon-black chrome with a single yellow steering-centre marker on the
+ * active tab. */
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-v2"] {
+  color: var(--su7-white);
+  background:
+    linear-gradient(90deg, transparent, transparent calc(100% - 140px), var(--su7-carbon)),
+    repeating-linear-gradient(135deg, transparent 0 8px, rgba(255, 255, 255, 0.012) 8px 9px),
+    linear-gradient(180deg, rgba(24, 26, 29, 0.995), rgba(8, 9, 10, 0.995));
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.04),
+    0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-v2"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(243, 244, 238, 0.1), rgba(243, 244, 238, 0.1) var(--desktop-sidebar-width), transparent calc(var(--desktop-sidebar-width) + 130px));
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs"] {
+  border-right: 1px solid rgba(243, 244, 238, 0.07);
+  border-left: 1px solid rgba(243, 244, 238, 0.07);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs-fade-left"] {
+  background: linear-gradient(to right, var(--su7-carbon), transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs-fade-right"] {
+  background: linear-gradient(to left, var(--su7-carbon), transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] {
+  --tab-base: color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%);
+  --tab-overlay: transparent;
+  color: var(--su7-muted);
+  border-radius: 3px;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"]:hover {
+  --tab-base: color-mix(in srgb, var(--su7-carbon) 93%, var(--su7-yellow) 7%) !important;
+  --tab-overlay: transparent !important;
+  color: var(--su7-white);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"][data-active="true"] {
+  --tab-base: linear-gradient(180deg, color-mix(in srgb, var(--su7-carbon) 92.5%, var(--su7-white) 7.5%), color-mix(in srgb, var(--su7-carbon) 97.5%, var(--su7-white) 2.5%)) !important;
+  --tab-overlay: transparent !important;
+  --desktop-active-tab-accent: var(--su7-yellow);
+  color: var(--su7-white);
+  box-shadow: 0 3px 14px rgba(242, 230, 0, 0.08);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] [data-slot="tab-close"] {
+  background: transparent;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-slot="titlebar-v2"]
+  [data-component="icon-button-v2"]:hover {
+  color: var(--su7-white);
+  background: rgba(242, 230, 0, 0.1);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="codex-app-sidebar"] {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(255, 255, 255, 0.013) 9px 10px),
+    radial-gradient(circle at 0% 0%, rgba(242, 230, 0, 0.09), transparent 24%),
+    linear-gradient(180deg, #111315, var(--su7-carbon));
+  border-right-color: var(--su7-line);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="codex-sidebar-brand"] {
+  color: var(--su7-white);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: -0.45px;
+  text-shadow: 0 0 18px rgba(242, 230, 0, 0.12);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="codex-sidebar-brand"]::before {
+  content: "SU7 ULTRA  /  ";
+  color: var(--su7-yellow-hot);
+  pointer-events: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="codex-sidebar-brand"]::after {
+  content: "TRACK ENGINEERING";
+  display: block;
+  margin-top: 4px;
+  color: var(--su7-muted);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-action="sidebar-new-session"] {
+  color: var(--su7-white);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-row:hover,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-session:hover {
+  color: var(--su7-white);
+  background: linear-gradient(90deg, rgba(242, 230, 0, 0.13), rgba(242, 230, 0, 0.025) 72%, transparent);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-row[aria-current="page"],
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-session[aria-current="page"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-right: 46px !important;
+  color: var(--su7-white);
+  background:
+    linear-gradient(90deg, rgba(242, 230, 0, 0.18), rgba(242, 230, 0, 0.045) 64%, transparent),
+    rgba(255, 255, 255, 0.015);
+  box-shadow:
+    inset 2px 0 var(--su7-yellow),
+    inset 9px 0 20px rgba(242, 230, 0, 0.055);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  .codex-app-sidebar-project
+  > .codex-app-sidebar-row[aria-current="page"]::after,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-session[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: 11px;
+  width: 28px;
+  height: 11px;
+  transform: translateY(-50%) skewX(-18deg);
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--su7-yellow) 0 3px, transparent 3px 8px, rgba(242, 230, 0, 0.72) 8px 13px, transparent 13px 18px, rgba(242, 230, 0, 0.38) 18px 26px);
+  filter: drop-shadow(0 0 5px rgba(242, 230, 0, 0.26));
+  opacity: 0.72;
+  transition: opacity 120ms ease;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  .codex-app-sidebar-project:hover
+  > .codex-app-sidebar-row[aria-current="page"]::after,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  .codex-app-sidebar-project:focus-within
+  > .codex-app-sidebar-row[aria-current="page"]::after,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  .codex-app-sidebar-session-row:hover
+  > .codex-app-sidebar-session[aria-current="page"]::after,
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  .codex-app-sidebar-session-row:focus-within
+  > .codex-app-sidebar-session[aria-current="page"]::after {
+  opacity: 0;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-action {
+  color: var(--su7-white);
+  background: rgba(243, 244, 238, 0.045);
+  border: 1px solid var(--su7-line);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] .codex-app-sidebar-action:hover {
+  color: var(--su7-white);
+  background: rgba(242, 230, 0, 0.12);
+  border-color: rgba(242, 230, 0, 0.3);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-dot"] {
+  border-color: var(--su7-yellow-hot);
+  box-shadow:
+    0 0 0 1px rgba(242, 230, 0, 0.16),
+    0 0 7px rgba(242, 230, 0, 0.48);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-line"] {
+  background: linear-gradient(
+    90deg,
+    var(--su7-yellow-hot),
+    var(--su7-yellow) 72%,
+    var(--su7-yellow-deep)
+  );
+  box-shadow: 0 0 5px rgba(242, 230, 0, 0.34);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="codex-main-workspace"] {
+  position: relative;
+  background-color: var(--su7-cockpit);
+  background-image:
+    linear-gradient(116deg, transparent 0 69%, rgba(242, 230, 0, 0.034) 69% 69.22%, transparent 69.22%),
+    repeating-linear-gradient(90deg, transparent 0 82px, rgba(255, 255, 255, 0.011) 82px 83px),
+    radial-gradient(circle at 90% 13%, rgba(242, 230, 0, 0.065), transparent 28%),
+    linear-gradient(145deg, var(--su7-cockpit), var(--su7-carbon));
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="new-session-panel-shell"],
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="session-panel-row"] {
+  background: var(--su7-carbon);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="session-panel-frame"] {
+  background: var(--su7-panel);
+  border-color: var(--su7-line);
+  box-shadow:
+    inset 1px 1px rgba(255, 255, 255, 0.035),
+    0 16px 44px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px) saturate(106%);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-component="session-panel-frame"]
+  [data-component="session-prompt-dock"] {
+  background: transparent;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-design"] {
+  isolation: isolate;
+  background-color: #0b0d0f;
+  background-image:
+    linear-gradient(90deg, rgba(5, 6, 7, 0.36), transparent 48%),
+    linear-gradient(180deg, rgba(5, 6, 7, 0.18), transparent 34%, rgba(5, 6, 7, 0.22) 100%),
+    radial-gradient(circle at 53% 50%, transparent 48%, rgba(3, 4, 5, 0.24) 100%),
+    url("./su7ultra-track.png");
+  background-position: center, center, center, right 52%;
+  background-size: cover;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-design"]::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 91px, rgba(243, 244, 238, 0.022) 91px 92px),
+    linear-gradient(117deg, transparent 0 74%, rgba(242, 230, 0, 0.08) 74% 74.22%, transparent 74.22%),
+    linear-gradient(180deg, transparent 0 73%, rgba(5, 6, 7, 0.32));
+  mask-image: linear-gradient(180deg, black, transparent 27%, transparent 70%, black);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-hero"] {
+  inset-inline: auto;
+  top: 43%;
+  left: 7%;
+  width: min(44%, 590px);
+  min-height: 0;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 0;
+  transform: translateY(-50%);
+  text-align: left;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-hero"]::before {
+  content: "SU7 ULTRA  /  PROTOTYPE";
+  display: block;
+  padding: 7px 12px 6px;
+  border: 1px solid rgba(242, 230, 0, 0.55);
+  border-radius: 999px;
+  color: var(--su7-yellow-hot);
+  background: rgba(8, 9, 10, 0.64);
+  box-shadow:
+    inset 0 0 15px rgba(242, 230, 0, 0.07),
+    0 0 20px rgba(0, 0, 0, 0.22);
+  font: 680 9px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+  backdrop-filter: blur(9px);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-glyph"] {
+  width: 44px;
+  height: 44px;
+  color: var(--su7-yellow-hot);
+  filter: drop-shadow(0 0 10px rgba(242, 230, 0, 0.22));
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="desktop-new-session-prompt"] {
+  min-width: 0;
+  max-width: 590px;
+  padding: 0;
+  color: var(--su7-white);
+  font-size: clamp(25px, 2.55vw, 38px);
+  font-weight: 480;
+  line-height: 1.22;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 2px 14px rgba(0, 0, 0, 0.98),
+    0 0 22px rgba(0, 0, 0, 0.7);
+  text-wrap: balance;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="desktop-new-session-prompt"]::before {
+  content: "NORDSCHLEIFE  ·  06:22.091";
+  display: block;
+  margin-bottom: 12px;
+  color: rgba(243, 244, 238, 0.62);
+  font: 540 9px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.18em;
+  pointer-events: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="desktop-new-session-prompt"] span {
+  color: #fffef2;
+  text-decoration-color: var(--su7-yellow);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"]
+  [data-component="prompt-input-v2"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--su7-panel-strong), var(--su7-panel-strong)) padding-box,
+    linear-gradient(105deg, rgba(156, 161, 167, 0.48), var(--su7-yellow), var(--su7-yellow-deep)) border-box;
+  box-shadow:
+    0 19px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 3px rgba(242, 230, 0, 0.065),
+    inset 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px) saturate(110%);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"]
+  [data-component="prompt-input-v2"]:focus-within {
+  box-shadow:
+    0 19px 48px rgba(0, 0, 0, 0.54),
+    0 0 0 3px rgba(242, 230, 0, 0.13),
+    0 0 30px rgba(242, 230, 0, 0.1),
+    inset 0 1px rgba(255, 255, 255, 0.06);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"]
+  + * {
+  color: rgba(243, 244, 238, 0.8);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.84);
+}
+
+html[data-opencode-desktop="true"][data-skin="su7-ultra"] ::selection {
+  color: #0b0c0d;
+  background: rgba(242, 230, 0, 0.78);
+}
+
+@media (max-width: 900px) {
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-design"] {
+    background-position: center, center, center, 84% 52%;
+  }
+
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-hero"] {
+    left: 6%;
+    width: min(50%, 540px);
+  }
+}
+
+@media (max-width: 640px) {
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-design"] {
+    background-image:
+      linear-gradient(180deg, rgba(5, 6, 7, 0.38), rgba(5, 6, 7, 0.18) 45%, rgba(5, 6, 7, 0.48)),
+      radial-gradient(circle at 50% 44%, transparent 32%, rgba(3, 4, 5, 0.36) 100%),
+      url("./su7ultra-track.png");
+    background-position: center, center, 67% 48%;
+    background-size: cover;
+  }
+
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-hero"] {
+    top: 41%;
+    left: 50%;
+    width: calc(100% - 44px);
+    align-items: center;
+    padding-inline: 8px;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="desktop-new-session-prompt"] {
+    font-size: clamp(23px, 5.5vw, 30px);
+  }
+
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-component="desktop-new-session-glyph"] {
+    width: 39px;
+    height: 39px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] *,
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] *::before,
+  html[data-opencode-desktop="true"][data-skin="su7-ultra"] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

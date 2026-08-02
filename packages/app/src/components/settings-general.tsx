@@ -12,6 +12,7 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
+import { skinSettingsLocked } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -31,6 +32,7 @@ import { decode64 } from "@/utils/base64"
 import { playSoundById, SOUND_OPTIONS } from "@/utils/sound"
 import { ExternalLink } from "./external-link"
 import { SettingsList } from "./settings-list"
+import { SettingsSkinSelect, skinSettingsText } from "./settings-skin-select"
 
 let demoSoundState = {
   cleanup: undefined as (() => void) | undefined,
@@ -469,6 +471,7 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"
@@ -492,6 +495,7 @@ export const SettingsGeneral: Component = () => {
             current={themeOptions().find((o) => o.id === theme.themeId())}
             value={(o) => o.id}
             label={(o) => o.name}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => {
               if (!option) return
               theme.setTheme(option.id)
@@ -501,6 +505,15 @@ export const SettingsGeneral: Component = () => {
             triggerVariant="settings"
           />
         </SettingsRow>
+
+        <Show when={desktop()}>
+          <SettingsRow
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
+          >
+            <SettingsSkinSelect variant="legacy" />
+          </SettingsRow>
+        </Show>
 
         <SettingsRow
           title={language.t("settings.general.row.uiFont.title")}

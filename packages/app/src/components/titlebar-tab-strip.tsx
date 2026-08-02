@@ -158,7 +158,10 @@ function SessionTabEntry(props: {
         active={props.active}
         forceTruncate={props.forceTruncate}
         session={session}
-        fallbackTitle={persisted()?.title ?? (missingSession() ? language.t("session.tab.unknown") : undefined)}
+        fallbackTitle={
+          persisted()?.title ??
+          (missingSession() ? language.t("session.tab.unknown") : language.t("session.tab.connecting"))
+        }
         onRename={rename}
         onNavigate={props.onNavigate}
         onClose={props.onClose}

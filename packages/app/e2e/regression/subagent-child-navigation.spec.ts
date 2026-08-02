@@ -23,6 +23,13 @@ test("navigates to a subagent child session missing from the session list", asyn
   await expectSessionTitle(page, taskDescription)
   await expect(page.getByRole("heading", { name: parentTitle })).toHaveCount(0)
 
+  const parentTab = page.locator(`[data-titlebar-tab-slot]:has(a[href="${sessionHref(parentID)}"])`)
+  const childTab = page.locator(`[data-titlebar-tab-slot]:has(a[href="${sessionHref(childID)}"])`)
+  await expect(parentTab).toBeVisible()
+  await expect(childTab).toBeVisible()
+  await expect(childTab).toHaveAttribute("data-active", "true")
+  await expect(page.locator("[data-titlebar-tab-slot]")).toHaveCount(2)
+
   const titlebarRight = page.locator("#opencode-titlebar-right")
   await expect(titlebarRight.getByRole("button", { name: "Toggle review" })).toHaveCount(1)
 })

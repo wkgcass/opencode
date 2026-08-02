@@ -196,4 +196,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "Hatayı kopyala",
   "ui.message.duration.seconds": "{{count}}sn",
   "ui.message.duration.minutesSeconds": "{{minutes}}dk {{seconds}}sn",
+  "ui.sessionTurn.status.thought": "Thought",
 } satisfies Partial<Record<Keys, string>>

@@ -7,7 +7,6 @@ import { showToast } from "@/utils/toast"
 import type { FitAddon, Ghostty, Terminal as Term } from "ghostty-web"
 import { type ComponentProps, createEffect, createMemo, onCleanup, onMount, splitProps } from "solid-js"
 import { SerializeAddon } from "@/addons/serialize"
-import { matchKeybind, parseKeybind } from "@/context/command"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
 import { useSDK } from "@/context/sdk"
@@ -18,8 +17,6 @@ import { disposeIfDisposable, getHoveredLinkText, setOptionIfSupported } from "@
 import { terminalWriter } from "@/utils/terminal-writer"
 import { terminalWebSocketURL } from "@/utils/terminal-websocket-url"
 
-const TOGGLE_TERMINAL_ID = "terminal.toggle"
-const DEFAULT_TOGGLE_TERMINAL_KEYBIND = "ctrl+`"
 export interface TerminalProps extends ComponentProps<"div"> {
   pty: LocalPTY
   autoFocus?: boolean
@@ -111,10 +108,15 @@ const useTerminalUiBindings = (input: {
     input.term.paste(text)
   }
 
-  const handleTextareaFocus = () => {
+  // ghostty-web focuses the contenteditable container (not the textarea), so
+  // focus bounces between the two while the terminal stays active. Listen on
+  // the container with bubbling focusin/focusout so any in-container transfer
+  // keeps the cursor blinking, and only stop once focus truly leaves.
+  const handleFocusIn = () => {
     input.term.options.cursorBlink = true
   }
-  const handleTextareaBlur = () => {
+  const handleFocusOut = (event: FocusEvent) => {
+    if (input.container.contains(event.relatedTarget as Node | null)) return
     input.term.options.cursorBlink = false
   }
 
@@ -136,10 +138,10 @@ const useTerminalUiBindings = (input: {
     }),
   )
 
-  input.term.textarea?.addEventListener("focus", handleTextareaFocus)
-  input.term.textarea?.addEventListener("blur", handleTextareaBlur)
-  input.cleanups.push(() => input.term.textarea?.removeEventListener("focus", handleTextareaFocus))
-  input.cleanups.push(() => input.term.textarea?.removeEventListener("blur", handleTextareaBlur))
+  input.container.addEventListener("focusin", handleFocusIn)
+  input.cleanups.push(() => input.container.removeEventListener("focusin", handleFocusIn))
+  input.container.addEventListener("focusout", handleFocusOut)
+  input.cleanups.push(() => input.container.removeEventListener("focusout", handleFocusOut))
 }
 
 const persistTerminal = (input: {
@@ -432,11 +434,9 @@ export const Terminal = (props: TerminalProps) => {
           return true
         }
 
-        // allow for toggle terminal keybinds in parent
-        const config = settings.keybinds.get(TOGGLE_TERMINAL_ID) ?? DEFAULT_TOGGLE_TERMINAL_KEYBIND
-        const keybinds = parseKeybind(config)
-
-        return matchKeybind(keybinds, event)
+        // Hand every other key to the PTY; the global keybind handler skips
+        // the terminal entirely (see command.tsx isTerminalTarget).
+        return false
       })
 
       const fit = new mod.FitAddon()
@@ -744,7 +744,7 @@ export const Terminal = (props: TerminalProps) => {
       data-component="terminal"
       data-prevent-autofocus
       tabIndex={-1}
-      style={{ "background-color": terminalColors().background }}
+      style={{ "background-color": terminalColors().background, "caret-color": "transparent" }}
       classList={{
         ...local.classList,
         "select-text": true,

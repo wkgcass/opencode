@@ -7,6 +7,7 @@ import { ButtonV2 } from "@opencode-ai/ui/v2/button-v2"
 import { Icon as IconV2 } from "@opencode-ai/ui/v2/icon"
 import { IconButtonV2 } from "@opencode-ai/ui/v2/icon-button-v2"
 import { KeybindV2 } from "@opencode-ai/ui/v2/keybind-v2"
+import { LoaderV2 } from "@opencode-ai/ui/v2/loader-v2"
 import { MenuV2 } from "@opencode-ai/ui/v2/menu-v2"
 import { TooltipV2 } from "@opencode-ai/ui/v2/tooltip-v2"
 import { AttachmentCardV2 } from "../attachment-card-v2"
@@ -535,6 +536,7 @@ function PromptInputV2ConfiguredSelect(props: {
         </Show>
       }
       onSelect={props.control.onSelect}
+      disabled={props.control.disabled?.()}
     />
   )
 }
@@ -546,6 +548,7 @@ export function PromptInputV2Select(props: {
   current: string
   currentIcon?: JSX.Element
   class?: string
+  disabled?: boolean
   onOpenChange?: (open: boolean) => void
   onSelect: (id: string) => void
 }) {
@@ -564,16 +567,23 @@ export function PromptInputV2Select(props: {
           as={ButtonV2}
           variant="ghost-muted"
           size="normal"
+          disabled={props.disabled}
           class={`max-w-[220px] justify-start ![font-weight:440] ${props.class ?? ""}`}
           aria-label={props.title}
         >
-          {props.currentIcon}
-          <span class="truncate capitalize leading-5">
-            {props.options.find((option) => option.id === props.current)?.label ?? props.current}
-          </span>
-          <span class="-ml-0.5 -mr-1 flex shrink-0">
-            <IconV2 name="chevron-down" />
-          </span>
+          {props.disabled ? (
+            <LoaderV2 class="size-4 shrink-0" />
+          ) : (
+            <>
+              {props.currentIcon}
+              <span class="truncate capitalize leading-5">
+                {props.options.find((option) => option.id === props.current)?.label ?? props.current}
+              </span>
+              <span class="-ml-0.5 -mr-1 flex shrink-0">
+                <IconV2 name="chevron-down" />
+              </span>
+            </>
+          )}
         </MenuV2.Trigger>
         <MenuV2.Portal>
           <MenuV2.Content>

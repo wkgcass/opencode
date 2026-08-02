@@ -40,6 +40,7 @@ import { clearWorkspaceTerminals } from "@/context/terminal"
 import { pickSessionCacheEvictions } from "@/context/global-sync/session-cache"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
+import { skinSettingsLocked } from "@/context/skin"
 import { Binary } from "@opencode-ai/core/util/binary"
 import { retry } from "@opencode-ai/core/util/retry"
 import { playSoundById } from "@/utils/sound"
@@ -329,6 +330,7 @@ export default function LegacyLayout(props: ParentProps) {
   }
 
   function cycleTheme(direction = 1) {
+    if (skinSettingsLocked()) return
     const ids = availableThemeEntries().map(([id]) => id)
     if (ids.length === 0) return
     const currentIndex = ids.indexOf(theme.themeId())
@@ -342,6 +344,7 @@ export default function LegacyLayout(props: ParentProps) {
   }
 
   function cycleColorScheme(direction = 1) {
+    if (skinSettingsLocked()) return
     const current = theme.colorScheme()
     const currentIndex = colorSchemeOrder.indexOf(current)
     const nextIndex =
@@ -1023,6 +1026,7 @@ export default function LegacyLayout(props: ParentProps) {
         title: language.t("command.theme.cycle"),
         category: language.t("command.category.theme"),
         keybind: "mod+shift+t",
+        disabled: skinSettingsLocked(),
         onSelect: () => cycleTheme(1),
       },
     ]
@@ -1046,6 +1050,7 @@ export default function LegacyLayout(props: ParentProps) {
         id: `theme.set.${id}`,
         title: language.t("command.theme.set", { theme: theme.name(id) }),
         category: language.t("command.category.theme"),
+        disabled: skinSettingsLocked(),
         onSelect: () => theme.commitPreview(),
         onHighlight: () => {
           theme.previewTheme(id)
@@ -1059,6 +1064,7 @@ export default function LegacyLayout(props: ParentProps) {
       title: language.t("command.theme.scheme.cycle"),
       category: language.t("command.category.theme"),
       keybind: "mod+shift+s",
+      disabled: skinSettingsLocked(),
       onSelect: () => cycleColorScheme(1),
     })
 
@@ -1067,6 +1073,7 @@ export default function LegacyLayout(props: ParentProps) {
         id: `theme.scheme.${scheme}`,
         title: language.t("command.theme.scheme.set", { scheme: colorSchemeLabel(scheme) }),
         category: language.t("command.category.theme"),
+        disabled: skinSettingsLocked(),
         onSelect: () => theme.commitPreview(),
         onHighlight: () => {
           theme.previewColorScheme(scheme)
@@ -2262,7 +2269,7 @@ export default function LegacyLayout(props: ParentProps) {
       <Titlebar
         update={titlebarUpdate}
         debugTools={
-          import.meta.env.DEV && import.meta.env.VITE_DISABLE_DEBUG_BAR !== "1"
+          import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BAR === "1"
             ? { visible: state.debugTools, toggle: () => setState("debugTools", (value) => !value) }
             : undefined
         }
@@ -2411,7 +2418,7 @@ export default function LegacyLayout(props: ParentProps) {
             </div>
           </div>
         </div>
-        {import.meta.env.DEV && import.meta.env.VITE_DISABLE_DEBUG_BAR !== "1" && state.debugTools && <DebugBar />}
+        {import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BAR === "1" && state.debugTools && <DebugBar />}
       </div>
       <TabsInfoPopup />
       <ToastRegion v2={false} />
