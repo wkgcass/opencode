@@ -20,7 +20,6 @@ import { formatServerError } from "@/utils/server-errors"
 import { ScopedKey } from "@/utils/server-scope"
 import { createPromptSubmissionState } from "./submission-state"
 import { normalizeSessionInfo } from "@/utils/session"
-import { Event } from "@opencode-ai/schema/event"
 
 type PendingPrompt = {
   abort: AbortController
@@ -480,7 +479,7 @@ export function createPromptSubmit(input: PromptSubmitInput) {
 
     if (mode === "shell") {
       clearInput()
-      const eventID = Event.ID.create()
+      const eventID = serverSync().session.nextEventID(session.id)
       sdk()
         .api.session.shell({
           sessionID: session.id,

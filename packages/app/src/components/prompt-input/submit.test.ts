@@ -41,6 +41,7 @@ let variant: string | undefined
 let permissionServer = "server-a"
 let createSessionGate: Promise<void> | undefined
 let messageID = 0
+let eventID = 0
 
 let promptValue: Prompt = [{ type: "text", content: "ls", start: 0, end: 2 }]
 const [promptStore, setPromptStore] = createStore<PromptStore>({
@@ -238,6 +239,7 @@ beforeAll(async () => {
     useServerSync: () => () => ({
       session: {
         nextMessageID: () => `msg_test_${++messageID}`,
+        nextEventID: () => `evt_-${(++eventID).toString(16).padStart(14, "0")}abcdefghijklmn`,
         remember: () => undefined,
         set: () => undefined,
         sync: async () => {
@@ -304,6 +306,7 @@ beforeEach(() => {
   permissionServer = "server-a"
   createSessionGate = undefined
   messageID = 0
+  eventID = 0
   serverSessionSyncs = 0
   for (const key of Object.keys(storedSessions)) delete storedSessions[key]
 })
@@ -351,8 +354,8 @@ describe("prompt submit worktree selection", () => {
       },
     ])
     expect(sentShell).toEqual([
-      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt_/), command: "ls" }),
-      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt_/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt_-/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt_-/), command: "ls" }),
     ])
     expect(syncedDirectories).toEqual(["/repo/worktree-a", "/repo/worktree-a", "/repo/worktree-b", "/repo/worktree-b"])
     expect(serverSessionSyncs).toBe(0)

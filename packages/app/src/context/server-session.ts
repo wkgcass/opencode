@@ -34,7 +34,10 @@ const historyMessagePageSize = 200
 const sessionInfoLimit = 2_048
 const emptyIDs: ReadonlySet<string> = new Set()
 const messageIDOffset = 24 * 60 * 60 * 1_000
-const messageIDTimestampRange = 2 ** 36
+// Baseline is bounded by the timestamp bits of the ID format in use so the
+// generated time portion never overflows its byte width.
+const messageIDTimestampRangeLegacy = 2 ** 36
+const messageIDTimestampRangeExtended = 2 ** 44
 
 function needsOlderTurnRoot(source: readonly SessionMessageInfo[]) {
   const boundary = source.find(
@@ -222,18 +225,50 @@ export function createServerSession(
   const removedMessages = new Map<string, Set<string>>()
   const deltaBases = new Map<string, { base: string; sessionID: string }>()
   const messageIDBase = new Map<string, number>()
-  const observeMessageID = (sessionID: string, messageID: string) => {
+  // Per-session ID format, learned from the latest server response. The
+  // response timestamp prevents mixed or older history pages from overriding
+  // the format selected by a newer response.
+  const messageIDFormat = new Map<string, { extended: boolean; created: number; messageID: string }>()
+  const observeMessageID = (message: Message) => {
+    const sessionID = message.sessionID
+    const messageID = message.id
+    const extended = Identifier.isExtended(messageID)
     const timestamp = Identifier.timestamp(messageID)
     if (timestamp === undefined) return
+    // User messages echo the client's own ID (the server reuses the ID sent
+    // with the prompt), so they cannot reveal the server's format: the client
+    // may have minted one in the default extended format before any server
+    // response arrived. Letting such an ID set the format would flip a
+    // learned legacy server back to extended whenever the user message is
+    // re-emitted. Only server-generated (assistant, etc.) messages are
+    // authoritative for the format.
+    if (message.role === "user") {
+      // Skip base advancement when the client message's format differs from
+      // the learned one: extended encodes wall-clock time while legacy wraps
+      // modulo 2^36, so mixing them would overflow the other encoding.
+      if (extended !== (messageIDFormat.get(sessionID)?.extended ?? true)) return
+    } else {
+      const format = messageIDFormat.get(sessionID)
+      const created = Number.isFinite(message.time.created) ? message.time.created : 0
+      if (format && created < format.created) return
+      if (format && created === format.created && format.messageID !== messageID) return
+      messageIDFormat.set(sessionID, { extended, created, messageID })
+      if (format?.extended !== extended) messageIDBase.delete(sessionID)
+    }
     const next = timestamp + 1
-    const current = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % messageIDTimestampRange
+    const range = extended ? messageIDTimestampRangeExtended : messageIDTimestampRangeLegacy
+    const current = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % range
     if (next > current) messageIDBase.set(sessionID, next)
   }
   const nextMessageID = (sessionID: string) => {
-    const base = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % messageIDTimestampRange
+    const extended = messageIDFormat.get(sessionID)?.extended ?? true
+    const range = extended ? messageIDTimestampRangeExtended : messageIDTimestampRangeLegacy
+    const base = messageIDBase.get(sessionID) ?? (Date.now() - messageIDOffset) % range
     messageIDBase.set(sessionID, base + 1)
-    return Identifier.ascendingAt("message", base)
+    return Identifier.ascendingAt("message", base, extended)
   }
+  const nextEventID = (sessionID: string) =>
+    Identifier.ascending("event", undefined, messageIDFormat.get(sessionID)?.extended ?? true)
   const deleteMessageParts = (
     cache: { part: Record<string, Part[] | undefined>; part_text_accum_delta: Record<string, string | undefined> },
     messageID: string,
@@ -695,7 +730,7 @@ export function createServerSession(
     preserveUnfetched: boolean | ((message: Message) => boolean),
     cleanupOrphans: boolean,
   ) => {
-    page.session.forEach((message) => observeMessageID(sessionID, message.id))
+    page.session.forEach(observeMessageID)
     const source = page.source
       ? (() => {
           const incoming = new Map(page.source.map((message) => [message.id, message]))
@@ -1029,6 +1064,7 @@ export function createServerSession(
         if (!sessionID) return
         infoSeen.delete(sessionID)
         messageIDBase.delete(sessionID)
+        messageIDFormat.delete(sessionID)
         setData(
           "info",
           produce((draft) => void delete draft[sessionID]),
@@ -1048,7 +1084,7 @@ export function createServerSession(
       }
       case "message.updated": {
         const info = cleanMessage((event.properties as { info: Message }).info)
-        observeMessageID(info.sessionID, info.id)
+        observeMessageID(info)
         indexLegacyMessage(info)
         const load = messageLoads.get(info.sessionID)
         load?.touchedMessages.add(info.id)
@@ -1320,6 +1356,7 @@ export function createServerSession(
     peek: (sessionID: string) => data.info[sessionID],
     remember,
     nextMessageID,
+    nextEventID,
     resolve,
     lineage: {
       peek: peekLineage,
