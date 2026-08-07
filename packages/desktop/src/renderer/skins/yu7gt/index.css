@@ -19,6 +19,7 @@ html[data-opencode-desktop="true"][data-skin="yu7-gt"] {
   --desktop-chrome: var(--yu7-carbon);
   --desktop-panel: var(--yu7-panel);
   --desktop-divider: var(--yu7-line);
+  --desktop-titlebar-fade: linear-gradient(180deg, rgba(28, 28, 32, 0.99), rgba(11, 11, 13, 0.99));
 }
 
 html[data-opencode-desktop="true"][data-skin="yu7-gt"] body,
@@ -56,14 +57,6 @@ html[data-opencode-desktop="true"][data-skin="yu7-gt"] [data-slot="titlebar-v2"]
 html[data-opencode-desktop="true"][data-skin="yu7-gt"] [data-slot="titlebar-tabs"] {
   border-right: 1px solid rgba(243, 241, 236, 0.08);
   border-left: 1px solid rgba(243, 241, 236, 0.08);
-}
-
-html[data-opencode-desktop="true"][data-skin="yu7-gt"] [data-slot="titlebar-tabs-fade-left"] {
-  background: linear-gradient(to right, var(--yu7-carbon), transparent);
-}
-
-html[data-opencode-desktop="true"][data-skin="yu7-gt"] [data-slot="titlebar-tabs-fade-right"] {
-  background: linear-gradient(to left, var(--yu7-carbon), transparent);
 }
 
 html[data-opencode-desktop="true"][data-skin="yu7-gt"] [data-slot="titlebar-tab-item"] {

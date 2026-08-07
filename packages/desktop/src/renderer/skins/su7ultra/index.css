@@ -19,6 +19,9 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] {
   --desktop-chrome: var(--su7-carbon);
   --desktop-panel: var(--su7-panel);
   --desktop-divider: var(--su7-line);
+  --desktop-titlebar-fade:
+    repeating-linear-gradient(135deg, transparent 0 8px, rgba(255, 255, 255, 0.012) 8px 9px),
+    linear-gradient(180deg, rgba(24, 26, 29, 0.995), rgba(8, 9, 10, 0.995));
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] body,
@@ -57,14 +60,6 @@ html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-v
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs"] {
   border-right: 1px solid rgba(243, 244, 238, 0.07);
   border-left: 1px solid rgba(243, 244, 238, 0.07);
-}
-
-html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs-fade-left"] {
-  background: linear-gradient(to right, var(--su7-carbon), transparent);
-}
-
-html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tabs-fade-right"] {
-  background: linear-gradient(to left, var(--su7-carbon), transparent);
 }
 
 html[data-opencode-desktop="true"][data-skin="su7-ultra"] [data-slot="titlebar-tab-item"] {

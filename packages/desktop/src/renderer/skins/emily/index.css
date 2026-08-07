@@ -17,6 +17,7 @@ html[data-opencode-desktop="true"][data-skin="emily"] {
   --desktop-chrome: var(--emily-chrome);
   --desktop-panel: var(--emily-panel);
   --desktop-divider: var(--emily-line);
+  --desktop-titlebar-fade: color-mix(in srgb, var(--emily-chrome) 96%, var(--emily-silver));
 }
 
 html[data-opencode-desktop="true"][data-skin="emily"] body,

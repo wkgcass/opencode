@@ -5,6 +5,7 @@ html[data-opencode-desktop="true"] {
   --desktop-divider: color-mix(in srgb, var(--v2-text-text-base) 12%, transparent);
   --desktop-panel: #ffffff;
   --desktop-sidebar-width: 262px;
+  --desktop-titlebar-fade: var(--desktop-chrome);
 }
 
 html[data-opencode-desktop="true"][data-color-scheme="dark"] {
@@ -289,6 +290,14 @@ html[data-opencode-desktop="true"] [data-titlebar-tab-list] {
   gap: 8px;
 }
 
+html[data-opencode-desktop="true"][data-skin] [data-slot="titlebar-tabs"][data-can-scroll-left="true"] {
+  border-left-color: transparent;
+}
+
+html[data-opencode-desktop="true"][data-skin] [data-slot="titlebar-tabs"][data-can-scroll-right="true"] {
+  border-right-color: transparent;
+}
+
 html[data-opencode-desktop="true"] [data-titlebar-tab] [data-slot="tab-close"] {
   top: 6px;
 }
@@ -303,11 +312,19 @@ html[data-opencode-desktop="true"] [data-titlebar-tab-slot]:not(:first-child):no
 }
 
 html[data-opencode-desktop="true"] [data-slot="titlebar-tabs-fade-left"] {
-  background: linear-gradient(to right, var(--desktop-chrome), transparent);
+  background: var(--desktop-titlebar-fade);
+  background-position: 0 -4px;
+  background-size: 100% 40px;
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 40%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, black 40%, transparent 100%);
 }
 
 html[data-opencode-desktop="true"] [data-slot="titlebar-tabs-fade-right"] {
-  background: linear-gradient(to left, var(--desktop-chrome), transparent);
+  background: var(--desktop-titlebar-fade);
+  background-position: 0 -4px;
+  background-size: 100% 40px;
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 40%, transparent 100%);
+  mask-image: linear-gradient(to left, black 0%, black 40%, transparent 100%);
 }
 
 html[data-opencode-desktop="true"] [data-component="button"],
