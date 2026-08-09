@@ -295,6 +295,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
       trigger: item.name,
       title: item.name,
       description: item.description,
+      origin: "server" as const,
       type: "custom" as const,
     })),
     ...command.options
@@ -304,6 +305,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
         trigger: item.slash!,
         title: item.title,
         description: item.description,
+        origin: undefined,
         type: "builtin" as const,
       })),
   ])
@@ -315,6 +317,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
       trigger: item.trigger,
       title: item.title,
       description: item.description,
+      origin: item.origin,
       keybind: command.keybindParts(item.id),
     })),
   )

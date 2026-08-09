@@ -656,7 +656,15 @@ export function PromptInputV2Popover(props: {
                 <PromptInputV2SuggestionIcon item={item} />
                 <span class="shrink-0 text-v2-text-text-base">{item.label}</span>
                 <Show when={item.description}>
-                  <span class="min-w-0 truncate text-v2-text-text-muted">{item.description}</span>
+                  <span
+                    class="min-w-0 text-v2-text-text-muted"
+                    classList={{
+                      "whitespace-normal break-words text-left": item.kind === "command",
+                      truncate: item.kind !== "command",
+                    }}
+                  >
+                    {item.description}
+                  </span>
                 </Show>
               </div>
               <Show when={item.keybind?.length}>
@@ -714,7 +722,16 @@ export function PromptInputV2SubmitButton(props: {
 
 function PromptInputV2SuggestionIcon(props: { item: PromptInputV2Suggestion }) {
   if (props.item.kind === "agent") return <Icon name="brain" size="small" class="shrink-0 text-icon-info-active" />
-  if (props.item.kind === "command") return null
+  if (props.item.kind === "command") {
+    if (props.item.origin !== "server") return null
+    return (
+      <span
+        aria-hidden="true"
+        class="size-1.5 shrink-0 rounded-full"
+        style={{ "background-color": "light-dark(var(--v2-blue-600), var(--v2-yellow-600))" }}
+      />
+    )
+  }
   return (
     <FileIcon
       node={{ path: props.item.path ?? props.item.label, type: props.item.kind === "reference" ? "directory" : "file" }}
