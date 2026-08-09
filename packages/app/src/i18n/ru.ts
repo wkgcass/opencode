@@ -324,6 +324,7 @@ export const dict = {
   "mcp.status.disabled": "отключено",
 
   "dialog.fork.empty": "Нет сообщений для ответвления",
+  "dialog.fork.fullSession": "Полный сеанс",
 
   "dialog.directory.search.placeholder": "Поиск папок",
   "dialog.directory.empty": "Папки не найдены",

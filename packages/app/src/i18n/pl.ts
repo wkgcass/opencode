@@ -301,6 +301,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Kliknij, aby się uwierzytelnić",
   "mcp.status.disabled": "wyłączone",
   "dialog.fork.empty": "Brak wiadomości do rozwidlenia",
+  "dialog.fork.fullSession": "Pełna sesja",
   "dialog.directory.search.placeholder": "Szukaj folderów",
   "dialog.directory.empty": "Nie znaleziono folderów",
   "dialog.directory.action.selectFile": "Wybierz plik",

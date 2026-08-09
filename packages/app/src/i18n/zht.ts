@@ -324,6 +324,7 @@ export const dict = {
   "mcp.status.disabled": "已停用",
 
   "dialog.fork.empty": "沒有可用於分支的訊息",
+  "dialog.fork.fullSession": "完整會話",
 
   "dialog.directory.search.placeholder": "搜尋資料夾",
   "dialog.directory.empty": "找不到資料夾",
