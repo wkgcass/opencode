@@ -643,6 +643,8 @@ export const dict = {
   "session.messages.loading": "Indlæser beskeder...",
 
   "session.messages.jumpToLatest": "Gå til seneste",
+  "session.messages.workedFor": "Behandlet på {{duration}}",
+  "session.messages.workCompleted": "Resultaterne følger",
   "session.context.addToContext": "Tilføj {{selection}} til kontekst",
   "session.todo.title": "Opgaver",
   "session.todo.collapse": "Skjul",

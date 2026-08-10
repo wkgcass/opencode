@@ -76,6 +76,7 @@ import { observeElementOffsetReconnectAware } from "./observe-element-offset"
 import { createTimelineProjection } from "./projection"
 import { MessageComment, SummaryDiff, TimelineRow, TimelineRowMap } from "./rows"
 import { filterVirtualIndexes } from "./virtual-items"
+import { formatWorkDuration } from "./work-duration"
 
 const emptyMessages: MessageType[] = []
 const emptyParts: PartType[] = []
@@ -1185,6 +1186,52 @@ export function MessageTimeline(props: {
                 />
               </div>
             </div>
+          </TimelineRowFrame>
+        )
+      }
+      case "WorkHistory": {
+        const workHistoryRow = row as Accessor<TimelineRowByTag<"WorkHistory">>
+        const key = () => `work-history:${workHistoryRow().userMessageID}`
+        const open = createMemo(() => toolOpen[key()] === true)
+        return (
+          <TimelineRowFrame row={workHistoryRow}>
+            <Accordion
+              collapsible
+              data-scope="work-history"
+              value={open() ? [key()] : []}
+              onChange={(value) => {
+                setToolOpen(key(), value.includes(key()))
+                onSizeChange?.()
+              }}
+            >
+              <Accordion.Item value={key()}>
+                <Accordion.Header class="px-4 md:px-5">
+                  <Accordion.Trigger>
+                    <span data-slot="work-history-label">
+                      {language.t("session.messages.workedFor", {
+                        duration: formatWorkDuration(turnDurationMs(workHistoryRow().userMessageID) ?? 0),
+                      })}
+                    </span>
+                    <Icon
+                      name="chevron-down"
+                      size="small"
+                      class="transition-transform duration-150"
+                      classList={{ "-rotate-90": !open() }}
+                    />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Content>
+                  <For each={workHistoryRow().rows}>
+                    {(historyRow) => <TimelineRowView row={historyRow} onSizeChange={onSizeChange} />}
+                  </For>
+                  <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+                    <div data-slot="session-turn-compaction">
+                      <MessageDivider label={language.t("session.messages.workCompleted")} />
+                    </div>
+                  </div>
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
           </TimelineRowFrame>
         )
       }

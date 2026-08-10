@@ -646,6 +646,8 @@ export const dict = {
   "session.messages.loadEarlier": "加载更早的消息",
   "session.messages.loading": "正在加载消息...",
   "session.messages.jumpToLatest": "跳转到最新",
+  "session.messages.workedFor": "已处理{{duration}}",
+  "session.messages.workCompleted": "结果如下",
   "session.context.addToContext": "将 {{selection}} 添加到上下文",
   "session.todo.title": "待办事项",
   "session.todo.collapse": "折叠",

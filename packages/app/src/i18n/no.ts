@@ -540,6 +540,8 @@ export const dict = {
   "session.messages.loadEarlier": "Last inn tidligere meldinger",
   "session.messages.loading": "Laster meldinger...",
   "session.messages.jumpToLatest": "Hopp til nyeste",
+  "session.messages.workedFor": "Behandlet på {{duration}}",
+  "session.messages.workCompleted": "Resultatene følger",
 
   "session.context.addToContext": "Legg til {{selection}} i kontekst",
   "session.todo.title": "Oppgaver",

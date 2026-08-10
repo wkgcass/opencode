@@ -25,6 +25,10 @@ export type TimelineRowMap = {
     group: PartGroup
     previousAssistantPart: boolean
   }
+  WorkHistory: {
+    userMessageID: string
+    rows: (TimelineRow.AssistantPart | TimelineRow.TurnDivider)[]
+  }
   Thinking: { userMessageID: string; reasoningHeading?: string }
   Retry: { userMessageID: string }
   DiffSummary: { userMessageID: string; diffs: SummaryDiff[] }
@@ -167,26 +171,35 @@ export namespace Timeline {
     }
 
     let assistantGroupIndex = 0
-    assistantItems.forEach((item) => {
+    const assistantRows = assistantItems.map((item) => {
       if (item.type === "interrupted") {
-        rows.push(
-          new TimelineRow.TurnDivider({
-            userMessageID: userMessage.id,
-            label: "interrupted",
-          }),
-        )
-        return
+        return new TimelineRow.TurnDivider({
+          userMessageID: userMessage.id,
+          label: "interrupted",
+        })
       }
 
-      rows.push(
-        new TimelineRow.AssistantPart({
-          userMessageID: userMessage.id,
-          group: item.group,
-          previousAssistantPart: assistantGroupIndex > 0,
-        }),
-      )
+      const row = new TimelineRow.AssistantPart({
+        userMessageID: userMessage.id,
+        group: item.group,
+        previousAssistantPart: assistantGroupIndex > 0,
+      })
       assistantGroupIndex += 1
+      return row
     })
+    const lastAssistantRowIndex = assistantRows.findLastIndex((row) => row._tag === "AssistantPart")
+    const historyRows = !isActive || status === "idle" ? assistantRows.slice(0, lastAssistantRowIndex) : []
+    const projectedAssistantRows = historyRows.some((row) => row._tag === "AssistantPart")
+      ? [
+          new TimelineRow.WorkHistory({
+            userMessageID: userMessage.id,
+            rows: historyRows,
+          }),
+          ...assistantRows.slice(lastAssistantRowIndex),
+        ]
+      : assistantRows
+
+    rows.push(...projectedAssistantRows)
 
     if (isActive && status === "busy" && !error && (showReasoning ? assistantPartRefs.length === 0 : true)) {
       const heading = assistantMessages

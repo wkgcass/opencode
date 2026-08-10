@@ -602,6 +602,8 @@ export const dict = {
   "session.messages.loadEarlier": "Frühere Nachrichten laden",
   "session.messages.loading": "Lade Nachrichten...",
   "session.messages.jumpToLatest": "Zum neuesten springen",
+  "session.messages.workedFor": "Verarbeitet in {{duration}}",
+  "session.messages.workCompleted": "Ergebnisse folgen",
   "session.context.addToContext": "{{selection}} zum Kontext hinzufügen",
   "session.todo.title": "Aufgaben",
   "session.todo.collapse": "Einklappen",
