@@ -897,6 +897,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Prikaži sistemsku obavijest kada agent završi ili zahtijeva pažnju",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Dozvole",
   "settings.general.notifications.permissions.description": "Prikaži sistemsku obavijest kada je potrebna dozvola",
   "settings.general.notifications.errors.title": "Greške",

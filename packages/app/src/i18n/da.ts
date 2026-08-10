@@ -889,6 +889,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Vis systemmeddelelse når agenten er færdig eller kræver opmærksomhed",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Tilladelser",
   "settings.general.notifications.permissions.description": "Vis systemmeddelelse når en tilladelse er påkrævet",
   "settings.general.notifications.errors.title": "Fejl",

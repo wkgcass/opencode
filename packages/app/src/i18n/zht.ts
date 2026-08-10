@@ -874,6 +874,8 @@ export const dict = {
   "sound.option.yup06": "是 06",
   "settings.general.notifications.agent.title": "代理程式",
   "settings.general.notifications.agent.description": "當代理程式完成或需要注意時顯示系統通知",
+  "settings.general.notifications.bark.title": "Bark 裝置金鑰",
+  "settings.general.notifications.bark.description": "工作階段完成一分鐘後仍未讀時推送到 Bark；留空則停用",
   "settings.general.notifications.permissions.title": "權限",
   "settings.general.notifications.permissions.description": "當需要權限時顯示系統通知",
   "settings.general.notifications.errors.title": "錯誤",

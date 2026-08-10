@@ -884,6 +884,8 @@ export const dict = {
 
   "settings.general.notifications.agent.title": "智能体",
   "settings.general.notifications.agent.description": "当智能体完成或需要注意时显示系统通知",
+  "settings.general.notifications.bark.title": "Bark 设备密钥",
+  "settings.general.notifications.bark.description": "会话完成一分钟后仍未读时推送到 Bark；留空则关闭",
   "settings.general.notifications.permissions.title": "权限",
   "settings.general.notifications.permissions.description": "当需要权限时显示系统通知",
   "settings.general.notifications.errors.title": "错误",

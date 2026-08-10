@@ -905,6 +905,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Ajan",
   "settings.general.notifications.agent.description":
     "Ajan tamamlandığında veya dikkat gerektirdiğinde sistem bildirimi göster",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "İzinler",
   "settings.general.notifications.permissions.description": "İzin gerektiğinde sistem bildirimi göster",
   "settings.general.notifications.errors.title": "Hatalar",

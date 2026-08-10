@@ -898,6 +898,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Агент",
   "settings.general.notifications.agent.description":
     "Показывать системное уведомление когда агент завершён или требует внимания",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Разрешения",
   "settings.general.notifications.permissions.description":
     "Показывать системное уведомление когда требуется разрешение",

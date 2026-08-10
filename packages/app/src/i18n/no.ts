@@ -742,6 +742,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Vis systemvarsel når agenten er ferdig eller trenger oppmerksomhet",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Tillatelser",
   "settings.general.notifications.permissions.description": "Vis systemvarsel når en tillatelse er påkrevd",
   "settings.general.notifications.errors.title": "Feil",

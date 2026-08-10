@@ -327,23 +327,17 @@ function TargetSessionPage() {
 function TargetServerScopedProviders(
   props: ParentProps<{ directory?: () => string | undefined; sessionID?: () => string | undefined }>,
 ) {
-  return (
-    <>
-      <MarkSessionNotificationsViewed sessionID={props.sessionID} />
-      <ModelsProvider directory={props.directory}>{props.children}</ModelsProvider>
-    </>
-  )
-}
-
-function MarkSessionNotificationsViewed(props: { sessionID?: () => string | undefined }) {
   const notification = useNotification()
-  createEffect(() => {
+  const markViewed = () => {
     const sessionID = props.sessionID?.()
-    if (!notification.ready() || !sessionID) return
-    if (notification.session.unseenCount(sessionID) === 0) return
-    notification.session.markViewed(sessionID)
-  })
-  return null
+    if (!sessionID) return
+    notification.session.markViewedByInteraction(sessionID)
+  }
+  return (
+    <div data-component="session-tab-content" class="contents" onMouseMove={markViewed} onClick={markViewed}>
+      <ModelsProvider directory={props.directory}>{props.children}</ModelsProvider>
+    </div>
+  )
 }
 
 function SessionProviders(props: ParentProps) {

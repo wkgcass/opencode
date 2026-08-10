@@ -94,6 +94,9 @@ type PlatformBase = {
   /** Whether the native desktop window is fullscreen */
   windowFullscreen?: Accessor<boolean>
 
+  /** Whether the native desktop window is the active OS window */
+  windowFocused?: Accessor<boolean>
+
   /** Get whether native pinch/Ctrl-scroll zoom gestures are enabled (desktop only) */
   getPinchZoomEnabled?(): Promise<boolean> | boolean
 
@@ -117,6 +120,29 @@ type PlatformBase = {
 
   /** Record a fatal renderer error in platform logs (desktop only) */
   recordFatalRendererError?(error: FatalRendererErrorLog): Promise<void>
+
+  /** Get the Bark device key used for desktop completion pushes */
+  getBarkDeviceKey?(): Promise<string>
+
+  /** Set the Bark device key used for desktop completion pushes */
+  setBarkDeviceKey?(deviceKey: string): Promise<void>
+
+  /** Schedule recurring reminders if a completed root session remains unread */
+  scheduleSessionReminder?(serverScope: string, directory: string, sessionID: string): Promise<void>
+
+  /** Cancel pending reminders when their session is read */
+  cancelSessionReminder?(serverScope: string, sessionID: string): Promise<void>
+
+  /** Cancel pending reminders when their project is read */
+  cancelDirectoryReminders?(serverScope: string, directory: string): Promise<void>
+
+  /** Subscribe to unread completion reminders whose delay has elapsed */
+  onSessionReminderDue?(
+    cb: (serverScope: string, directory: string, sessionID: string, count: number) => void,
+  ): () => void
+
+  /** Send a Bark notification after resolving the latest session title */
+  pushBarkSessionComplete?(title: string): Promise<void>
 }
 
 export type Platform = PlatformBase &

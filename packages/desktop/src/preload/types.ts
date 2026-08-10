@@ -91,6 +91,7 @@ export type ElectronAPI = {
   revealPath: (path: string) => Promise<boolean>
   readClipboardImage: () => Promise<{ buffer: ArrayBuffer; width: number; height: number } | null>
   getWindowFocused: () => Promise<boolean>
+  onWindowFocusedChanged: (cb: (focused: boolean) => void) => () => void
   getWindowFullscreen: () => Promise<boolean>
   onWindowFullscreenChanged: (cb: (fullscreen: boolean) => void) => () => void
   setWindowFocus: () => Promise<void>
@@ -108,4 +109,13 @@ export type ElectronAPI = {
   exportDebugLogs: () => Promise<string>
   setForceFocus: (enabled: boolean) => Promise<void>
   recordFatalRendererError: (error: FatalRendererError) => Promise<void>
+  getBarkDeviceKey: () => Promise<string>
+  setBarkDeviceKey: (deviceKey: string) => Promise<void>
+  scheduleSessionReminder: (serverScope: string, directory: string, sessionID: string) => Promise<void>
+  cancelSessionReminder: (serverScope: string, sessionID: string) => Promise<void>
+  cancelDirectoryReminders: (serverScope: string, directory: string) => Promise<void>
+  onSessionReminderDue: (
+    cb: (serverScope: string, directory: string, sessionID: string, count: number) => void,
+  ) => () => void
+  pushBarkSessionComplete: (title: string) => Promise<void>
 }

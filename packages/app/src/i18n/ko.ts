@@ -665,6 +665,9 @@ export const dict = {
   "sound.option.yup06": "네 06",
   "settings.general.notifications.agent.title": "에이전트",
   "settings.general.notifications.agent.description": "에이전트가 완료되거나 주의가 필요할 때 시스템 알림 표시",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "권한",
   "settings.general.notifications.permissions.description": "권한이 필요할 때 시스템 알림 표시",
   "settings.general.notifications.errors.title": "오류",

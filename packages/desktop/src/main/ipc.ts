@@ -48,6 +48,12 @@ type Deps = {
   setBackgroundColor: (color: string) => void
   exportDebugLogs: () => Promise<string>
   recordFatalRendererError: (error: FatalRendererError) => Promise<void> | void
+  getBarkDeviceKey: () => Promise<string> | string
+  setBarkDeviceKey: (deviceKey: string) => Promise<void> | void
+  scheduleSessionReminder: (serverScope: string, directory: string, sessionID: string) => Promise<void> | void
+  cancelSessionReminder: (serverScope: string, sessionID: string) => Promise<void> | void
+  cancelDirectoryReminders: (serverScope: string, directory: string) => Promise<void> | void
+  pushBarkSessionComplete: (title: string) => Promise<void> | void
 }
 
 export function registerIpcHandlers(deps: Deps) {
@@ -93,6 +99,24 @@ export function registerIpcHandlers(deps: Deps) {
   )
   ipcMain.handle("record-fatal-renderer-error", (_event: IpcMainInvokeEvent, error: FatalRendererError) =>
     deps.recordFatalRendererError(error),
+  )
+  ipcMain.handle("get-bark-device-key", () => deps.getBarkDeviceKey())
+  ipcMain.handle("set-bark-device-key", (_event: IpcMainInvokeEvent, deviceKey: string) =>
+    deps.setBarkDeviceKey(deviceKey),
+  )
+  ipcMain.handle(
+    "schedule-session-reminder",
+    (_event: IpcMainInvokeEvent, serverScope: string, directory: string, sessionID: string) =>
+      deps.scheduleSessionReminder(serverScope, directory, sessionID),
+  )
+  ipcMain.handle("cancel-session-reminder", (_event: IpcMainInvokeEvent, serverScope: string, sessionID: string) =>
+    deps.cancelSessionReminder(serverScope, sessionID),
+  )
+  ipcMain.handle("cancel-directory-reminders", (_event: IpcMainInvokeEvent, serverScope: string, directory: string) =>
+    deps.cancelDirectoryReminders(serverScope, directory),
+  )
+  ipcMain.handle("push-bark-session-complete", (_event: IpcMainInvokeEvent, title: string) =>
+    deps.pushBarkSessionComplete(title),
   )
   ipcMain.handle("store-get", (_event: IpcMainInvokeEvent, name: string, key: string) => {
     try {
@@ -280,4 +304,14 @@ export function sendMenuCommand(win: BrowserWindow, id: string) {
 
 export function sendDeepLinks(win: BrowserWindow, urls: string[]) {
   win.webContents.send("deep-link", urls)
+}
+
+export function sendSessionReminderDue(
+  win: BrowserWindow,
+  serverScope: string,
+  directory: string,
+  sessionID: string,
+  count: number,
+) {
+  win.webContents.send("session-reminder-due", serverScope, directory, sessionID, count)
 }

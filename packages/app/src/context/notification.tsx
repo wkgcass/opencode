@@ -17,6 +17,7 @@ import { ServerConnection, useServer } from "./server"
 import { type DraftTab, useTabs } from "./tabs"
 import { requireServerKey } from "@/utils/session-route"
 import type { ServerScope } from "@/utils/server-scope"
+import { isSessionCompletionViewed, isSessionViewed } from "./notification-viewed"
 
 type NotificationBase = {
   directory?: string
@@ -187,6 +188,14 @@ export const { use: useNotification, provider: NotificationProvider } = createSi
       return ensure(ServerConnection.key(conn))
     }
 
+    createEffect(() => {
+      if (settings.general.newLayoutDesigns()) return
+      if (!platform.windowFocused?.()) return
+      const sessionID = activeSession()
+      if (!sessionID) return
+      selected().session.markViewed(sessionID)
+    })
+
     return {
       ready: () => selected().ready(),
       ensureServerState: ensure,
@@ -196,6 +205,7 @@ export const { use: useNotification, provider: NotificationProvider } = createSi
         unseenCount: (session: string) => selected().session.unseenCount(session),
         unseenHasError: (session: string) => selected().session.unseenHasError(session),
         markViewed: (session: string) => selected().session.markViewed(session),
+        markViewedByInteraction: (session: string) => selected().session.markViewedByInteraction(session),
       },
       project: {
         all: (directory: string) => selected().project.all(directory),
@@ -241,6 +251,8 @@ function createServerNotificationState(input: {
   const [index, setIndex] = createStore<NotificationIndex>(buildNotificationIndex(store.list))
 
   const meta = { pruned: false, disposed: false }
+  const interactions = new Map<string, number>()
+  let interaction = 0
 
   const updateUnseen = (scope: "session" | "project", key: string, unseen: Notification[]) => {
     setIndex(scope, "unseen", key, unseen)
@@ -325,18 +337,29 @@ function createServerNotificationState(input: {
       .catch(() => undefined)
   }
 
+  const lookupLatest = async (directory: string, sessionID: string) => {
+    const sync = serverSync().ensureDirSyncContext(directory)
+    await sync.session.sync(sessionID, { force: true }).catch(() => undefined)
+    return sync.session.get(sessionID)
+  }
+
   const viewedInCurrentSession = (directory: string, sessionID?: string) => {
-    if (!input.active()) return false
-    const activeDirectory = currentDirectory()
-    const activeSession = currentSession()
-    if (!activeSession) return false
-    if (!sessionID) return false
-    if (activeDirectory && directory !== activeDirectory) return false
-    return sessionID === activeSession
+    return isSessionViewed({
+      active: input.active(),
+      windowFocused: platform.windowFocused?.(),
+      directory,
+      currentDirectory: currentDirectory(),
+      sessionID,
+      currentSession: currentSession(),
+    })
   }
 
   const handleSessionIdle = (directory: string, event: { properties: { sessionID?: string } }, time: number) => {
     const sessionID = event.properties.sessionID
+    const interactionRequired =
+      settings.general.newLayoutDesigns() && platform.windowFocused !== undefined && !!sessionID
+    // Snapshot activity before the async session lookup so interaction during that lookup still counts as post-completion.
+    const completionInteraction = sessionID ? (interactions.get(sessionID) ?? 0) : 0
     void lookup(directory, sessionID).then((session) => {
       if (meta.disposed) return
       if (!session) return
@@ -346,13 +369,25 @@ function createServerNotificationState(input: {
         void playSoundById(settings.sounds.agent())
       }
 
+      const viewed = isSessionCompletionViewed({
+        interactionRequired,
+        completionInteraction,
+        currentInteraction: sessionID ? (interactions.get(sessionID) ?? 0) : 0,
+        otherwiseViewed: viewedInCurrentSession(directory, sessionID),
+      })
       append({
         directory,
         time,
-        viewed: viewedInCurrentSession(directory, sessionID),
+        viewed,
         type: "turn-complete",
         session: sessionID,
       })
+
+      if (viewed) {
+        void platform.cancelSessionReminder?.(serverSDK().scope, session.id)
+      } else {
+        void platform.scheduleSessionReminder?.(serverSDK().scope, directory, session.id)
+      }
 
       const href = `/${base64Encode(directory)}/session/${sessionID}`
       if (settings.notifications.agent()) {
@@ -408,10 +443,51 @@ function createServerNotificationState(input: {
     }
     handleSessionError(directory, event, time)
   })
+  const unsubReminder = platform.onSessionReminderDue?.((serverScope, directory, sessionID, count) => {
+    if (serverScope !== serverSDK().scope) return
+    const unread = () =>
+      (index.session.unseen[sessionID] ?? empty).some(
+        (notification) => notification.type === "turn-complete" && notification.directory === directory,
+      )
+    if (!unread()) {
+      void platform.cancelSessionReminder?.(serverScope, sessionID)
+      return
+    }
+    if (settings.sounds.agentEnabled()) void playSoundById(settings.sounds.agent())
+    if (count !== 1) return
+    void lookupLatest(directory, sessionID).then((session) => {
+      if (meta.disposed) return
+      if (!unread()) return
+      if (!session || session.parentID) return
+      void platform.pushBarkSessionComplete?.(session.title ?? session.id)
+    })
+  })
   onCleanup(() => {
     meta.disposed = true
     unsub()
+    unsubReminder?.()
   })
+
+  const markSessionViewed = (session: string) => {
+    if (platform.windowFocused?.() === false) return
+    void platform.cancelSessionReminder?.(serverSDK().scope, session)
+    const unseen = index.session.unseen[session] ?? empty
+    if (!unseen.length) return
+
+    const projects = [
+      ...new Set(unseen.flatMap((notification) => (notification.directory ? [notification.directory] : []))),
+    ]
+    batch(() => {
+      setStore("list", (n) => n.session === session && !n.viewed, "viewed", true)
+      updateUnseen("session", session, [])
+      projects.forEach((directory) => {
+        const next = (index.project.unseen[directory] ?? empty).filter(
+          (notification) => notification.session !== session,
+        )
+        updateUnseen("project", directory, next)
+      })
+    })
+  }
 
   return {
     ready,
@@ -428,23 +504,11 @@ function createServerNotificationState(input: {
       unseenHasError(session: string) {
         return index.session.unseenHasError[session] ?? false
       },
-      markViewed(session: string) {
-        const unseen = index.session.unseen[session] ?? empty
-        if (!unseen.length) return
-
-        const projects = [
-          ...new Set(unseen.flatMap((notification) => (notification.directory ? [notification.directory] : []))),
-        ]
-        batch(() => {
-          setStore("list", (n) => n.session === session && !n.viewed, "viewed", true)
-          updateUnseen("session", session, [])
-          projects.forEach((directory) => {
-            const next = (index.project.unseen[directory] ?? empty).filter(
-              (notification) => notification.session !== session,
-            )
-            updateUnseen("project", directory, next)
-          })
-        })
+      markViewed: markSessionViewed,
+      markViewedByInteraction(session: string) {
+        if (platform.windowFocused?.() === false) return
+        interactions.set(session, ++interaction)
+        markSessionViewed(session)
       },
     },
     project: {
@@ -461,6 +525,8 @@ function createServerNotificationState(input: {
         return index.project.unseenHasError[directory] ?? false
       },
       markViewed(directory: string) {
+        if (platform.windowFocused?.() === false) return
+        void platform.cancelDirectoryReminders?.(serverSDK().scope, directory)
         const unseen = index.project.unseen[directory] ?? empty
         if (!unseen.length) return
 

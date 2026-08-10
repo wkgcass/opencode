@@ -27,6 +27,7 @@ import { DesktopFirstLaunchOnboarding } from "./onboarding"
 import { initializeSkinStyles } from "./skins"
 import { resetZoom, setPinchZoomEnabled, webviewZoom, zoomIn, zoomOut } from "./webview-zoom"
 import { windowFullscreen } from "./window-fullscreen"
+import { windowFocused } from "./window-focus"
 import { availableStartupServer, readyWslConnections } from "./wsl/connections"
 import "./styles.css"
 import { Splash } from "@opencode-ai/ui/logo"
@@ -243,6 +244,21 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
 
     recordFatalRendererError: (error) => window.api.recordFatalRendererError(error),
 
+    getBarkDeviceKey: () => window.api.getBarkDeviceKey(),
+
+    setBarkDeviceKey: (deviceKey) => window.api.setBarkDeviceKey(deviceKey),
+
+    scheduleSessionReminder: (serverScope, directory, sessionID) =>
+      window.api.scheduleSessionReminder(serverScope, directory, sessionID),
+
+    cancelSessionReminder: (serverScope, sessionID) => window.api.cancelSessionReminder(serverScope, sessionID),
+
+    cancelDirectoryReminders: (serverScope, directory) => window.api.cancelDirectoryReminders(serverScope, directory),
+
+    onSessionReminderDue: (cb) => window.api.onSessionReminderDue(cb),
+
+    pushBarkSessionComplete: (title) => window.api.pushBarkSessionComplete(title),
+
     restart: async () => {
       await window.api.killSidecar().catch(() => undefined)
       window.api.relaunch()
@@ -292,6 +308,8 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
     webviewZoom,
 
     windowFullscreen,
+
+    windowFocused,
 
     getPinchZoomEnabled: () => window.api.getPinchZoomEnabled(),
 

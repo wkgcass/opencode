@@ -98,6 +98,11 @@ const api: ElectronAPI = {
   revealPath: (path) => ipcRenderer.invoke("reveal-path", path),
   readClipboardImage: () => ipcRenderer.invoke("read-clipboard-image"),
   getWindowFocused: () => ipcRenderer.invoke("get-window-focused"),
+  onWindowFocusedChanged: (cb) => {
+    const handler = (_: unknown, focused: boolean) => cb(focused)
+    ipcRenderer.on("window-focused-changed", handler)
+    return () => ipcRenderer.removeListener("window-focused-changed", handler)
+  },
   getWindowFullscreen: () => ipcRenderer.invoke("get-window-fullscreen"),
   onWindowFullscreenChanged: (cb) => {
     const handler = (_: unknown, fullscreen: boolean) => cb(fullscreen)
@@ -127,6 +132,21 @@ const api: ElectronAPI = {
   exportDebugLogs: () => ipcRenderer.invoke("export-debug-logs"),
   setForceFocus: (enabled) => ipcRenderer.invoke("set-force-focus", enabled),
   recordFatalRendererError: (error) => ipcRenderer.invoke("record-fatal-renderer-error", error),
+  getBarkDeviceKey: () => ipcRenderer.invoke("get-bark-device-key"),
+  setBarkDeviceKey: (deviceKey) => ipcRenderer.invoke("set-bark-device-key", deviceKey),
+  scheduleSessionReminder: (serverScope, directory, sessionID) =>
+    ipcRenderer.invoke("schedule-session-reminder", serverScope, directory, sessionID),
+  cancelSessionReminder: (serverScope, sessionID) =>
+    ipcRenderer.invoke("cancel-session-reminder", serverScope, sessionID),
+  cancelDirectoryReminders: (serverScope, directory) =>
+    ipcRenderer.invoke("cancel-directory-reminders", serverScope, directory),
+  onSessionReminderDue: (cb) => {
+    const handler = (_: unknown, serverScope: string, directory: string, sessionID: string, count: number) =>
+      cb(serverScope, directory, sessionID, count)
+    ipcRenderer.on("session-reminder-due", handler)
+    return () => ipcRenderer.removeListener("session-reminder-due", handler)
+  },
+  pushBarkSessionComplete: (title) => ipcRenderer.invoke("push-bark-session-complete", title),
 }
 
 contextBridge.exposeInMainWorld("api", api)

@@ -885,6 +885,9 @@ export const dict = {
 
   "settings.general.notifications.agent.title": "เอเจนต์",
   "settings.general.notifications.agent.description": "แสดงการแจ้งเตือนระบบเมื่อเอเจนต์เสร็จสิ้นหรือต้องการความสนใจ",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "สิทธิ์",
   "settings.general.notifications.permissions.description": "แสดงการแจ้งเตือนระบบเมื่อต้องการสิทธิ์",
   "settings.general.notifications.errors.title": "ข้อผิดพลาด",

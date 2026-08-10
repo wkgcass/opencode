@@ -307,6 +307,20 @@ export const SettingsGeneralV2: Component<{
     { initialValue: false },
   )
 
+  const barkAvailable = createMemo(
+    () => desktop() && platform.getBarkDeviceKey !== undefined && platform.setBarkDeviceKey !== undefined,
+  )
+  const [barkDeviceKey, { mutate: setBarkDeviceKey }] = createResource(
+    barkAvailable,
+    () => platform.getBarkDeviceKey?.().catch(() => "") ?? "",
+    { initialValue: "" },
+  )
+
+  const onBarkDeviceKeyInput = (value: string) => {
+    setBarkDeviceKey(value)
+    void platform.setBarkDeviceKey?.(value).catch(() => undefined)
+  }
+
   const onPinchZoomChange = (checked: boolean) => {
     setPinchZoom(checked)
     const update = platform.setPinchZoomEnabled?.(checked)
@@ -473,6 +487,27 @@ export const SettingsGeneralV2: Component<{
             />
           </div>
         </SettingsRowV2>
+
+        <Show when={barkAvailable()}>
+          <SettingsRowV2
+            title={language.t("settings.general.notifications.bark.title")}
+            description={language.t("settings.general.notifications.bark.description")}
+          >
+            <div class="w-full sm:w-[220px]">
+              <TextInputV2
+                data-action="settings-notifications-bark-device-key"
+                type="password"
+                appearance="base"
+                value={barkDeviceKey.latest}
+                onInput={(event) => onBarkDeviceKeyInput(event.currentTarget.value)}
+                placeholder="device_key"
+                spellcheck={false}
+                autocomplete="off"
+                aria-label={language.t("settings.general.notifications.bark.title")}
+              />
+            </div>
+          </SettingsRowV2>
+        </Show>
 
         <SettingsRowV2
           title={language.t("settings.general.notifications.permissions.title")}

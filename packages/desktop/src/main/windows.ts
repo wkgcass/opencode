@@ -272,7 +272,11 @@ function registerWindow(win: BrowserWindow, id: string) {
   windowIDs.set(win, id)
   registry.register(id, win)
 
-  win.on("focus", () => registry.focused(id))
+  win.on("focus", () => {
+    registry.focused(id)
+    win.webContents.send("window-focused-changed", true)
+  })
+  win.on("blur", () => win.webContents.send("window-focused-changed", false))
   // Windows never emits before-quit on OS shutdown/logoff, but each window
   // gets session-end before it closes; flag the quit so ids stay persisted.
   win.on("session-end", () => registry.setQuitting())
