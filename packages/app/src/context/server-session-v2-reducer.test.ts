@@ -6,6 +6,33 @@ const event = (input: object) => input as OpenCodeEvent
 const base = { created: 1, location: { directory: "/repo" }, durable: { aggregateID: "ses_1", seq: 1, version: 1 } }
 
 describe("v2 session reducer", () => {
+  test("preserves legacy and extended separators for event-backed message IDs", () => {
+    const reducer = createV2SessionReducer()
+    const legacy = reducer.reduce(
+      [],
+      event({
+        ...base,
+        id: "evt_000000000000abcdefghijklmn",
+        type: "session.agent.selected",
+        data: { sessionID: "ses_1", agent: "build" },
+      }),
+    )!
+    const extended = reducer.reduce(
+      legacy.messages,
+      event({
+        ...base,
+        id: "evt-00000000000000abcdefghijklmn",
+        type: "session.agent.selected",
+        data: { sessionID: "ses_1", agent: "plan" },
+      }),
+    )!
+
+    expect(extended.messages.map((message) => message.id)).toEqual([
+      "msg_000000000000abcdefghijklmn",
+      "msg-00000000000000abcdefghijklmn",
+    ])
+  })
+
   test("projects promoted input and streaming assistant content", () => {
     const reducer = createV2SessionReducer()
     let messages: SessionMessageInfo[] = []

@@ -170,8 +170,8 @@ describe("server session", () => {
     const after = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() - 24 * 60 * 60 * 1_000, true))!
     const second = ctx.store.nextMessageID("child")
 
-    expect(first).toStartWith("msg_-")
-    expect(ctx.store.nextEventID("child")).toStartWith("evt_-")
+    expect(first).toStartWith("msg-")
+    expect(ctx.store.nextEventID("child")).toStartWith("evt-")
     expect(Identifier.timestamp(first)).toBeGreaterThanOrEqual(before)
     expect(Identifier.timestamp(first)).toBeLessThanOrEqual(after)
     expect(Identifier.timestamp(second)).toBe(Identifier.timestamp(first)! + 1)

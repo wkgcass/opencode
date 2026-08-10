@@ -238,8 +238,8 @@ beforeAll(async () => {
   mock.module("@/context/server-sync", () => ({
     useServerSync: () => () => ({
       session: {
-        nextMessageID: () => `msg_test_${++messageID}`,
-        nextEventID: () => `evt_-${(++eventID).toString(16).padStart(14, "0")}abcdefghijklmn`,
+        nextMessageID: () => `msg-${(++messageID).toString(16).padStart(14, "0")}abcdefghijklmn`,
+        nextEventID: () => `evt-${(++eventID).toString(16).padStart(14, "0")}abcdefghijklmn`,
         remember: () => undefined,
         set: () => undefined,
         sync: async () => {
@@ -354,8 +354,8 @@ describe("prompt submit worktree selection", () => {
       },
     ])
     expect(sentShell).toEqual([
-      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt_-/), command: "ls" }),
-      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt_-/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt-/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt-/), command: "ls" }),
     ])
     expect(syncedDirectories).toEqual(["/repo/worktree-a", "/repo/worktree-a", "/repo/worktree-b", "/repo/worktree-b"])
     expect(serverSessionSyncs).toBe(0)
@@ -495,9 +495,9 @@ describe("prompt submit worktree selection", () => {
       files: [],
       agents: [],
     })
-    expect((promptInputs[0] as { id?: string }).id).toStartWith("msg_")
+    expect((promptInputs[0] as { id?: string }).id).toStartWith("msg-")
     expect((promptInputs[0] as { legacyParts?: { id: string; type: string; text?: string }[] }).legacyParts).toEqual([
-      { id: expect.stringMatching(/^prt_/), type: "text", text: "ls" },
+      { id: expect.stringMatching(/^prt-/), type: "text", text: "ls" },
     ])
   })
 
@@ -529,7 +529,7 @@ describe("prompt submit worktree selection", () => {
     expect(sentCommands).toEqual([
       {
         sessionID: "session-1",
-        id: expect.stringMatching(/^msg_/),
+        id: expect.stringMatching(/^msg-/),
         command: "review",
         arguments: "staged changes",
         agent: "agent",

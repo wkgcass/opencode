@@ -421,7 +421,7 @@ function key(sessionID: string, inputID: string) {
 }
 
 function messageID(eventID: string) {
-  return eventID.replace(/^evt_/, "msg_")
+  return eventID.replace(/^evt(-|_(?!-))/, "msg$1")
 }
 
 function update(

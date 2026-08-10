@@ -28,15 +28,15 @@ export namespace Identifier {
 
   /** Detect whether an ID uses the extended (hyphenated, 44-bit timestamp) format. */
   export function isExtended(id: string): boolean {
-    const underscore = id.indexOf("_")
-    return underscore !== -1 && id[underscore + 1] === "-"
+    const separator = id.search(/[_-]/)
+    return separator !== -1 && id[separator] === "-"
   }
 
   export function timestamp(id: string): number | undefined {
-    const underscore = id.indexOf("_")
-    if (underscore === -1) return undefined
     const extended = isExtended(id)
-    const hexStart = underscore + (extended ? 2 : 1)
+    const separator = id.indexOf(extended ? "-" : "_")
+    if (separator === -1) return undefined
+    const hexStart = separator + 1
     const encodedWidth = extended ? 14 : 12
     const encoded = id.slice(hexStart, hexStart + encodedWidth)
     if (encoded.length !== encodedWidth || !/^[0-9a-fA-F]+$/.test(encoded)) return undefined
@@ -74,7 +74,7 @@ function create(prefix: Prefix, descending: boolean, timestamp?: number, extende
   const now = descending ? ~value : value
   const time = (now & ((1n << BigInt(width * 4)) - 1n)).toString(16).padStart(width, "0")
 
-  return (extended ? prefixes[prefix] + "_-" : prefixes[prefix] + "_") + time + randomBase62(RANDOM_LENGTH)
+  return (extended ? prefixes[prefix] + "-" : prefixes[prefix] + "_") + time + randomBase62(RANDOM_LENGTH)
 }
 
 function randomBase62(length: number): string {

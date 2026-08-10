@@ -15,7 +15,7 @@ describe("buildRequestParts", () => {
         sessionDirectory: "/repo",
       }).requestParts[0]!.id
 
-    expect(build("msg_-00000000000000abcdefghijklmn")).toStartWith("prt_-")
+    expect(build("msg-00000000000000abcdefghijklmn")).toStartWith("prt-")
     expect(build("msg_000000000000abcdefghijklmn")).toMatch(/^prt_[0-9a-f]/)
   })
 
