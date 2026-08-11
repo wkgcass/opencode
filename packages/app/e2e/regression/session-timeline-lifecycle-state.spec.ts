@@ -51,6 +51,13 @@ test("shows a shell command on start and streams output while it runs", async ({
   await expect(trigger).toHaveAttribute("aria-expanded", "true")
   await expect(part.locator('[data-slot="bash-pre"]')).toContainText(`$ ${command}\n\nfirst chunk`)
 
+  await trigger.click()
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+  await timeline.send(partUpdated(shell(id, "running", lines(20), command)), 180)
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
+  await trigger.click()
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+
   const scroll = part.locator('[data-slot="bash-scroll"]')
   await timeline.send(partUpdated(shell(id, "running", lines(40), command)), 180)
   await expect
