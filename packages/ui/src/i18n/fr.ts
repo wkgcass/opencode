@@ -94,6 +94,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Questions ignorées",
   "ui.messagePart.compaction": "Session compactée",
+  "ui.messagePart.compaction.started": "Compression de la session démarrée",
+  "ui.messagePart.compaction.failed": "Échec de la compression de la session",
   "ui.messagePart.context.read.one": "{{count}} lecture",
   "ui.messagePart.context.read.other": "{{count}} lectures",
   "ui.messagePart.context.search.one": "{{count}} recherche",

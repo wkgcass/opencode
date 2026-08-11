@@ -93,6 +93,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Pytania odrzucone",
   "ui.messagePart.compaction": "Sesja skompaktowana",
+  "ui.messagePart.compaction.started": "Rozpoczęto kompaktowanie sesji",
+  "ui.messagePart.compaction.failed": "Kompaktowanie sesji nie powiodło się",
   "ui.messagePart.context.read.one": "{{count}} odczyt",
   "ui.messagePart.context.read.other": "{{count}} odczyty",
   "ui.messagePart.context.search.one": "{{count}} wyszukiwanie",

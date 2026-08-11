@@ -4,10 +4,12 @@ import {
   createSignal,
   For,
   Index,
+  Match,
   on,
   onCleanup,
   onMount,
   Show,
+  Switch,
   type Accessor,
   type JSX,
 } from "solid-js"
@@ -17,8 +19,10 @@ import { useNavigate } from "@solidjs/router"
 import { useMutation } from "@tanstack/solid-query"
 import { createVirtualizer, defaultRangeExtractor, elementScroll, type VirtualItem } from "@tanstack/solid-virtual"
 import { Accordion } from "@opencode-ai/ui/accordion"
+import { Collapsible } from "@opencode-ai/ui/collapsible"
 import { Button } from "@opencode-ai/ui/button"
 import { Card } from "@opencode-ai/ui/card"
+import { Markdown } from "@opencode-ai/session-ui/markdown"
 import {
   ContextToolGroup,
   Message,
@@ -139,6 +143,62 @@ function TimelineThinkingRow(props: { reasoningHeading?: string; showReasoningSu
         <TextReveal text={props.reasoningHeading} class="session-turn-thinking-heading" travel={25} duration={700} />
       </Show>
     </div>
+  )
+}
+
+function TimelineCompactionRow(props: {
+  message: TimelineRowMap["Compaction"]["message"]
+  onContentRendered?: () => void
+}) {
+  const language = useLanguage()
+  const [open, setOpen] = createSignal(false)
+
+  return (
+    <Switch>
+      <Match when={props.message.status === "running"}>
+        <div data-slot="session-turn-thinking">
+          <TextShimmer text={language.t("ui.messagePart.compaction.started")} />
+        </div>
+      </Match>
+      <Match when={props.message.status === "completed"}>
+        <div data-component="reasoning-part">
+          <div data-component="compaction-part">
+            <Collapsible
+              open={open()}
+              onOpenChange={(value) => {
+                setOpen(value)
+                props.onContentRendered?.()
+              }}
+              variant="ghost"
+              class="reasoning-collapsible"
+            >
+              <Collapsible.Trigger style={{ width: "100%", height: "auto" }}>
+                <span data-slot="compaction-part-divider">
+                  <span data-slot="compaction-part-line" />
+                  <span style={{ display: "inline-flex", "align-items": "center" }}>
+                    <span data-slot="compaction-part-label" class="text-12-regular text-text-weak">
+                      <TextShimmer text={language.t("ui.messagePart.compaction")} active={false} />
+                    </span>
+                    <Collapsible.Arrow />
+                  </span>
+                  <span data-slot="compaction-part-line" />
+                </span>
+              </Collapsible.Trigger>
+              <Collapsible.Content>
+                <div data-slot="reasoning-part-content" data-scrollable tabIndex={0} role="region">
+                  <Markdown text={props.message.summary} cacheKey={props.message.id} streaming={false} />
+                </div>
+              </Collapsible.Content>
+            </Collapsible>
+          </div>
+        </div>
+      </Match>
+      <Match when={props.message.status === "failed"}>
+        <div data-slot="session-turn-thinking">
+          <TextShimmer text={language.t("ui.messagePart.compaction.failed")} active={false} />
+        </div>
+      </Match>
+    </Switch>
   )
 }
 
@@ -1179,12 +1239,18 @@ export function MessageTimeline(props: {
           <TimelineRowFrame row={turnDividerRow}>
             <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
               <div data-slot="session-turn-compaction">
-                <MessageDivider
-                  label={language.t(
-                    turnDividerRow().label === "compaction" ? "ui.messagePart.compaction" : "ui.message.interrupted",
-                  )}
-                />
+                <MessageDivider label={language.t("ui.message.interrupted")} />
               </div>
+            </div>
+          </TimelineRowFrame>
+        )
+      }
+      case "Compaction": {
+        const compactionRow = row as Accessor<TimelineRowByTag<"Compaction">>
+        return (
+          <TimelineRowFrame row={compactionRow}>
+            <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+              <TimelineCompactionRow message={compactionRow().message} onContentRendered={onSizeChange} />
             </div>
           </TimelineRowFrame>
         )

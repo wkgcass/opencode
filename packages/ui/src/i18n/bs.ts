@@ -98,6 +98,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Pitanja odbačena",
   "ui.messagePart.compaction": "Sesija sažeta",
+  "ui.messagePart.compaction.started": "Sažimanje sesije započeto",
+  "ui.messagePart.compaction.failed": "Sažimanje sesije nije uspjelo",
   "ui.messagePart.context.read.one": "{{count}} čitanje",
   "ui.messagePart.context.read.other": "{{count}} čitanja",
   "ui.messagePart.context.search.one": "{{count}} pretraga",

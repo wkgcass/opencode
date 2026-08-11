@@ -94,6 +94,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "تم رفض الأسئلة",
   "ui.messagePart.compaction": "تم ضغط الجلسة",
+  "ui.messagePart.compaction.started": "بدأ ضغط الجلسة",
+  "ui.messagePart.compaction.failed": "فشل ضغط الجلسة",
   "ui.messagePart.context.read.one": "{{count}} قراءة",
   "ui.messagePart.context.read.other": "{{count}} قراءات",
   "ui.messagePart.context.search.one": "{{count}} بحث",

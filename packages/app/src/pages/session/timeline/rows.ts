@@ -2,10 +2,13 @@ import { parseCommentNote, readCommentMetadata } from "@/utils/comment-note"
 import type { SessionMessageInfo } from "@opencode-ai/client/promise"
 import { AssistantMessage, Part, SessionStatus, UserMessage } from "@opencode-ai/sdk/v2"
 import { groupParts, renderable, type PartGroup } from "@opencode-ai/session-ui/message-part"
-import { TimelineRow, type SummaryDiff } from "./timeline-row"
+import { TimelineRow, type CompactionMessage, type SummaryDiff } from "./timeline-row"
 import { uniqueSummaryDiffs } from "./summary-diffs"
 
 export { TimelineRow, type SummaryDiff } from "./timeline-row"
+
+type SessionCompactionMessage = Extract<SessionMessageInfo, { type: "compaction" }>
+type AssistantPartRef = { messageID: string; messageIndex: number; completed: boolean; part: Part }
 
 export type TimelineRowMap = {
   TurnGap: { userMessageID: string }
@@ -18,7 +21,11 @@ export type TimelineRowMap = {
   }
   TurnDivider: {
     userMessageID: string
-    label: "compaction" | "interrupted"
+    label: "interrupted"
+  }
+  Compaction: {
+    userMessageID: string
+    message: CompactionMessage
   }
   AssistantPart: {
     userMessageID: string
@@ -45,41 +52,58 @@ export namespace Timeline {
     inlineComments: boolean,
     projectedUserMessages: UserMessage[],
   ) {
-    const turns: { user: UserMessage; assistants: AssistantMessage[] }[] = []
+    const turns: { user: UserMessage; assistants: AssistantMessage[]; compactions: SessionCompactionMessage[] }[] = []
     const turnByUserID = new Map<string, (typeof turns)[number]>()
+    let currentTurn: (typeof turns)[number] | undefined
     messages.forEach((message) => {
+      if (message.type === "compaction") {
+        currentTurn?.compactions.push(message)
+        return
+      }
       const projected = getMessage(message.id)
       if (message.type === "shell" && projected?.role === "user") {
         const assistant = getMessage(`${message.id}:assistant`)
-        const turn = { user: projected, assistants: assistant?.role === "assistant" ? [assistant] : [] }
+        const turn = {
+          user: projected,
+          assistants: assistant?.role === "assistant" ? [assistant] : [],
+          compactions: [],
+        }
         turns.push(turn)
         turnByUserID.set(projected.id, turn)
+        currentTurn = turn
         return
       }
       if (projected?.role === "user") {
-        if (turnByUserID.has(projected.id)) return
-        const turn = { user: projected, assistants: [] }
+        const existing = turnByUserID.get(projected.id)
+        if (existing) {
+          currentTurn = existing
+          return
+        }
+        const turn = { user: projected, assistants: [], compactions: [] }
         turns.push(turn)
         turnByUserID.set(projected.id, turn)
+        currentTurn = turn
         return
       }
       if (projected?.role !== "assistant") return
       const existing = turnByUserID.get(projected.parentID)
       if (existing) {
         existing.assistants.push(projected)
+        currentTurn = existing
         return
       }
       const user = getMessage(projected.parentID)
       if (user?.role !== "user") return
-      const turn = { user, assistants: [projected] }
+      const turn = { user, assistants: [projected], compactions: [] }
       turns.push(turn)
       turnByUserID.set(user.id, turn)
+      currentTurn = turn
     })
     const latestUserMessageID = turns.at(-1)?.user.id
     projectedUserMessages.forEach((user) => {
       if (turnByUserID.has(user.id)) return
       if (latestUserMessageID && user.id < latestUserMessageID) return
-      const turn = { user, assistants: [] }
+      const turn = { user, assistants: [], compactions: [] }
       turns.push(turn)
       turnByUserID.set(user.id, turn)
     })
@@ -91,6 +115,7 @@ export namespace Timeline {
           turn.user,
           getMessageParts,
           turn.assistants,
+          turn.compactions,
           index,
           showReasoning,
           status,
@@ -105,6 +130,7 @@ export namespace Timeline {
     userMessage: UserMessage,
     getMessageParts: (messageID: string) => Part[],
     assistantMessages: AssistantMessage[],
+    compactions: SessionCompactionMessage[],
     index: number,
     showReasoning: boolean,
     status: SessionStatus["type"],
@@ -117,34 +143,53 @@ export namespace Timeline {
     const previousUserMessage = index > 0
     const userParts = getMessageParts(userMessage.id)
     const comments = userParts.flatMap((p) => MessageComment.fromPart(p) ?? [])
-    const compaction = userParts.some((p) => p.type === "compaction")
+    const userCompaction = userParts.some((part) => part.type === "compaction")
     const interruptedMessageIndex = assistantMessages.findIndex((m) => m.error?.name === "MessageAbortedError")
     const interrupted = interruptedMessageIndex !== -1
     const error = assistantMessages.find((m) => m.error && m.error.name !== "MessageAbortedError")?.error
 
     const assistantPartRefs = assistantMessages.flatMap((message, messageIndex) =>
-      getMessageParts(message.id)
-        .filter((part) => renderable(part, showReasoning))
-        .map((part) => ({ messageID: message.id, messageIndex, part })),
+      getMessageParts(message.id).map((part) => ({
+        messageID: message.id,
+        messageIndex,
+        completed: typeof message.time.completed === "number",
+        part,
+      })),
     )
+    const projectedCompactions = projectCompactions({
+      userMessageID: userMessage.id,
+      userParts,
+      assistantPartRefs,
+      compactions,
+      userCompaction,
+      status,
+      isActive,
+    })
+    const visibleAssistantPartRefs = assistantPartRefs.filter(
+      (ref) =>
+        ref.part.type !== "compaction" &&
+        !projectedCompactions.summaryMessageIDs.has(ref.messageID) &&
+        renderable(ref.part, showReasoning),
+    )
+    const compacting = projectedCompactions.messages.some((message) => message.status === "running")
     const assistantItems =
-      interrupted && !compaction
+      interrupted && !userCompaction
         ? [
-            ...groupParts(assistantPartRefs.filter((ref) => ref.messageIndex <= interruptedMessageIndex)).map(
+            ...groupParts(visibleAssistantPartRefs.filter((ref) => ref.messageIndex <= interruptedMessageIndex)).map(
               (group) => ({
                 type: "part" as const,
                 group,
               }),
             ),
             { type: "interrupted" as const },
-            ...groupParts(assistantPartRefs.filter((ref) => ref.messageIndex > interruptedMessageIndex)).map(
+            ...groupParts(visibleAssistantPartRefs.filter((ref) => ref.messageIndex > interruptedMessageIndex)).map(
               (group) => ({
                 type: "part" as const,
                 group,
               }),
             ),
           ]
-        : groupParts(assistantPartRefs).map((group) => ({ type: "part" as const, group }))
+        : groupParts(visibleAssistantPartRefs).map((group) => ({ type: "part" as const, group }))
     if (previousUserMessage) rows.push(new TimelineRow.TurnGap({ userMessageID: userMessage.id }))
 
     if (comments.length > 0 && !inlineComments)
@@ -161,14 +206,15 @@ export namespace Timeline {
       }),
     )
 
-    if (compaction) {
-      rows.push(
-        new TimelineRow.TurnDivider({
-          userMessageID: userMessage.id,
-          label: "compaction",
-        }),
-      )
-    }
+    rows.push(
+      ...projectedCompactions.messages.map(
+        (message) =>
+          new TimelineRow.Compaction({
+            userMessageID: userMessage.id,
+            message,
+          }),
+      ),
+    )
 
     let assistantGroupIndex = 0
     const assistantRows = assistantItems.map((item) => {
@@ -201,7 +247,13 @@ export namespace Timeline {
 
     rows.push(...projectedAssistantRows)
 
-    if (isActive && status === "busy" && !error && (showReasoning ? assistantPartRefs.length === 0 : true)) {
+    if (
+      isActive &&
+      status === "busy" &&
+      !error &&
+      !compacting &&
+      (showReasoning ? visibleAssistantPartRefs.length === 0 : true)
+    ) {
       const heading = assistantMessages
         .flatMap((message) => getMessageParts(message.id))
         .map((part) => (part.type === "reasoning" && part.text ? reasoningHeading(part.text) : undefined))
@@ -326,6 +378,96 @@ export namespace Timeline {
 
   function record(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === "object" && !Array.isArray(value)
+  }
+
+  function projectCompactions(input: {
+    userMessageID: string
+    userParts: Part[]
+    assistantPartRefs: AssistantPartRef[]
+    compactions: SessionCompactionMessage[]
+    userCompaction: boolean
+    status: SessionStatus["type"]
+    isActive: boolean
+  }) {
+    const summaryTargets = new Map(
+      input.assistantPartRefs.flatMap((ref) => {
+        const id = compactionMessageID(ref.part)
+        return id ? [[ref.messageID, id] as const] : []
+      }),
+    )
+    const adjacentSummaryMessageID = input.userCompaction
+      ? input.assistantPartRefs.find((ref) => ref.part.type === "text")?.messageID
+      : undefined
+    const summaryMessageIDs = new Set([
+      ...summaryTargets.keys(),
+      ...(adjacentSummaryMessageID ? [adjacentSummaryMessageID] : []),
+    ])
+    const summaries = [
+      ...input.assistantPartRefs.reduce((result, ref) => {
+        if (!summaryMessageIDs.has(ref.messageID) || ref.part.type !== "text") return result
+        const id = summaryTargets.get(ref.messageID) ?? input.userMessageID
+        const current = result.get(id)
+        result.set(id, {
+          summary: current ? `${current.summary}\n${ref.part.text}` : ref.part.text,
+          completed: (current?.completed ?? true) && ref.completed,
+        })
+        return result
+      }, new Map<string, { summary: string; completed: boolean }>()),
+    ].map(([id, summary]) => ({ id, ...summary }))
+    const availableSummaries = new Map(summaries.map((summary) => [summary.id, summary]))
+    const onlySummary = summaries.length === 1 ? summaries[0] : undefined
+    const matchedSummaries = new Set<string>()
+    const source = input.compactions.map((message): CompactionMessage => {
+      const exact = availableSummaries.get(message.id)
+      const summary = exact ?? (input.compactions.length === 1 ? onlySummary : undefined)
+      if (summary) matchedSummaries.add(summary.id)
+      return {
+        id: message.id,
+        status: summary?.completed ? "completed" : message.status,
+        summary: summary?.summary ?? ("summary" in message ? message.summary : ""),
+      }
+    })
+    const markerIDs = input.compactions.length
+      ? []
+      : [
+          ...new Set([
+            ...input.userParts.filter((part) => part.type === "compaction").map((part) => part.messageID),
+            ...input.assistantPartRefs.filter((ref) => ref.part.type === "compaction").map((ref) => ref.messageID),
+          ]),
+        ]
+    const markers = markerIDs.map((id): CompactionMessage => {
+      const exact = availableSummaries.get(id)
+      const summary = exact ?? (markerIDs.length === 1 ? onlySummary : undefined)
+      if (summary) matchedSummaries.add(summary.id)
+      return {
+        id,
+        status: summary?.completed || input.status === "idle" || !input.isActive ? "completed" : "running",
+        summary: summary?.summary ?? "",
+      }
+    })
+    return {
+      summaryMessageIDs,
+      messages: [
+        ...source,
+        ...markers,
+        ...summaries
+          .filter((summary) => !matchedSummaries.has(summary.id))
+          .map(
+            (summary): CompactionMessage => ({
+              id: summary.id,
+              status: summary.completed ? "completed" : "running",
+              summary: summary.summary,
+            }),
+          ),
+      ],
+    }
+  }
+
+  function compactionMessageID(part: Part) {
+    if (part.type !== "text") return undefined
+    const metadata = record(part.metadata) ? part.metadata : undefined
+    const compaction = record(metadata?.compaction) ? metadata.compaction : undefined
+    return typeof compaction?.messageID === "string" ? compaction.messageID : undefined
   }
 }
 

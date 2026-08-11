@@ -98,6 +98,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "問題已略過",
   "ui.messagePart.compaction": "工作階段已壓縮",
+  "ui.messagePart.compaction.started": "工作階段開始壓縮",
+  "ui.messagePart.compaction.failed": "工作階段壓縮失敗",
   "ui.messagePart.context.read.one": "{{count}} 次讀取",
   "ui.messagePart.context.read.other": "{{count}} 次讀取",
   "ui.messagePart.context.search.one": "{{count}} 次搜尋",
