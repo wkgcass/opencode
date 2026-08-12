@@ -80,7 +80,7 @@ export function TerminalPanelV2(props: { stacked?: boolean } = {}) {
     }
 
     if (!terminal.ready() || terminal.all().length !== 0 || store.autoCreated) return
-    terminal.new()
+    terminal.new({ focus: true })
     setStore("autoCreated", true)
   })
 
