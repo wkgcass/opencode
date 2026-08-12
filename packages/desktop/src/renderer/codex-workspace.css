@@ -187,13 +187,13 @@ html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"]
   background: var(--desktop-panel);
 }
 
-html[data-opencode-desktop="true"] [data-component="new-session-panel-shell"] {
+html[data-opencode-desktop="true"] [data-slot="new-session-panel-shell"] {
   gap: 0;
   padding: 0;
 }
 
 html[data-opencode-desktop="true"] [data-component="home-panel"],
-html[data-opencode-desktop="true"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"] [data-component="session-new-design"],
 html[data-opencode-desktop="true"] [data-component="session-panel-frame"] {
   border: 1px solid var(--desktop-divider);
   border-radius: 24px 0 0 0;
@@ -204,7 +204,7 @@ html[data-opencode-desktop="true"] [data-component="home-panel"] {
   margin: 0;
 }
 
-html[data-opencode-desktop="true"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"] [data-component="session-new-design"],
 html[data-opencode-desktop="true"] [data-component="session-panel-frame"] {
   background: var(--desktop-panel);
 }
@@ -229,13 +229,6 @@ html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"]
   padding: 14px 14px 6px;
   font-size: 14px;
   line-height: 1.5;
-}
-
-html[data-opencode-desktop="true"]
-  [data-component="desktop-new-session-design"]
-  [data-component="session-new-design-text"] {
-  padding: 14px 14px 6px;
-  font-size: 14px;
 }
 
 html[data-opencode-desktop="true"] [data-component="desktop-new-session-design"] [data-component="provider-tip"] {

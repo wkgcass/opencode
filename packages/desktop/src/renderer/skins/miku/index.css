@@ -129,12 +129,12 @@ html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="cod
     cover;
 }
 
-html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="new-session-panel-shell"],
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-slot="new-session-panel-shell"],
 html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="session-panel-row"] {
   background: var(--miku-chrome);
 }
 
-html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="new-session-panel"],
+html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="session-new-design"],
 html[data-opencode-desktop="true"][data-skin="miku-future"] [data-component="session-panel-frame"] {
   background: var(--miku-panel);
   border-color: var(--miku-line);

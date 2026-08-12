@@ -127,12 +127,12 @@ html[data-opencode-desktop="true"][data-skin="emily"] [data-component="codex-mai
     linear-gradient(135deg, var(--emily-chrome), color-mix(in srgb, var(--emily-chrome) 88%, var(--emily-silver)));
 }
 
-html[data-opencode-desktop="true"][data-skin="emily"] [data-component="new-session-panel-shell"],
+html[data-opencode-desktop="true"][data-skin="emily"] [data-slot="new-session-panel-shell"],
 html[data-opencode-desktop="true"][data-skin="emily"] [data-component="session-panel-row"] {
   background: var(--emily-chrome);
 }
 
-html[data-opencode-desktop="true"][data-skin="emily"] [data-component="new-session-panel"] {
+html[data-opencode-desktop="true"][data-skin="emily"] [data-component="session-new-design"] {
   background: var(--emily-panel);
   border-color: var(--emily-line);
   box-shadow: inset 1px 1px color-mix(in srgb, white 64%, transparent);
