@@ -30,6 +30,7 @@ import { SettingsSkinSelect, skinSettingsText } from "../settings-skin-select"
 import "./settings-v2.css"
 
 const schemeOptions: ("system" | "light" | "dark")[] = ["system", "light", "dark"]
+const followupOptions: ("queue" | "steer")[] = ["queue", "steer"]
 const fontSettings = {
   ui: {
     action: "settings-ui-font",
@@ -396,6 +397,22 @@ export const SettingsGeneralV2: Component<{
               onChange={(checked) => settings.general.setEditToolPartsExpanded(checked)}
             />
           </div>
+        </SettingsRowV2>
+
+        <SettingsRowV2
+          title={language.t("settings.general.row.followup.title")}
+          description={language.t("settings.general.row.followup.description")}
+        >
+          <SelectV2
+            appearance="inline"
+            data-action="settings-followup"
+            options={followupOptions}
+            current={followupOptions.find((option) => option === settings.general.followup())}
+            placement="bottom-end"
+            gutter={6}
+            label={(option) => language.t(`settings.general.row.followup.option.${option}`)}
+            onSelect={(option) => option && settings.general.setFollowup(option)}
+          />
         </SettingsRowV2>
 
         <Show when={mobile() && import.meta.env.VITE_OPENCODE_CHANNEL !== "prod"}>

@@ -312,6 +312,35 @@ beforeEach(() => {
 })
 
 describe("prompt submit worktree selection", () => {
+  test("queues follow-ups without submitting them to a busy session", async () => {
+    params = { id: "session-1" }
+    const queued: Array<{ sessionID: string; prompt: Prompt }> = []
+    const submit = createPromptSubmit({
+      prompt,
+      info: () => ({ id: "session-1" }),
+      imageAttachments: () => [],
+      commentCount: () => 0,
+      autoAccept: () => false,
+      mode: () => "normal",
+      working: () => true,
+      editor: () => undefined,
+      queueScroll: () => undefined,
+      promptLength: (value) => value.reduce((sum, part) => sum + ("content" in part ? part.content.length : 0), 0),
+      addToHistory: () => undefined,
+      resetHistoryNavigation: () => undefined,
+      setMode: () => undefined,
+      setPopover: () => undefined,
+      shouldQueue: () => true,
+      onQueue: (draft) => queued.push({ sessionID: draft.sessionID, prompt: draft.prompt }),
+    })
+
+    await submit.handleSubmit({ preventDefault: () => undefined } as unknown as Event)
+
+    expect(queued).toEqual([{ sessionID: "session-1", prompt: promptValue }])
+    expect(sentPrompts).toEqual([])
+    expect(optimistic).toEqual([])
+  })
+
   test("reads the latest worktree accessor value per submit", async () => {
     const submit = createPromptSubmit({
       prompt,
