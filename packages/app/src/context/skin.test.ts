@@ -3,6 +3,8 @@ import {
   activeSkinAppearance,
   activeSkinWindow,
   registerSkins,
+  skinColorSchemeOptions,
+  skinColorSchemeSettingsLocked,
   skinSettingsLocked,
   type SkinDefinition,
 } from "./skin"
@@ -25,11 +27,24 @@ const darkSkin = {
   },
   window: {},
 } satisfies SkinDefinition
+const flexibleSkin = {
+  id: "flexible-skin",
+  name: "Flexible Skin",
+  appearance: {
+    colorScheme: "light",
+    colorSchemes: ["light", "dark"],
+    theme: "oc-2",
+  },
+  window: {
+    background: "#f7f8fa",
+    dark: { background: "#19191a" },
+  },
+} satisfies SkinDefinition
 
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.removeAttribute("data-opencode-desktop")
-  registerSkins([testSkin, darkSkin], testSkin.id)
+  registerSkins([testSkin, darkSkin, flexibleSkin], testSkin.id)
 })
 
 describe("desktop skin", () => {
@@ -51,6 +66,17 @@ describe("desktop skin", () => {
     localStorage.setItem("opencode-skin-id", darkSkin.id)
 
     expect(activeSkinAppearance()).toEqual(darkSkin.appearance)
+  })
+
+  test("allows a skin to expose light and dark modes without unlocking its theme", () => {
+    localStorage.setItem("opencode-skin-id", flexibleSkin.id)
+    localStorage.setItem("opencode-color-scheme", "dark")
+    registerSkins([testSkin, darkSkin, flexibleSkin], testSkin.id)
+
+    expect(skinColorSchemeOptions()).toEqual(["light", "dark"])
+    expect(skinColorSchemeSettingsLocked()).toBeFalse()
+    expect(skinSettingsLocked()).toBeTrue()
+    expect(activeSkinWindow()).toEqual({ background: "#19191a" })
   })
 
   test("uses the registered desktop default", () => {

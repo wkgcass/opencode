@@ -7,7 +7,7 @@ import { TextInputV2 } from "@opencode-ai/ui/v2/text-input-v2"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
-import { skinSettingsLocked } from "@/context/skin"
+import { skinColorSchemeOptions, skinColorSchemeSettingsLocked, skinSettingsLocked } from "@/context/skin"
 import { useUpdaterAction } from "../updater-action"
 import { useSettings } from "@/context/settings"
 import { ExternalLink } from "../external-link"
@@ -126,6 +126,9 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
   const language = useLanguage()
   const platform = usePlatform()
   const desktop = createMemo(() => platform.platform === "desktop")
+  const availableSchemeOptions = createMemo(() =>
+    schemeOptions.filter((option) => skinColorSchemeOptions().some((scheme) => scheme === option)),
+  )
   return (
     <div class="settings-v2-section">
       <h3 class="settings-v2-section-title">{language.t("settings.general.section.appearance")}</h3>
@@ -137,11 +140,11 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
           <SelectV2
             appearance="inline"
             data-action="settings-color-scheme"
-            options={schemeOptions}
-            current={schemeOptions.find((option) => option === props.controller.scheme.current())}
+            options={availableSchemeOptions()}
+            current={availableSchemeOptions().find((option) => option === props.controller.scheme.current())}
             placement="bottom-end"
             gutter={6}
-            disabled={skinSettingsLocked()}
+            disabled={skinColorSchemeSettingsLocked()}
             label={(option) => {
               if (option === "system") return language.t("theme.scheme.system")
               if (option === "light") return language.t("theme.scheme.light")

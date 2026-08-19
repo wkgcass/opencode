@@ -24,7 +24,10 @@ export const desktopSkinPreloadPlugin = {
 
   var appearance = skin.appearance || {}
   var theme = appearance.theme || "oc-2"
-  localStorage.setItem("opencode-color-scheme", appearance.colorScheme || "light")
+  var storedScheme = localStorage.getItem("opencode-color-scheme")
+  var schemes = Array.isArray(appearance.colorSchemes) ? appearance.colorSchemes : []
+  var scheme = schemes.indexOf(storedScheme) >= 0 ? storedScheme : (appearance.colorScheme || "light")
+  localStorage.setItem("opencode-color-scheme", scheme)
   if (localStorage.getItem("opencode-theme-id") === theme) return
   localStorage.setItem("opencode-theme-id", theme)
   localStorage.removeItem("opencode-theme-css-light")
@@ -39,7 +42,9 @@ export const desktopSkinPreloadPlugin = {
   var skins = registry && Array.isArray(registry.skins) ? registry.skins : []
   var id = document.documentElement.dataset.skin
   var skin = skins.find(function (item) { return item.id === id })
-  var background = skin && skin.window && skin.window.background
+  var windowStyle = skin && skin.window
+  var dark = localStorage.getItem("opencode-color-scheme") === "dark" && windowStyle && windowStyle.dark
+  var background = dark && dark.background ? dark.background : (windowStyle && windowStyle.background)
   if (!background) return
   document.documentElement.style.backgroundColor = background
   var meta = document.querySelector("meta[name='theme-color']")

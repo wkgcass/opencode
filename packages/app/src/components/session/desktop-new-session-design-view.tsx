@@ -1,4 +1,4 @@
-import { createMemo, type JSX } from "solid-js"
+import { createMemo, Show, type JSX } from "solid-js"
 import { useSearchParams } from "@solidjs/router"
 import { useGlobal } from "@/context/global"
 import { useLanguage } from "@/context/language"
@@ -40,6 +40,11 @@ export function DesktopNewSessionDesignView(props: { children: JSX.Element }) {
     return displayName(fallback ?? { worktree: directory || selected || "opencode" })
   })
   const prompt = () => {
+    if (skin.id() === "deepseek-harness") {
+      if (language.locale() === "zh") return ["探索未至之境", ""]
+      if (language.locale() === "zht") return ["探索未至之境", ""]
+      return ["Explore beyond the horizon", ""]
+    }
     if (skin.id() === "su7-ultra") {
       if (language.locale() === "zh") return ["让 ", " 的下一次提交，快过上一圈。"]
       if (language.locale() === "zht") return ["讓 ", " 的下一次提交，快過上一圈。"]
@@ -86,12 +91,16 @@ export function DesktopNewSessionDesignView(props: { children: JSX.Element }) {
           data-slot="desktop-new-session-prompt"
           class="text-[28px] font-[400] leading-[1.35] tracking-[-0.6px] text-v2-text-text-base"
         >
-          {prompt()[0]}
-          <span class="underline decoration-v2-text-text-muted decoration-1 underline-offset-4">{projectName()}</span>
-          {prompt()[1]}
+          <Show when={skin.id() !== "deepseek-harness"} fallback={prompt()[0]}>
+            {prompt()[0]}
+            <span class="underline decoration-v2-text-text-muted decoration-1 underline-offset-4">
+              {projectName()}
+            </span>
+            {prompt()[1]}
+          </Show>
         </div>
       </div>
-      <div class="absolute inset-x-0 bottom-4 flex justify-center px-6">
+      <div data-slot="desktop-new-session-composer" class="absolute inset-x-0 bottom-4 flex justify-center px-6">
         <div class={NEW_SESSION_CONTENT_WIDTH}>{props.children}</div>
       </div>
     </div>

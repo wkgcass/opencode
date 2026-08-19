@@ -40,7 +40,7 @@ import { clearWorkspaceTerminals } from "@/context/terminal"
 import { pickSessionCacheEvictions } from "@/context/global-sync/session-cache"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
-import { skinSettingsLocked } from "@/context/skin"
+import { skinColorSchemeOptions, skinColorSchemeSettingsLocked, skinSettingsLocked } from "@/context/skin"
 import { Binary } from "@opencode-ai/core/util/binary"
 import { retry } from "@opencode-ai/core/util/retry"
 import { playSoundById } from "@/utils/sound"
@@ -144,6 +144,8 @@ export default function LegacyLayout(props: ParentProps) {
     dark: "theme.scheme.dark",
   }
   const colorSchemeLabel = (scheme: ColorScheme) => language.t(colorSchemeKey[scheme])
+  const availableColorSchemes = () =>
+    colorSchemeOrder.filter((scheme) => skinColorSchemeOptions().some((option) => option === scheme))
   const currentDir = createMemo(() => route().dir)
 
   const [state, setState] = createStore({
@@ -344,12 +346,13 @@ export default function LegacyLayout(props: ParentProps) {
   }
 
   function cycleColorScheme(direction = 1) {
-    if (skinSettingsLocked()) return
+    if (skinColorSchemeSettingsLocked()) return
+    const schemes = availableColorSchemes()
     const current = theme.colorScheme()
-    const currentIndex = colorSchemeOrder.indexOf(current)
+    const currentIndex = schemes.indexOf(current)
     const nextIndex =
-      currentIndex === -1 ? 0 : (currentIndex + direction + colorSchemeOrder.length) % colorSchemeOrder.length
-    const next = colorSchemeOrder[nextIndex]
+      currentIndex === -1 ? 0 : (currentIndex + direction + schemes.length) % schemes.length
+    const next = schemes[nextIndex]
     theme.setColorScheme(next)
     showToast({
       title: language.t("toast.scheme.title"),
@@ -1064,7 +1067,7 @@ export default function LegacyLayout(props: ParentProps) {
       title: language.t("command.theme.scheme.cycle"),
       category: language.t("command.category.theme"),
       keybind: "mod+shift+s",
-      disabled: skinSettingsLocked(),
+      disabled: skinColorSchemeSettingsLocked(),
       onSelect: () => cycleColorScheme(1),
     })
 
@@ -1073,7 +1076,8 @@ export default function LegacyLayout(props: ParentProps) {
         id: `theme.scheme.${scheme}`,
         title: language.t("command.theme.scheme.set", { scheme: colorSchemeLabel(scheme) }),
         category: language.t("command.category.theme"),
-        disabled: skinSettingsLocked(),
+        disabled:
+          skinColorSchemeSettingsLocked() || !skinColorSchemeOptions().some((option) => option === scheme),
         onSelect: () => theme.commitPreview(),
         onHighlight: () => {
           theme.previewColorScheme(scheme)

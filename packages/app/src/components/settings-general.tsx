@@ -12,7 +12,7 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
-import { skinSettingsLocked } from "@/context/skin"
+import { skinColorSchemeOptions, skinColorSchemeSettingsLocked, skinSettingsLocked } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -205,11 +205,14 @@ export const SettingsGeneral: Component = () => {
     void update.catch(() => setPinchZoom(!checked))
   }
 
-  const colorSchemeOptions = createMemo((): { value: ColorScheme; label: string }[] => [
-    { value: "system", label: language.t("theme.scheme.system") },
-    { value: "light", label: language.t("theme.scheme.light") },
-    { value: "dark", label: language.t("theme.scheme.dark") },
-  ])
+  const colorSchemeOptions = createMemo((): { value: ColorScheme; label: string }[] => {
+    const available = skinColorSchemeOptions()
+    return [
+      { value: "system" as const, label: language.t("theme.scheme.system") },
+      { value: "light" as const, label: language.t("theme.scheme.light") },
+      { value: "dark" as const, label: language.t("theme.scheme.dark") },
+    ].filter((option) => available.some((scheme) => scheme === option.value))
+  })
 
   const followupOptions = createMemo((): { value: "queue" | "steer"; label: string }[] => [
     { value: "queue", label: language.t("settings.general.row.followup.option.queue") },
@@ -494,7 +497,7 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
-            disabled={skinSettingsLocked()}
+            disabled={skinColorSchemeSettingsLocked()}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"

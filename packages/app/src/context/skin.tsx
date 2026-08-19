@@ -4,14 +4,19 @@ import { useTheme } from "@opencode-ai/ui/theme/context"
 import { createEffect } from "solid-js"
 import { createStore } from "solid-js/store"
 
-export type SkinWindow = {
+type SkinWindowColors = {
   background?: string
   titlebar?: string
   symbols?: string
 }
 
+export type SkinWindow = SkinWindowColors & {
+  dark?: SkinWindowColors
+}
+
 export type SkinAppearance = {
   colorScheme?: "light" | "dark"
+  colorSchemes?: readonly ("light" | "dark")[]
   theme?: string
 }
 
@@ -32,8 +37,10 @@ type SkinTitlebarTheme = {
 }
 
 const STORAGE_KEY = "opencode-skin-id"
+const COLOR_SCHEME_STORAGE_KEY = "opencode-color-scheme"
 const DEFAULT_COLOR_SCHEME = "light"
 const DEFAULT_THEME = "oc-2"
+const OPEN_CODE_COLOR_SCHEMES = ["system", "light", "dark"] as const
 const openCodeSkin: SkinDefinition = {
   id: "none",
   name: "OpenCode",
@@ -104,8 +111,34 @@ function skinAppearance(skin: SkinDefinition) {
   }
 }
 
+function skinColorSchemes(skin: SkinDefinition) {
+  if (skin.id === openCodeSkin.id) return OPEN_CODE_COLOR_SCHEMES
+  return skin.appearance?.colorSchemes ?? [skin.appearance?.colorScheme ?? DEFAULT_COLOR_SCHEME]
+}
+
+function resolveSkinWindow(skin: SkinDefinition, mode?: "light" | "dark") {
+  const { dark, ...window } = skin.window
+  if (mode !== "dark" || !dark) return window
+  return { ...window, ...dark }
+}
+
+function readColorScheme() {
+  if (typeof localStorage !== "object") return undefined
+  try {
+    return localStorage.getItem(COLOR_SCHEME_STORAGE_KEY)
+  } catch {
+    return undefined
+  }
+}
+
 export function activeSkinWindow() {
-  return activeSkin().window
+  const skin = activeSkin()
+  const stored = readColorScheme()
+  const scheme = skinColorSchemes(skin).some((option) => option === stored)
+    ? stored
+    : (skin.appearance?.colorScheme ?? DEFAULT_COLOR_SCHEME)
+  const mode = scheme === "dark" ? "dark" : "light"
+  return resolveSkinWindow(skin, mode)
 }
 
 export function activeSkinAppearance() {
@@ -114,6 +147,15 @@ export function activeSkinAppearance() {
 
 export function skinSettingsLocked() {
   return active.id !== openCodeSkin.id
+}
+
+export function skinColorSchemeOptions() {
+  const skin = availableSkins().find((item) => item.id === active.id) ?? openCodeSkin
+  return skinColorSchemes(skin)
+}
+
+export function skinColorSchemeSettingsLocked() {
+  return skinColorSchemeOptions().length < 2
 }
 
 export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
@@ -142,11 +184,16 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       const appearance = skinAppearance(skin)
       document.documentElement.dataset.skin = skin.id
 
+      const colorSchemes = skinColorSchemes(skin)
+      const colorScheme = colorSchemes.some((scheme) => scheme === theme.colorScheme())
+        ? theme.colorScheme()
+        : (appearance?.colorScheme ?? DEFAULT_COLOR_SCHEME)
+
       if (
         appearance &&
-        (theme.colorScheme() !== appearance.colorScheme || theme.themeId() !== appearance.theme)
+        (theme.colorScheme() !== colorScheme || theme.themeId() !== appearance.theme)
       ) {
-        if (theme.colorScheme() !== appearance.colorScheme) theme.setColorScheme(appearance.colorScheme)
+        if (theme.colorScheme() !== colorScheme) theme.setColorScheme(colorScheme)
         if (theme.themeId() !== appearance.theme) theme.setTheme(appearance.theme)
         return
       }
@@ -155,7 +202,8 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       const mode = theme.mode()
 
       const fallback = getComputedStyle(document.documentElement).getPropertyValue("--background-base").trim()
-      const background = skin.window.background ?? fallback
+      const window = resolveSkinWindow(skin, mode)
+      const background = window.background ?? fallback
       if (background) {
         document.documentElement.style.backgroundColor = background
         document.querySelector('meta[name="theme-color"]')?.setAttribute("content", background)
@@ -167,8 +215,8 @@ export const { use: useSkin, provider: SkinProvider } = createSimpleContext({
       setTitlebar({
         mode,
         scheme: theme.colorScheme(),
-        background: skin.window.titlebar ?? chromeBackground,
-        symbolColor: skin.window.symbols,
+        background: window.titlebar ?? chromeBackground,
+        symbolColor: window.symbols,
       })
     })
 
