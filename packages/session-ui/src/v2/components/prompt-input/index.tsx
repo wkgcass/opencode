@@ -40,6 +40,7 @@ export type PromptInputV2Props = {
   readOnly?: boolean
   borderUnderlay?: boolean
   class?: string
+  contextUsage?: JSX.Element
   modelControl?: JSX.Element
   variantControlVisible?: boolean
   attachKeybind?: string[]
@@ -192,8 +193,9 @@ export function PromptInputV2(props: PromptInputV2Props) {
           </Show>
         </div>
 
-        <div class="flex h-11 items-center px-2">
+        <div class="flex h-11 items-center gap-1 px-2">
           <div
+            data-slot="prompt-controls-start"
             class="flex min-w-0 flex-1 items-center gap-1"
             aria-hidden={state.mode === "shell"}
             inert={state.mode === "shell" ? true : undefined}
@@ -218,6 +220,15 @@ export function PromptInputV2(props: PromptInputV2Props) {
                 <PromptInputV2ConfiguredSelect title="Choose agent" keybind={["Mod", "."]} control={control} />
               )}
             </Show>
+          </div>
+          <div
+            data-slot="prompt-controls-end"
+            class="flex min-w-0 items-center gap-1 pr-2"
+            aria-hidden={state.mode === "shell"}
+            inert={state.mode === "shell" ? true : undefined}
+            style={buttons()}
+          >
+            {props.contextUsage}
             <Show
               when={props.modelControl}
               fallback={
@@ -700,7 +711,7 @@ export function PromptInputV2SubmitButton(props: {
         tabIndex={props.mode === "normal" ? undefined : -1}
         icon={props.stopping ? "stop" : props.mode === "shell" ? "arrow-undo-down" : "arrow-up"}
         variant="primary"
-        class="size-7 rounded-md p-[6px] text-v2-icon-icon-muted shadow-[var(--v2-elevation-button-contrast)] disabled:opacity-50"
+        class="size-7 rounded-full p-[6px] text-v2-icon-icon-muted shadow-[var(--v2-elevation-button-contrast)] disabled:opacity-50"
         style={{
           "background-image":
             "linear-gradient(180deg,var(--v2-alpha-light-20) 0%,var(--v2-alpha-light-0) 100%),linear-gradient(90deg,var(--v2-background-bg-contrast) 0%,var(--v2-background-bg-contrast) 100%)",
