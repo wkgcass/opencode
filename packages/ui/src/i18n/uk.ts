@@ -104,6 +104,8 @@ export const dict: Record<string, string> = {
   "ui.messagePart.review.title": "Перевірте свої відповіді",
   "ui.messagePart.questions.dismissed": "Запитання відхилено",
   "ui.messagePart.compaction": "Сесію стиснуто",
+  "ui.messagePart.compaction.started": "Стиснення сесії розпочато",
+  "ui.messagePart.compaction.failed": "Не вдалося стиснути сесію",
   "ui.messagePart.context.read.one": "{{count}} читання",
   "ui.messagePart.context.read.few": "{{count}} читання",
   "ui.messagePart.context.read.many": "{{count}} читань",
@@ -225,4 +227,5 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Виберіть усі відповідні варіанти",
   "ui.question.singleHint": "Виберіть одну відповідь",
   "ui.question.custom.placeholder": "Введіть свою відповідь...",
+  "ui.sessionTurn.status.thought": "Thought",
 }

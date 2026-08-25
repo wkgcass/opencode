@@ -198,4 +198,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Selectează toate răspunsurile corecte",
   "ui.question.singleHint": "Selectează un răspuns",
   "ui.question.custom.placeholder": "Scrie răspunsul...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

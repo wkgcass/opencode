@@ -4,6 +4,7 @@ import type { OpenCodeEvent, SessionApi } from "@opencode-ai/client/promise"
 import type { Message, OpencodeClient, Part, Session } from "@opencode-ai/sdk/v2/client"
 import { createServerSession } from "./server-session"
 import type { ServerApi } from "@/utils/server"
+import { Identifier } from "@/utils/id"
 
 type MessageApi = ServerApi["message"]
 
@@ -162,6 +163,118 @@ function setup(sessions: Record<string, Session>) {
 }
 
 describe("server session", () => {
+  test("generates monotonic per-session message IDs from 24 hours ago", () => {
+    const ctx = setup({ child: session("child") })
+    const before = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() - 24 * 60 * 60 * 1_000, true))!
+    const first = ctx.store.nextMessageID("child")
+    const after = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() - 24 * 60 * 60 * 1_000, true))!
+    const second = ctx.store.nextMessageID("child")
+
+    expect(first).toStartWith("msg-")
+    expect(ctx.store.nextEventID("child")).toStartWith("evt-")
+    expect(Identifier.timestamp(first)).toBeGreaterThanOrEqual(before)
+    expect(Identifier.timestamp(first)).toBeLessThanOrEqual(after)
+    expect(Identifier.timestamp(second)).toBe(Identifier.timestamp(first)! + 1)
+  })
+
+  test("advances the message ID base from event and fetched server messages", async () => {
+    const eventTimestamp = Identifier.timestamp(Identifier.ascendingAt("message", Date.now() + 10_000, true))!
+    const eventID = Identifier.ascendingAt("message", eventTimestamp, true)
+    const ctx = setup({ child: session("child") })
+    ctx.store.apply({ type: "message.updated", properties: { info: userMessage(eventID) } })
+
+    expect(Identifier.timestamp(ctx.store.nextMessageID("child"))).toBe(eventTimestamp + 1)
+
+    const fetchedTimestamp = eventTimestamp + 10_000
+    const fetchedID = Identifier.ascendingAt("message", fetchedTimestamp, true)
+    const store = createServerSession(messageClient(response([{ info: userMessage(fetchedID), parts: [] }])))
+    await store.sync("child")
+
+    expect(Identifier.timestamp(store.nextMessageID("child"))).toBe(fetchedTimestamp + 1)
+  })
+
+  test("switches to legacy IDs after the server responds with legacy format", () => {
+    const ctx = setup({ child: session("child") })
+    // A brand-new session (no server response yet) uses the extended format.
+    expect(Identifier.isExtended(ctx.store.nextMessageID("child"))).toBe(true)
+    // Once the server responds with a legacy (non-extended) message ID, the
+    // client matches it so its subsequent IDs order alongside the server's.
+    // The server's response is an assistant message (server-generated); user
+    // messages echo the client's own ID and so cannot reveal the format.
+    const legacyTimestamp = Identifier.timestamp(Identifier.ascendingAt("message", Date.now(), false))!
+    const legacyID = Identifier.ascendingAt("message", legacyTimestamp, false)
+    ctx.store.apply({
+      type: "message.updated",
+      properties: {
+        info: assistantMessage(legacyID, "msg_parent", {
+          time: { created: legacyTimestamp, completed: legacyTimestamp },
+        }),
+      },
+    })
+
+    const next = ctx.store.nextMessageID("child")
+    expect(Identifier.isExtended(next)).toBe(false)
+    expect(Identifier.isExtended(ctx.store.nextEventID("child"))).toBe(false)
+    expect(Identifier.timestamp(next)).toBe(legacyTimestamp + 1)
+  })
+
+  test("keeps the format of the latest response when fetched history mixes formats", async () => {
+    const legacyTimestamp = Identifier.timestamp(Identifier.ascendingAt("message", Date.now(), false))!
+    const extendedTimestamp = Date.now() + 10_000
+    const legacyUser = Identifier.ascendingAt("message", legacyTimestamp - 1, false)
+    const legacyAssistant = Identifier.ascendingAt("message", legacyTimestamp, false)
+    const extendedUser = Identifier.ascendingAt("message", extendedTimestamp - 1, true)
+    const extendedAssistant = Identifier.ascendingAt("message", extendedTimestamp, true)
+    const store = createServerSession(
+      messageClient(
+        response([
+          { info: userMessage(legacyUser), parts: [] },
+          {
+            info: assistantMessage(legacyAssistant, legacyUser, {
+              time: { created: 100, completed: 100 },
+            }),
+            parts: [],
+          },
+          { info: userMessage(extendedUser), parts: [] },
+          {
+            info: assistantMessage(extendedAssistant, extendedUser, {
+              time: { created: 200, completed: 200 },
+            }),
+            parts: [],
+          },
+        ]),
+      ),
+    )
+
+    await store.sync("child")
+
+    const next = store.nextMessageID("child")
+    expect(Identifier.isExtended(next)).toBe(true)
+    expect(Identifier.timestamp(next)).toBe(extendedTimestamp + 1)
+  })
+
+  test("does not flip back to extended when the client's own new-format message is re-emitted", () => {
+    const ctx = setup({ child: session("child") })
+    ctx.store.remember(session("child"))
+    // Client sends its first message before any server response, so it is
+    // minted in the default extended (new) format.
+    const msg1 = ctx.store.nextMessageID("child")
+    expect(Identifier.isExtended(msg1)).toBe(true)
+    // The server (legacy) responds with an old-format assistant message...
+    const legacyAssistant = Identifier.ascendingAt("message", Date.now(), false)
+    ctx.store.apply({
+      type: "message.updated",
+      properties: { info: assistantMessage(legacyAssistant, msg1) },
+    })
+    // ...and then re-emits the client's own new-format user message (e.g. via
+    // a later event or a history refetch). This must not flip the learned
+    // legacy format back to extended.
+    ctx.store.apply({ type: "message.updated", properties: { info: userMessage(msg1) } })
+
+    const msg2 = ctx.store.nextMessageID("child")
+    expect(Identifier.isExtended(msg2)).toBe(false)
+  })
+
   test("projects V2 session events into current and legacy message state", () => {
     const ctx = setup({ child: session("child") })
     ctx.store.remember(session("child"))
@@ -211,6 +324,39 @@ describe("server session", () => {
     })
     expect(ctx.store.data.message.child?.map((message) => message.id)).toEqual(["msg_1_user", "msg_2_assistant"])
     expect(ctx.store.data.part.msg_2_assistant).toMatchObject([{ type: "text", text: "world" }])
+  })
+
+  test("advances the message ID base from a V2 assistant response", () => {
+    const ctx = setup({ child: session("child") })
+    const userID = ctx.store.nextMessageID("child")
+    const assistantTimestamp = Date.now() + 10_000
+    const assistantID = Identifier.ascendingAt("message", assistantTimestamp, true)
+    ctx.store.set("session_message", "child", [
+      {
+        id: userID,
+        type: "user",
+        text: "hello",
+        time: { created: assistantTimestamp - 1 },
+      },
+    ])
+
+    ctx.store.applyV2({
+      id: "evt_step",
+      created: assistantTimestamp,
+      type: "session.step.started",
+      durable: { aggregateID: "child", seq: 1, version: 1 },
+      location: { directory: "/repo" },
+      data: {
+        sessionID: "child",
+        assistantMessageID: assistantID,
+        agent: "build",
+        model: { id: "model", providerID: "provider" },
+      },
+    } as OpenCodeEvent)
+
+    const next = ctx.store.nextMessageID("child")
+    expect(Identifier.isExtended(next)).toBe(true)
+    expect(Identifier.timestamp(next)).toBe(assistantTimestamp + 1)
   })
 
   test("resolves lineage by session ID without directory", async () => {

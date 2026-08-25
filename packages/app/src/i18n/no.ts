@@ -407,6 +407,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Kunne ikke sende kommando",
   "prompt.toast.promptSendFailed.title": "Kunne ikke sende forespørsel",
   "prompt.toast.promptSendFailed.description": "Kunne ikke hente sesjon",
+  "prompt.toast.agentSwitchFailed.title": "Kunne ikke bytte agent",
+  "prompt.toast.modelSwitchFailed.title": "Kunne ikke bytte modell",
 
   "dialog.mcp.title": "MCP-er",
   "dialog.mcp.description": "{{enabled}} av {{total}} aktivert",
@@ -422,6 +424,7 @@ export const dict = {
   "mcp.status.disabled": "deaktivert",
 
   "dialog.fork.empty": "Ingen meldinger å forgrene fra",
+  "dialog.fork.fullSession": "Hele økten",
 
   "dialog.directory.search.placeholder": "Søk etter mapper",
   "dialog.directory.empty": "Ingen mapper funnet",
@@ -656,6 +659,8 @@ export const dict = {
   "session.messages.loadEarlier": "Last inn tidligere meldinger",
   "session.messages.loading": "Laster meldinger...",
   "session.messages.jumpToLatest": "Hopp til nyeste",
+  "session.messages.workedFor": "Behandlet på {{duration}}",
+  "session.messages.workCompleted": "Resultatene følger",
 
   "session.context.addToContext": "Legg til {{selection}} i kontekst",
   "session.todo.title": "Oppgaver",
@@ -864,6 +869,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Vis systemvarsel når agenten er ferdig eller trenger oppmerksomhet",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Tillatelser",
   "settings.general.notifications.permissions.description": "Vis systemvarsel når en tillatelse er påkrevd",
   "settings.general.notifications.errors.title": "Feil",
@@ -1264,4 +1272,10 @@ export const dict = {
   "settings.general.row.pinchZoom.description": "Tillat knipebevegelser på styreflaten og Ctrl-rulling for å zoome",
   "settings.updates.action.downloading": "Laster ned...",
   "settings.updates.action.installing": "Installerer...",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 } satisfies Partial<Record<Keys, string>>

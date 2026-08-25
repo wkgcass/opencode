@@ -196,4 +196,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "लागू होने वाले सभी उत्तर चुनें",
   "ui.question.singleHint": "एक उत्तर चुनें",
   "ui.question.custom.placeholder": "अपना उत्तर लिखें...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

@@ -194,4 +194,7 @@ export const dict = {
   "ui.question.multiHint": "ເລືອກຄຳຕອບທັງໝົດທີ່ນຳໃຊ້",
   "ui.question.singleHint": "ເລືອກຫນຶ່ງຄໍາຕອບ",
   "ui.question.custom.placeholder": "ພິມຄຳຕອບຂອງເຈົ້າ...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

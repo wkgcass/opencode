@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { readFile } from "node:fs/promises"
 import { mockOpenCodeServer } from "../utils/mock-server"
 import { expectAppVisible } from "../utils/waits"
 
@@ -11,7 +12,7 @@ test.use({
   deviceScaleFactor: 1,
 })
 
-test("matches the rounded panel corners to the dark new-session background", async ({ page }, testInfo) => {
+test("fits the desktop bounds with only a rounded top-left corner", async ({ page }) => {
   await mockOpenCodeServer(page, {
     directory,
     project: {
@@ -47,37 +48,23 @@ test("matches the rounded panel corners to the dark new-session background", asy
   )
 
   await page.goto(`/new-session?draftId=${draftID}`)
+  await page.locator("html").evaluate((element) => {
+    element.dataset.opencodeDesktop = "true"
+  })
+  await page.addStyleTag({ content: await readFile("../desktop/src/renderer/codex-workspace.css", "utf8") })
   await expectAppVisible(page.locator('[data-component="prompt-input"]'))
   await expect(page.locator("html")).toHaveAttribute("data-color-scheme", "dark")
-  const panel = page.locator('main div[class*="rounded-[10px]"][class*="overflow-hidden"]')
+  const shell = page.locator('[data-slot="new-session-panel-shell"]')
+  const panel = page.locator('[data-component="session-new-design"]')
+  await expect(shell).toHaveCSS("padding", "0px")
   await expect(panel).toHaveCount(1)
+  await expect(panel).toHaveCSS("border-top-left-radius", "24px")
+  await expect(panel).toHaveCSS("border-top-right-radius", "0px")
+  await expect(panel).toHaveCSS("border-bottom-right-radius", "0px")
+  await expect(panel).toHaveCSS("border-bottom-left-radius", "0px")
+  const shellBox = await shell.boundingBox()
   const box = await panel.boundingBox()
+  if (!shellBox) throw new Error("New-session shell bounds are unavailable")
   if (!box) throw new Error("New-session panel bounds are unavailable")
-
-  const screenshot = await page.screenshot({ path: testInfo.outputPath("new-session-dark.png") })
-  const corners = await page.evaluate(
-    async ({ source, points }) => {
-      const image = new Image()
-      image.src = source
-      await image.decode()
-      const canvas = document.createElement("canvas")
-      canvas.width = image.naturalWidth
-      canvas.height = image.naturalHeight
-      const context = canvas.getContext("2d")
-      if (!context) throw new Error("2D canvas is unavailable")
-      context.drawImage(image, 0, 0)
-      return points.map((point) => Array.from(context.getImageData(point.x, point.y, 1, 1).data))
-    },
-    {
-      source: `data:image/png;base64,${screenshot.toString("base64")}`,
-      points: [
-        { x: Math.floor(box.x), y: Math.floor(box.y) },
-        { x: Math.ceil(box.x + box.width) - 1, y: Math.floor(box.y) },
-        { x: Math.floor(box.x), y: Math.ceil(box.y + box.height) - 1 },
-        { x: Math.ceil(box.x + box.width) - 1, y: Math.ceil(box.y + box.height) - 1 },
-      ],
-    },
-  )
-
-  expect(corners.every(([red, green, blue, alpha]) => red <= 8 && green <= 8 && blue <= 8 && alpha === 255)).toBe(true)
+  expect(box).toEqual(shellBox)
 })

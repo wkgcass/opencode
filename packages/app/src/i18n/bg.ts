@@ -1167,4 +1167,18 @@ export const dict = {
   "workspace.reset.archived.many": "{{count}} сесии ще бъдат архивирани.",
   "workspace.reset.note": "Това ще нулира работното пространство, за да съответства на клона по подразбиране.",
   "dialog.usageExceeded.dontShowAgain": "Не показвай отново",
+  "prompt.toast.agentSwitchFailed.title": "Failed to switch agent",
+  "prompt.toast.modelSwitchFailed.title": "Failed to switch model",
+  "dialog.fork.fullSession": "Full session",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
+  "session.messages.workedFor": "Worked for {{duration}}",
+  "session.messages.workCompleted": "Work completed",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
 }

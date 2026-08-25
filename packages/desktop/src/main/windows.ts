@@ -105,21 +105,22 @@ function defaultBackgroundColor() {
 function overlay(theme: Partial<TitlebarTheme> = {}, zoom = 1) {
   const mode = theme.mode ?? tone()
   return {
-    color: "#00000000",
-    symbolColor: mode === "dark" ? "white" : "black",
+    color: theme.background ?? oc2Background[mode],
+    symbolColor: theme.symbolColor ?? (mode === "dark" ? "white" : "black"),
     height: Math.max(titlebarHeight, Math.round(titlebarHeight * zoom)),
   }
 }
 
 export function setTitlebar(win: BrowserWindow, theme: Partial<TitlebarTheme> = {}) {
-  titlebarThemes.set(win, theme)
-  // macOS draws the window frame hairline and shadow using the NSWindow
-  // appearance, which follows nativeTheme rather than the rendered content.
-  // Align it with the app theme so a light app on a dark system does not get
-  // the dark-appearance border and shadow. A "system" scheme must map to
-  // "system" (not the resolved mode) or prefers-color-scheme stops tracking
-  // OS appearance changes in the renderer.
-  if (process.platform === "darwin") nativeTheme.themeSource = theme.scheme ?? theme.mode ?? "system"
+  // Theme and skin updates arrive independently, so preserve fields omitted by either source.
+  const next = { ...titlebarThemes.get(win), ...theme }
+  titlebarThemes.set(win, next)
+  // Align nativeTheme with the app theme so native chrome (macOS window
+  // hairline/shadow, Windows titleBarOverlay caption-button hover) matches
+  // the rendered content. A "system" scheme must map to "system" (not the
+  // resolved mode) or prefers-color-scheme stops tracking OS appearance
+  // changes in the renderer.
+  nativeTheme.themeSource = next.scheme ?? next.mode ?? "system"
   updateTitlebar(win)
 }
 
@@ -201,6 +202,7 @@ export function createMainWindow(id: string = randomUUID()) {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      backgroundThrottling: false,
     },
   })
 
@@ -271,7 +273,11 @@ function registerWindow(win: BrowserWindow, id: string) {
   windowIDs.set(win, id)
   registry.register(id, win)
 
-  win.on("focus", () => registry.focused(id))
+  win.on("focus", () => {
+    registry.focused(id)
+    win.webContents.send("window-focused-changed", true)
+  })
+  win.on("blur", () => win.webContents.send("window-focused-changed", false))
   // Windows never emits before-quit on OS shutdown/logoff, but each window
   // gets session-end before it closes; flag the quit so ids stay persisted.
   win.on("session-end", () => registry.setQuitting())

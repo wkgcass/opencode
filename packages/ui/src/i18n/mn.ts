@@ -194,4 +194,7 @@ export const dict = {
   "ui.question.multiHint": "Холбогдох бүх хариултыг сонгоно уу",
   "ui.question.singleHint": "Нэг хариултыг сонгоно уу",
   "ui.question.custom.placeholder": "Хариугаа бичнэ үү...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

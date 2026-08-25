@@ -1,4 +1,14 @@
-import { createEffect, createMemo, createResource, createRoot, For, onCleanup, onMount, Show } from "solid-js"
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  createRoot,
+  createSignal,
+  For,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js"
 import { createStore } from "solid-js/store"
 import { createResizeObserver } from "@solid-primitives/resize-observer"
 import { DragDropProvider, PointerSensor } from "@dnd-kit/solid"
@@ -49,7 +59,7 @@ function SessionTabSlot(props: {
       data-titlebar-tab-slot
       data-tab-key={props.id}
       data-active={props.active()}
-      class="relative flex w-56 min-w-7 max-w-56 flex-shrink"
+      class="relative flex w-56 min-w-[160px] max-w-56 flex-shrink"
     >
       <TabNavItem
         ref={(el) => {
@@ -158,7 +168,10 @@ function SessionTabEntry(props: {
         active={props.active}
         forceTruncate={props.forceTruncate}
         session={session}
-        fallbackTitle={persisted()?.title ?? (missingSession() ? language.t("session.tab.unknown") : undefined)}
+        fallbackTitle={
+          persisted()?.title ??
+          (missingSession() ? language.t("session.tab.unknown") : language.t("session.tab.connecting"))
+        }
         onRename={rename}
         onNavigate={props.onNavigate}
         onClose={props.onClose}
@@ -192,7 +205,7 @@ function DraftTabSlot(props: {
       data-titlebar-tab-slot
       data-tab-key={props.id}
       data-active={props.active()}
-      class="relative flex w-56 min-w-7 max-w-56 flex-shrink"
+      class="relative flex w-56 min-w-[160px] max-w-56 flex-shrink"
     >
       <DraftTabItem
         ref={(el) => {
@@ -225,6 +238,8 @@ export function TitlebarTabStrip(props: {
   let listRef!: HTMLDivElement
   let resizeFrame: number | undefined
   const [visibility, setVisibility] = createStore<Record<string, boolean>>({})
+  const [canScrollLeft, setCanScrollLeft] = createSignal(false)
+  const [canScrollRight, setCanScrollRight] = createSignal(false)
   const visibleTabs = createMemo(() => props.tabs.filter((tab) => tab.type === "draft" || visibility[tabKey(tab)]))
   const visibleTabIds = () => visibleTabs().map(tabKey)
 
@@ -256,7 +271,16 @@ export function TitlebarTabStrip(props: {
 
   function refreshOverflow() {
     if (!scrollRef) return
-    props.onOverflowChange(scrollRef.scrollWidth > scrollRef.clientWidth)
+    const maxScrollLeft = scrollRef.scrollWidth - scrollRef.clientWidth
+    props.onOverflowChange(maxScrollLeft > 1)
+    setCanScrollLeft(scrollRef.scrollLeft > 1)
+    setCanScrollRight(scrollRef.scrollLeft < maxScrollLeft - 1)
+  }
+
+  function handleWheel(event: WheelEvent) {
+    if (event.deltaY === 0) return
+    event.preventDefault()
+    scrollRef.scrollLeft += event.deltaY
   }
 
   createResizeObserver(
@@ -272,10 +296,14 @@ export function TitlebarTabStrip(props: {
 
   onMount(() => {
     refreshOverflow()
+    scrollRef.addEventListener("scroll", refreshOverflow, { passive: true })
+    scrollRef.addEventListener("wheel", handleWheel, { passive: false })
   })
 
   onCleanup(() => {
     if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame)
+    scrollRef.removeEventListener("scroll", refreshOverflow)
+    scrollRef.removeEventListener("wheel", handleWheel)
   })
 
   createEffect(() => {
@@ -284,8 +312,21 @@ export function TitlebarTabStrip(props: {
     refreshOverflow()
   })
 
+  createEffect(() => {
+    const current = props.currentTab()
+    if (!current) return
+    scrollRef
+      ?.querySelector<HTMLDivElement>('[data-titlebar-tab-slot][data-active="true"]')
+      ?.scrollIntoView({ behavior: "instant", block: "nearest", inline: "nearest" })
+  })
+
   return (
-    <div data-slot="titlebar-tabs" class="relative min-w-0">
+    <div
+      data-slot="titlebar-tabs"
+      data-can-scroll-left={canScrollLeft()}
+      data-can-scroll-right={canScrollRight()}
+      class="relative min-w-0"
+    >
       <div
         data-slot="titlebar-tabs-scroll"
         class="flex min-w-0 flex-row items-center gap-1.5 overflow-x-auto no-scrollbar [app-region:no-drag]"
@@ -386,12 +427,14 @@ export function TitlebarTabStrip(props: {
       <div
         data-slot="titlebar-tabs-fade-left"
         aria-hidden="true"
-        class="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-[linear-gradient(to_right,var(--v2-background-bg-deep),transparent)]"
+        class="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-[linear-gradient(to_right,var(--v2-background-bg-deep)_0%,var(--v2-background-bg-deep)_40%,transparent_100%)] transition-opacity duration-200 motion-reduce:transition-none"
+        classList={{ "opacity-0": !canScrollLeft() }}
       />
       <div
         data-slot="titlebar-tabs-fade-right"
         aria-hidden="true"
-        class="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-[linear-gradient(to_left,var(--v2-background-bg-deep),transparent)]"
+        class="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-[linear-gradient(to_left,var(--v2-background-bg-deep)_0%,var(--v2-background-bg-deep)_40%,transparent_100%)] transition-opacity duration-200 motion-reduce:transition-none"
+        classList={{ "opacity-0": !canScrollRight() }}
       />
     </div>
   )

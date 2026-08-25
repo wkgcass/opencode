@@ -24,6 +24,7 @@ import { createMediaQuery } from "@solid-primitives/media"
 import { createResizeObserver } from "@solid-primitives/resize-observer"
 import { debounce } from "@solid-primitives/scheduled"
 import { useLocal } from "@/context/local"
+import { useGlobal } from "@/context/global"
 import { FileProvider, selectionFromLines, useFile, type FileSelection, type SelectedLineRange } from "@/context/file"
 import { createStore } from "solid-js/store"
 import type { SessionReviewLineComment } from "@opencode-ai/session-ui/session-review"
@@ -60,6 +61,7 @@ import { useTabs } from "@/context/tabs"
 import { TerminalProvider, useTerminal } from "@/context/terminal"
 import { PromptInput } from "@/components/prompt-input"
 import { PromptInputV2Composer, usePromptInputV2Controller } from "@/components/prompt-input-v2"
+import { SessionContextUsage } from "@/components/session-context-usage"
 import { useSettingsCommand } from "@/components/settings-dialog"
 import { setCursorPosition } from "@/components/prompt-input/editor-dom"
 import { promptLength } from "@/components/prompt-input/history"
@@ -98,7 +100,12 @@ import { Identifier } from "@/utils/id"
 import { diffs as list } from "@/utils/diffs"
 import { Persist, persisted } from "@/utils/persist"
 import { extractPromptFromParts } from "@/utils/prompt"
-import { formatServerError, isLocalSessionNotFoundError, isSessionNotFoundError } from "@/utils/server-errors"
+import {
+  formatServerError,
+  isLocalSessionNotFoundError,
+  isSessionNotFoundError,
+  isTransientServerConnectionError,
+} from "@/utils/server-errors"
 import { legacySessionHref, requireServerKey, sessionHref } from "@/utils/session-route"
 import { useUsageExceededDialogs } from "./session/usage-exceeded-dialogs"
 import { createSessionOwnership } from "./session/session-ownership"
@@ -165,7 +172,7 @@ export function TargetSessionRouteContent() {
     // when session content falls back to the route error boundary.
     <TargetServerScopedProviders directory={directory} sessionID={() => params.id}>
       <TargetSessionSettingsCommand />
-      <SessionRouteErrorBoundary sessionID={params.id} serverKey={requireServerKey(params.serverKey)} padded>
+      <SessionRouteErrorBoundary sessionID={params.id} serverKey={requireServerKey(params.serverKey)}>
         <ResolvedTargetSessionRoute />
       </SessionRouteErrorBoundary>
     </TargetServerScopedProviders>
@@ -178,16 +185,21 @@ function TargetSessionSettingsCommand() {
 }
 
 export function SessionRouteErrorBoundary(
-  props: ParentProps<{ sessionID?: string; serverKey?: ServerConnection.Key; padded?: boolean }>,
+  props: ParentProps<{ sessionID?: string; serverKey?: ServerConnection.Key }>,
 ) {
   const settings = useSettings()
   return (
     <ErrorBoundary
-      fallback={(error) =>
+      fallback={(error, reset) =>
         settings.general.newLayoutDesigns() ? (
-          <SessionRouteFrame padded={props.padded}>
+          <SessionRouteFrame>
             <SessionPanelFrame newLayout raised={!!props.sessionID}>
-              <SessionErrorFallback error={error} sessionID={props.sessionID} serverKey={props.serverKey} />
+              <SessionErrorFallback
+                error={error}
+                sessionID={props.sessionID}
+                serverKey={props.serverKey}
+                reset={reset}
+              />
             </SessionPanelFrame>
           </SessionRouteFrame>
         ) : (
@@ -200,8 +212,14 @@ export function SessionRouteErrorBoundary(
   )
 }
 
-function SessionErrorFallback(props: { error: unknown; sessionID?: string; serverKey?: ServerConnection.Key }) {
+function SessionErrorFallback(props: {
+  error: unknown
+  sessionID?: string
+  serverKey?: ServerConnection.Key
+  reset: () => void
+}) {
   const language = useLanguage()
+  const global = useGlobal()
   const server = useServer()
   const tabs = useTabs()
   const displayServer = createMemo(() => {
@@ -212,6 +230,31 @@ function SessionErrorFallback(props: { error: unknown; sessionID?: string; serve
   const closeTab = () => {
     if (!props.sessionID) return
     tabs.removeSessionTab({ server: props.serverKey ?? server.key, sessionId: props.sessionID })
+  }
+  const retry = () => {
+    const key = props.serverKey ?? server.key
+    const conn = server.list.find((item) => ServerConnection.key(item) === key)
+    if (conn) global.refreshServerCtx(conn)
+    props.reset()
+  }
+  if (isTransientServerConnectionError(props.error)) {
+    return (
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <div class="h-full px-6 pb-42 -mt-4 flex flex-col items-center justify-center text-center gap-4">
+          <div class="flex flex-col items-center gap-2">
+            <div class="text-16-medium text-text max-w-md">
+              {language.t("session.error.serverUnavailable", { server: displayServer() })}
+            </div>
+            <div class="text-13-regular text-text-weak max-w-md">
+              {language.t("session.error.serverUnavailable.description")}
+            </div>
+          </div>
+          <ButtonV2 variant="neutral" size="normal" onClick={retry}>
+            {language.t("session.error.serverUnavailable.retry")}
+          </ButtonV2>
+        </div>
+      </div>
+    )
   }
   if (isCurrentSessionNotFoundError(props.error, props.sessionID)) {
     return (
@@ -245,7 +288,6 @@ function SessionErrorFallback(props: { error: unknown; sessionID?: string; serve
 
 function ResolvedTargetSessionRoute() {
   const params = useParams<{ serverKey: string; id: string }>()
-  const tabs = useTabs()
   const sync = useServerSync()
   const serverKey = createMemo(() => requireServerKey(params.serverKey))
   const current = createSessionLineage(
@@ -254,15 +296,6 @@ function ResolvedTargetSessionRoute() {
   )
   const directory = createMemo(() => current()?.session.directory)
   const targetDirectory = () => directory()!
-
-  createEffect(() => {
-    const session = current()
-    if (!session) return
-    tabs.addSessionTab({
-      server: serverKey(),
-      sessionId: session.root.id,
-    })
-  })
 
   return (
     // Non-keyed: closes only while the target's directory is unknown (uncached
@@ -295,23 +328,17 @@ function TargetSessionPage() {
 function TargetServerScopedProviders(
   props: ParentProps<{ directory?: () => string | undefined; sessionID?: () => string | undefined }>,
 ) {
-  return (
-    <>
-      <MarkSessionNotificationsViewed sessionID={props.sessionID} />
-      <ModelsProvider directory={props.directory}>{props.children}</ModelsProvider>
-    </>
-  )
-}
-
-function MarkSessionNotificationsViewed(props: { sessionID?: () => string | undefined }) {
   const notification = useNotification()
-  createEffect(() => {
+  const markViewed = () => {
     const sessionID = props.sessionID?.()
-    if (!notification.ready() || !sessionID) return
-    if (notification.session.unseenCount(sessionID) === 0) return
-    notification.session.markViewed(sessionID)
-  })
-  return null
+    if (!sessionID) return
+    notification.session.markViewedByInteraction(sessionID)
+  }
+  return (
+    <div data-component="session-tab-content" class="contents" onMouseMove={markViewed} onClick={markViewed}>
+      <ModelsProvider directory={props.directory}>{props.children}</ModelsProvider>
+    </div>
+  )
 }
 
 function SessionProviders(props: ParentProps) {
@@ -326,17 +353,14 @@ function SessionProviders(props: ParentProps) {
   )
 }
 
-function SessionRouteFrame(props: ParentProps<{ padded?: boolean }>) {
-  return (
-    <div class="relative size-full overflow-hidden flex flex-col" classList={{ "p-2": props.padded }}>
-      {props.children}
-    </div>
-  )
+function SessionRouteFrame(props: ParentProps) {
+  return <div class="relative size-full overflow-hidden flex flex-col">{props.children}</div>
 }
 
 function SessionPanelFrame(props: ParentProps<{ newLayout: boolean; raised?: boolean }>) {
   return (
     <div
+      data-component="session-panel-frame"
       classList={{
         "flex-1 min-h-0 flex flex-col": true,
         "bg-v2-background-bg-base": props.newLayout,
@@ -2055,7 +2079,7 @@ export default function Page() {
 
   const sessionErrorFallback = (error: unknown, reset: () => void) => {
     createEffect(on(sessionKey, reset, { defer: true }))
-    return <SessionErrorFallback error={error} sessionID={params.id} />
+    return <SessionErrorFallback error={error} sessionID={params.id} reset={reset} />
   }
 
   const sessionPanelContent = () => (
@@ -2234,7 +2258,13 @@ export default function Page() {
                         setFollowup("paused", id, true)
                       },
                     })
-                    return <PromptInputV2Composer controller={controller} borderUnderlay />
+                    return (
+                      <PromptInputV2Composer
+                        controller={controller}
+                        borderUnderlay
+                        contextUsage={<SessionContextUsage buttonAppearance="v2" />}
+                      />
+                    )
                   }}
                 </Show>
               }
@@ -2250,6 +2280,7 @@ export default function Page() {
     <SessionRouteFrame>
       <SessionHeader />
       <div
+        data-component="session-panel-row"
         ref={panelRow}
         class="flex-1 min-h-0 flex flex-col md:flex-row"
         classList={{

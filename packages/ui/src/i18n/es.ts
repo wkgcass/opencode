@@ -96,6 +96,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Preguntas descartadas",
   "ui.messagePart.compaction": "Sesión compactada",
+  "ui.messagePart.compaction.started": "Se inició la compactación de la sesión",
+  "ui.messagePart.compaction.failed": "Error al compactar la sesión",
   "ui.messagePart.context.read.one": "{{count}} lectura",
   "ui.messagePart.context.read.many": "{{count}} de lecturas",
   "ui.messagePart.context.read.other": "{{count}} lecturas",
@@ -218,4 +220,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "Copiar error",
   "ui.message.duration.seconds": "{{count}}s",
   "ui.message.duration.minutesSeconds": "{{minutes}}m {{seconds}}s",
+  "ui.sessionTurn.status.thought": "Thought",
 }

@@ -1,3 +1,5 @@
+import { ClientError } from "@opencode-ai/client"
+
 export type ConfigInvalidError = {
   name: "ConfigInvalidError"
   data: {
@@ -61,6 +63,11 @@ export function isSessionNotFoundError(error: unknown, sessionID: string) {
   if (typeof unwrapped !== "object" || unwrapped === null) return false
   const value = unwrapped as Record<string, unknown>
   return value._tag === "SessionNotFoundError" && value.sessionID === sessionID
+}
+
+export function isTransientServerConnectionError(error: unknown) {
+  if (error instanceof ClientError) return error.reason === "Transport"
+  return error instanceof TypeError && error.message.trim().toLowerCase() === "failed to fetch"
 }
 
 function isConfigInvalidErrorLike(error: unknown): error is ConfigInvalidError {

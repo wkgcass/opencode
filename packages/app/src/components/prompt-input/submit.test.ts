@@ -40,6 +40,8 @@ let selected = "/repo/worktree-a"
 let variant: string | undefined
 let permissionServer = "server-a"
 let createSessionGate: Promise<void> | undefined
+let messageID = 0
+let eventID = 0
 
 let promptValue: Prompt = [{ type: "text", content: "ls", start: 0, end: 2 }]
 const [promptStore, setPromptStore] = createStore<PromptStore>({
@@ -135,6 +137,7 @@ beforeAll(async () => {
   mock.module("@opencode-ai/ui/toast", () => ({
     Toast: { Region: () => null },
     showToast: () => 0,
+    toaster: { dismiss: () => undefined },
   }))
 
   mock.module("@opencode-ai/core/util/encode", () => ({
@@ -235,6 +238,8 @@ beforeAll(async () => {
   mock.module("@/context/server-sync", () => ({
     useServerSync: () => () => ({
       session: {
+        nextMessageID: () => `msg-${(++messageID).toString(16).padStart(14, "0")}abcdefghijklmn`,
+        nextEventID: () => `evt-${(++eventID).toString(16).padStart(14, "0")}abcdefghijklmn`,
         remember: () => undefined,
         set: () => undefined,
         sync: async () => {
@@ -300,11 +305,42 @@ beforeEach(() => {
   variant = undefined
   permissionServer = "server-a"
   createSessionGate = undefined
+  messageID = 0
+  eventID = 0
   serverSessionSyncs = 0
   for (const key of Object.keys(storedSessions)) delete storedSessions[key]
 })
 
 describe("prompt submit worktree selection", () => {
+  test("queues follow-ups without submitting them to a busy session", async () => {
+    params = { id: "session-1" }
+    const queued: Array<{ sessionID: string; prompt: Prompt }> = []
+    const submit = createPromptSubmit({
+      prompt,
+      info: () => ({ id: "session-1" }),
+      imageAttachments: () => [],
+      commentCount: () => 0,
+      autoAccept: () => false,
+      mode: () => "normal",
+      working: () => true,
+      editor: () => undefined,
+      queueScroll: () => undefined,
+      promptLength: (value) => value.reduce((sum, part) => sum + ("content" in part ? part.content.length : 0), 0),
+      addToHistory: () => undefined,
+      resetHistoryNavigation: () => undefined,
+      setMode: () => undefined,
+      setPopover: () => undefined,
+      shouldQueue: () => true,
+      onQueue: (draft) => queued.push({ sessionID: draft.sessionID, prompt: draft.prompt }),
+    })
+
+    await submit.handleSubmit({ preventDefault: () => undefined } as unknown as Event)
+
+    expect(queued).toEqual([{ sessionID: "session-1", prompt: promptValue }])
+    expect(sentPrompts).toEqual([])
+    expect(optimistic).toEqual([])
+  })
+
   test("reads the latest worktree accessor value per submit", async () => {
     const submit = createPromptSubmit({
       prompt,
@@ -347,8 +383,8 @@ describe("prompt submit worktree selection", () => {
       },
     ])
     expect(sentShell).toEqual([
-      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt_/), command: "ls" }),
-      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt_/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-1", id: expect.stringMatching(/^evt-/), command: "ls" }),
+      expect.objectContaining({ sessionID: "session-2", id: expect.stringMatching(/^evt-/), command: "ls" }),
     ])
     expect(syncedDirectories).toEqual(["/repo/worktree-a", "/repo/worktree-a", "/repo/worktree-b", "/repo/worktree-b"])
     expect(serverSessionSyncs).toBe(0)
@@ -488,9 +524,9 @@ describe("prompt submit worktree selection", () => {
       files: [],
       agents: [],
     })
-    expect((promptInputs[0] as { id?: string }).id).toStartWith("msg_")
+    expect((promptInputs[0] as { id?: string }).id).toStartWith("msg-")
     expect((promptInputs[0] as { legacyParts?: { id: string; type: string; text?: string }[] }).legacyParts).toEqual([
-      { id: expect.stringMatching(/^prt_/), type: "text", text: "ls" },
+      { id: expect.stringMatching(/^prt-/), type: "text", text: "ls" },
     ])
   })
 
@@ -522,7 +558,7 @@ describe("prompt submit worktree selection", () => {
     expect(sentCommands).toEqual([
       {
         sessionID: "session-1",
-        id: expect.stringMatching(/^msg_/),
+        id: expect.stringMatching(/^msg-/),
         command: "review",
         arguments: "staged changes",
         agent: "agent",

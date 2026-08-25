@@ -415,6 +415,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Не удалось отправить команду",
   "prompt.toast.promptSendFailed.title": "Не удалось отправить запрос",
   "prompt.toast.promptSendFailed.description": "Не удалось получить сессию",
+  "prompt.toast.agentSwitchFailed.title": "Не удалось переключить агента",
+  "prompt.toast.modelSwitchFailed.title": "Не удалось переключить модель",
 
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{enabled}} из {{total}} включено",
@@ -430,6 +432,7 @@ export const dict = {
   "mcp.status.disabled": "отключено",
 
   "dialog.fork.empty": "Нет сообщений для ответвления",
+  "dialog.fork.fullSession": "Полный сеанс",
 
   "dialog.directory.search.placeholder": "Поиск папок",
   "dialog.directory.empty": "Папки не найдены",
@@ -775,6 +778,8 @@ export const dict = {
   "session.messages.loadEarlier": "Загрузить предыдущие сообщения",
   "session.messages.loading": "Загрузка сообщений...",
   "session.messages.jumpToLatest": "Перейти к последнему",
+  "session.messages.workedFor": "Обработано за {{duration}}",
+  "session.messages.workCompleted": "Результаты ниже",
 
   "session.context.addToContext": "Добавить {{selection}} в контекст",
   "session.todo.title": "Задачи",
@@ -1040,6 +1045,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Агент",
   "settings.general.notifications.agent.description":
     "Показывать системное уведомление, когда агент завершил работу или требует внимания",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Разрешения",
   "settings.general.notifications.permissions.description":
     "Показывать системное уведомление, когда требуется разрешение",
@@ -1259,4 +1267,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Не удалось создать постоянный значок проекта",
   "error.childStore.storeCreateFailed": "Не удалось создать хранилище",
   "terminal.connectionLost.abnormalClose": "WebSocket закрыт аварийно: {{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

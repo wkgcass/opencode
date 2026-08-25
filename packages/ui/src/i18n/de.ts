@@ -100,6 +100,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Fragen verworfen",
   "ui.messagePart.compaction": "Sitzung komprimiert",
+  "ui.messagePart.compaction.started": "Sitzungskomprimierung gestartet",
+  "ui.messagePart.compaction.failed": "Sitzungskomprimierung fehlgeschlagen",
   "ui.messagePart.context.read.one": "{{count}} Lesevorgang",
   "ui.messagePart.context.read.other": "{{count}} Lesevorgänge",
   "ui.messagePart.context.search.one": "{{count}} Suche",
@@ -218,4 +220,5 @@ export const dict = {
   "ui.promptInput.send": "Senden",
   "ui.promptInput.stop": "Stoppen",
   "ui.tabs.close": "Tab schließen",
+  "ui.sessionTurn.status.thought": "Thought",
 } satisfies Partial<Record<Keys, string>>

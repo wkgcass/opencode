@@ -54,6 +54,7 @@ function PromptInputExample() {
         return controls.agent
       },
       loading: false,
+      switching: false,
       visible: true,
       select: (agent?: string) => setControls("agent", agent ?? "build"),
     },
@@ -61,6 +62,7 @@ function PromptInputExample() {
       selection: model,
       paid: true,
       loading: false,
+      switching: false,
     },
     session: {
       id: "story-session",
@@ -132,6 +134,7 @@ function PromptInputWithOpenDock() {
         return controls.agent
       },
       loading: false,
+      switching: false,
       visible: true,
       select: (agent?: string) => setControls("agent", agent ?? "build"),
     },
@@ -142,6 +145,7 @@ function PromptInputWithOpenDock() {
       },
       paid: true,
       loading: false,
+      switching: false,
     },
     session: {
       id: "story-session",

@@ -199,4 +199,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Seleziona tutte le risposte pertinenti",
   "ui.question.singleHint": "Seleziona una risposta",
   "ui.question.custom.placeholder": "Digita la tua risposta...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

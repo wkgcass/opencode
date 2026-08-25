@@ -57,7 +57,15 @@ const btn = (accent?: boolean) =>
   }) as const
 
 const controls = {
-  agents: { available: [], options: ["build"], current: "build", loading: false, visible: true, select: () => {} },
+  agents: {
+    available: [],
+    options: ["build"],
+    current: "build",
+    loading: false,
+    switching: false,
+    visible: true,
+    select: () => {},
+  },
   model: {
     selection: {
       current: () => ({ id: "claude-3-7-sonnet", name: "Claude 3.7 Sonnet", provider: { id: "anthropic" } }),
@@ -65,6 +73,7 @@ const controls = {
     },
     paid: true,
     loading: false,
+    switching: false,
   },
   session: {
     id: "story-session",

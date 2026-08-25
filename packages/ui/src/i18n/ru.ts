@@ -96,6 +96,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Вопросы отклонены",
   "ui.messagePart.compaction": "Сессия сжата",
+  "ui.messagePart.compaction.started": "Сжатие сессии началось",
+  "ui.messagePart.compaction.failed": "Не удалось сжать сессию",
   "ui.messagePart.context.read.one": "{{count}} чтение",
   "ui.messagePart.context.read.few": "{{count}} чтения",
   "ui.messagePart.context.read.many": "{{count}} чтений",
@@ -221,4 +223,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "Скопировать ошибку",
   "ui.message.duration.seconds": "{{count}} с",
   "ui.message.duration.minutesSeconds": "{{minutes}} мин {{seconds}} с",
+  "ui.sessionTurn.status.thought": "Thought",
 }

@@ -94,6 +94,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "質問をスキップしました",
   "ui.messagePart.compaction": "セッションが圧縮されました",
+  "ui.messagePart.compaction.started": "セッションの圧縮を開始しました",
+  "ui.messagePart.compaction.failed": "セッションの圧縮に失敗しました",
   "ui.messagePart.context.read.one": "{{count}} 件の読み取り",
   "ui.messagePart.context.read.other": "{{count}} 件の読み取り",
   "ui.messagePart.context.search.one": "{{count}} 件の検索",
@@ -213,4 +215,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "エラーをコピー",
   "ui.message.duration.seconds": "{{count}}秒",
   "ui.message.duration.minutesSeconds": "{{minutes}}分 {{seconds}}秒",
+  "ui.sessionTurn.status.thought": "Thought",
 }

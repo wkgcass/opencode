@@ -417,6 +417,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Neuspješno slanje komande",
   "prompt.toast.promptSendFailed.title": "Neuspješno slanje upita",
   "prompt.toast.promptSendFailed.description": "Nije moguće dohvatiti sesiju",
+  "prompt.toast.agentSwitchFailed.title": "Neuspješno mijenjanje agenta",
+  "prompt.toast.modelSwitchFailed.title": "Neuspješno mijenjanje modela",
 
   "dialog.mcp.title": "MCP-ovi",
   "dialog.mcp.description": "{{enabled}} od {{total}} omogućeno",
@@ -432,6 +434,7 @@ export const dict = {
   "mcp.status.disabled": "onemogućeno",
 
   "dialog.fork.empty": "Nema poruka za fork",
+  "dialog.fork.fullSession": "Cijela sesija",
 
   "dialog.directory.search.placeholder": "Pretraži fascikle",
   "dialog.directory.empty": "Nema pronađenih fascikli",
@@ -778,6 +781,8 @@ export const dict = {
   "session.messages.loadEarlier": "Učitaj ranije poruke",
   "session.messages.loading": "Učitavanje poruka...",
   "session.messages.jumpToLatest": "Idi na najnovije",
+  "session.messages.workedFor": "Obrađeno za {{duration}}",
+  "session.messages.workCompleted": "Rezultati slijede",
 
   "session.context.addToContext": "Dodaj {{selection}} u kontekst",
   "session.todo.title": "Zadaci",
@@ -1037,6 +1042,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Prikaži sistemsku obavijest kada agent završi ili zahtijeva pažnju",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Dozvole",
   "settings.general.notifications.permissions.description": "Prikaži sistemsku obavijest kada je potrebna dozvola",
   "settings.general.notifications.errors.title": "Greške",
@@ -1254,4 +1262,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Nije uspjelo kreiranje trajne ikone projekta",
   "error.childStore.storeCreateFailed": "Nije uspjelo kreiranje skladišta",
   "terminal.connectionLost.abnormalClose": "WebSocket zatvoren nenormalno: {{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

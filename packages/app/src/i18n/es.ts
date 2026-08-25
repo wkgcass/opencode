@@ -418,6 +418,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Fallo al enviar comando",
   "prompt.toast.promptSendFailed.title": "Fallo al enviar prompt",
   "prompt.toast.promptSendFailed.description": "No se pudo recuperar la sesión",
+  "prompt.toast.agentSwitchFailed.title": "Error al cambiar agente",
+  "prompt.toast.modelSwitchFailed.title": "Error al cambiar modelo",
 
   "dialog.mcp.title": "Servidores MCP",
   "dialog.mcp.description": "{{enabled}} de {{total}} habilitados",
@@ -433,6 +435,7 @@ export const dict = {
   "mcp.status.disabled": "deshabilitado",
 
   "dialog.fork.empty": "No hay mensajes desde donde bifurcar",
+  "dialog.fork.fullSession": "Sesión completa",
 
   "dialog.directory.search.placeholder": "Buscar carpetas",
   "dialog.directory.empty": "No se encontraron carpetas",
@@ -781,6 +784,8 @@ export const dict = {
   "session.messages.loadEarlier": "Cargar mensajes anteriores",
   "session.messages.loading": "Cargando mensajes...",
   "session.messages.jumpToLatest": "Ir al mensaje más reciente",
+  "session.messages.workedFor": "Procesado en {{duration}}",
+  "session.messages.workCompleted": "Resultados a continuación",
 
   "session.context.addToContext": "Añadir {{selection}} al contexto",
   "session.todo.title": "Tareas",
@@ -1044,6 +1049,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agente",
   "settings.general.notifications.agent.description":
     "Mostrar notificación del sistema cuando el agente termine o necesite atención",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Permisos",
   "settings.general.notifications.permissions.description":
     "Mostrar notificación del sistema cuando se requiera un permiso",
@@ -1262,4 +1270,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Error al crear icono de proyecto persistente",
   "error.childStore.storeCreateFailed": "Error al crear almacén",
   "terminal.connectionLost.abnormalClose": "WebSocket cerrado anormalmente: {{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

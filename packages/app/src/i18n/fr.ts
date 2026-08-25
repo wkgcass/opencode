@@ -400,6 +400,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Échec de l'envoi de la commande",
   "prompt.toast.promptSendFailed.title": "Échec de l'envoi de l'invite",
   "prompt.toast.promptSendFailed.description": "Impossible de récupérer la session",
+  "prompt.toast.agentSwitchFailed.title": "Échec du changement d'agent",
+  "prompt.toast.modelSwitchFailed.title": "Échec du changement de modèle",
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "MCP actifs : {{enabled}} sur {{total}}",
   "dialog.mcp.empty": "Aucun MCP configuré",
@@ -411,6 +413,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Cliquez pour vous authentifier",
   "mcp.status.disabled": "désactivé",
   "dialog.fork.empty": "Aucun message à partir duquel bifurquer",
+  "dialog.fork.fullSession": "Session complète",
   "dialog.directory.search.placeholder": "Rechercher des dossiers",
   "dialog.directory.empty": "Aucun dossier trouvé",
   "dialog.directory.action.selectFile": "Sélectionner le fichier",
@@ -733,6 +736,8 @@ export const dict = {
   "session.messages.loadEarlier": "Charger les messages précédents",
   "session.messages.loading": "Chargement des messages...",
   "session.messages.jumpToLatest": "Aller au message le plus récent",
+  "session.messages.workedFor": "Traité en {{duration}}",
+  "session.messages.workCompleted": "Résultats ci-dessous",
   "session.context.addToContext": "Ajouter {{selection}} au contexte",
   "session.todo.title": "Tâches",
   "session.todo.collapse": "Réduire",
@@ -978,6 +983,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Afficher une notification système lorsque l'agent a terminé ou nécessite une attention",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Permissions",
   "settings.general.notifications.permissions.description":
     "Afficher une notification système lorsqu'une permission est requise",
@@ -1196,4 +1204,10 @@ export const dict = {
 
   "titlebar.update": "Mettre à jour",
   "titlebar.updateVersion": "Mettre à jour {{version}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

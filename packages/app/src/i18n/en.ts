@@ -319,6 +319,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Failed to send command",
   "prompt.toast.promptSendFailed.title": "Failed to send prompt",
   "prompt.toast.promptSendFailed.description": "Unable to retrieve session",
+  "prompt.toast.agentSwitchFailed.title": "Failed to switch agent",
+  "prompt.toast.modelSwitchFailed.title": "Failed to switch model",
 
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} of {{total}} enabled",
@@ -334,6 +336,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Click to authenticate",
 
   "dialog.fork.empty": "No messages to fork from",
+  "dialog.fork.fullSession": "Full session",
 
   "dialog.directory.search.placeholder": "Search folders",
   "dialog.directory.empty": "No folders found",
@@ -607,6 +610,11 @@ export const dict = {
   "error.serverSync.connectFailed": "Could not connect to server. Is there a server running at `{{url}}`?",
   "error.serverSDK.noServerAvailable": "No server available",
   "error.serverSDK.serverNotAvailable": "Server not available",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
   "error.childStore.persistedCacheCreateFailed": "Failed to create persisted cache",
   "error.childStore.persistedProjectMetadataCreateFailed": "Failed to create persisted project metadata",
   "error.childStore.persistedProjectIconCreateFailed": "Failed to create persisted project icon",
@@ -669,6 +677,7 @@ export const dict = {
   "session.tab.review": "Review",
   "session.tab.context": "Context",
   "session.tab.unknown": "Unknown Session",
+  "session.tab.connecting": "Connecting…",
   "session.panel.reviewAndFiles": "Review and files",
   "session.error.notFound": "This session cannot be found",
   "session.error.notFound.description": "This tab points to a session that no longer exists on this server.",
@@ -699,6 +708,8 @@ export const dict = {
   "session.messages.loadEarlier": "Load earlier messages",
   "session.messages.loading": "Loading messages...",
   "session.messages.jumpToLatest": "Jump to latest",
+  "session.messages.workedFor": "Worked for {{duration}}",
+  "session.messages.workCompleted": "Results follow",
 
   "session.context.addToContext": "Add {{selection}} to context",
   "session.todo.title": "Todos",
@@ -1029,6 +1040,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Show system notification when the agent is complete or needs attention",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Permissions",
   "settings.general.notifications.permissions.description": "Show system notification when a permission is required",
   "settings.general.notifications.errors.title": "Errors",

@@ -13,6 +13,7 @@ import { createTabMemory } from "./tab-memory"
 import { nextTabAfterClose, pushClosedTab, removeClosedTabs, takeClosedTab, type ClosedTab } from "./closed-tabs"
 import { createDraftPromptSession, type PromptModel } from "./prompt-state"
 import { migrateTabs } from "./tab-migration"
+import { useWslServers } from "@/wsl/context"
 
 export type SessionTab = {
   type: "session"
@@ -56,6 +57,7 @@ export const { use: useTabs, provider: TabsProvider } = createSimpleContext({
   init: () => {
     const server = useServer()
     const platform = usePlatform()
+    const wslServers = useWslServers()
     const fallback = server.key
     const [store, setStore, _, ready] = persisted(
       {
@@ -120,7 +122,9 @@ export const { use: useTabs, provider: TabsProvider } = createSimpleContext({
 
     createEffect(() => {
       if (!ready() || !recentReady()) return
+      if (platform.wslServers && !wslServers.data) return
       const servers = new Set(server.list.map(ServerConnection.key))
+      for (const item of wslServers.data?.servers ?? []) servers.add(ServerConnection.Key.make(item.config.id))
       const next = store.filter((tab) => servers.has(tab.server))
       if (next.length !== store.length) {
         for (const tab of store) {
@@ -141,7 +145,9 @@ export const { use: useTabs, provider: TabsProvider } = createSimpleContext({
 
     createEffect(() => {
       if (!closedReady()) return
+      if (platform.wslServers && !wslServers.data) return
       const servers = new Set(server.list.map(ServerConnection.key))
+      for (const item of wslServers.data?.servers ?? []) servers.add(ServerConnection.Key.make(item.config.id))
       const next = closed.filter((entry) => servers.has(entry.tab.server))
       if (next.length !== closed.length) setClosed(() => next)
     })

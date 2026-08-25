@@ -1,7 +1,7 @@
 import { createSimpleContext } from "@opencode-ai/ui/context"
 import { base64Encode } from "@opencode-ai/core/util/encode"
 import { useParams } from "@solidjs/router"
-import { batch, createEffect, createMemo, startTransition } from "solid-js"
+import { batch, createEffect, createMemo, createSignal, startTransition } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useModels } from "@/context/models"
 import { useSettings } from "@/context/settings"
@@ -10,10 +10,13 @@ import { resolveDefaultModel } from "@/hooks/provider-catalog"
 import { Persist, persisted } from "@/utils/persist"
 import { hasCustomAgent, resolveAgent } from "./local-agent"
 import { cycleModelVariant, getConfiguredAgentVariant, resolveModelVariant } from "./model-variant"
+import { useLanguage } from "./language"
 import { useSDK } from "./sdk"
 import { useSync } from "./sync"
 import { useServerSDK } from "./server-sdk"
 import { ScopedKey, type ServerScope } from "@/utils/server-scope"
+import { showToast } from "@/utils/toast"
+import { formatServerError } from "@/utils/server-errors"
 
 export type ModelKey = { providerID: string; modelID: string; variant?: string }
 
@@ -63,6 +66,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
     const sdk = useSDK()
     const sync = useSync()
     const serverSDK = useServerSDK()
+    const language = useLanguage()
     const providers = useProviders(() => sdk().directory)
     const models = useModels()
     const settings = useSettings()
@@ -179,9 +183,12 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
 
     const fallback = createMemo<ModelKey | undefined>(() => configuredModel() ?? recentModel() ?? defaultModel())
 
+    const [agentSwitching, setAgentSwitching] = createSignal(false)
+
     const agent = {
       list,
       visible: agentsVisible,
+      switching: agentSwitching,
       current() {
         return pickAgent(agentsVisible() ? (scope()?.agent ?? store.current) : "build")
       },
@@ -191,6 +198,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           setStore("current", undefined)
           return
         }
+
+        const session = id()
+        const prevCurrent = store.current
+        const prevScope = clone(scope())
 
         batch(() => {
           setStore("current", item.name)
@@ -203,16 +214,32 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           const prev = scope()
           const next = {
             agent: item.name,
-            model: item.model ?? prev?.model,
-            variant: item.variant ?? prev?.variant,
+            model: prev?.model,
+            variant: prev?.variant,
           } satisfies State
-          const session = id()
           if (session) {
             setSaved("session", session, next)
             return
           }
           setStore("draft", next)
         })
+
+        if (!session) return
+        if (prevScope?.agent === item.name) return
+
+        setAgentSwitching(true)
+        sdk()
+          .api.session.switchAgent({ sessionID: session, agent: item.name })
+          .catch((err) => {
+            if (agent.current()?.name !== item.name) return
+            setStore("current", prevCurrent)
+            setSaved("session", session, prevScope)
+            showToast({
+              title: language.t("prompt.toast.agentSwitchFailed.title"),
+              description: formatServerError(err, language.t, language.t("common.requestFailed")),
+            })
+          })
+          .finally(() => setAgentSwitching(false))
       },
       move(direction: 1 | -1) {
         const items = list()
@@ -275,10 +302,13 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       setStore("draft", state)
     }
 
+    const [modelSwitching, setModelSwitching] = createSignal(false)
+
     const recent = createMemo(() => models.recent.list().map(models.find).filter(Boolean))
 
     const model = {
       ready: models.ready,
+      switching: modelSwitching,
       current,
       recent,
       list: models.list,
@@ -299,6 +329,9 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         model.set({ providerID: entry.provider.id, modelID: entry.id })
       },
       set(item: ModelKey | undefined, options?: { recent?: boolean }) {
+        const session = id()
+        const prevScope = clone(scope())
+
         startTransition(() =>
           batch(() => {
             setStore("last", {
@@ -314,6 +347,26 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
             models.recent.push(item)
           }),
         )
+
+        if (!session || !item) return
+        if (prevScope?.model?.providerID === item.providerID && prevScope?.model?.modelID === item.modelID) return
+
+        setModelSwitching(true)
+        sdk()
+          .api.session.switchModel({
+            sessionID: session,
+            model: { id: item.modelID, providerID: item.providerID, variant: prevScope?.variant ?? undefined },
+          })
+          .catch((err) => {
+            const now = scope()?.model
+            if (now?.providerID !== item.providerID || now?.modelID !== item.modelID) return
+            setSaved("session", session, prevScope)
+            showToast({
+              title: language.t("prompt.toast.modelSwitchFailed.title"),
+              description: formatServerError(err, language.t, language.t("common.requestFailed")),
+            })
+          })
+          .finally(() => setModelSwitching(false))
       },
       visible(item: ModelKey) {
         return models.visible(item)
@@ -342,6 +395,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           return Object.keys(item.variants)
         },
         set(value: string | undefined) {
+          const session = id()
+          const prevScope = clone(scope())
+          const modelEntry = current()
+
           startTransition(() =>
             batch(() => {
               const model = current()
@@ -357,6 +414,25 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               }
             }),
           )
+
+          if (!session || !modelEntry) return
+          if (prevScope?.variant === (value ?? null)) return
+
+          setModelSwitching(true)
+          sdk()
+            .api.session.switchModel({
+              sessionID: session,
+              model: { id: modelEntry.id, providerID: modelEntry.provider.id, variant: value ?? undefined },
+            })
+            .catch((err) => {
+              if (scope()?.variant !== (value ?? null)) return
+              setSaved("session", session, prevScope)
+              showToast({
+                title: language.t("prompt.toast.modelSwitchFailed.title"),
+                description: formatServerError(err, language.t, language.t("common.requestFailed")),
+              })
+            })
+            .finally(() => setModelSwitching(false))
         },
         cycle() {
           const items = this.list()

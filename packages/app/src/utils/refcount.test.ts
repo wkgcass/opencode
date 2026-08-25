@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { createRoot } from "solid-js"
+import { createRoot, onCleanup } from "solid-js"
 import { createRefCountMap } from "./refcount"
 import { pathKey } from "./path-key"
 
@@ -45,5 +45,26 @@ describe("createRefCountMap", () => {
     expect(removed).toEqual([])
     second()
     expect(removed).toEqual(["C:/repo"])
+  })
+
+  test("keeps the shared item alive until the last owner is disposed", () => {
+    const cleaned: string[] = []
+    const map = createRefCountMap((key) => {
+      onCleanup(() => cleaned.push(key))
+      return key
+    })
+    const first = createRoot((dispose) => {
+      map("/project")
+      return dispose
+    })
+    const second = createRoot((dispose) => {
+      map("/project")
+      return dispose
+    })
+
+    first()
+    expect(cleaned).toEqual([])
+    second()
+    expect(cleaned).toEqual(["/project"])
   })
 })

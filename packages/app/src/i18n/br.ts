@@ -396,6 +396,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Falha ao enviar comando",
   "prompt.toast.promptSendFailed.title": "Falha ao enviar prompt",
   "prompt.toast.promptSendFailed.description": "Não foi possível recuperar a sessão",
+  "prompt.toast.agentSwitchFailed.title": "Falha ao trocar agente",
+  "prompt.toast.modelSwitchFailed.title": "Falha ao trocar modelo",
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} de {{total}} ativados",
   "dialog.mcp.empty": "Nenhum MCP configurado",
@@ -407,6 +409,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Clique para autenticar",
   "mcp.status.disabled": "desabilitado",
   "dialog.fork.empty": "Nenhuma mensagem para bifurcar",
+  "dialog.fork.fullSession": "Sessão completa",
   "dialog.directory.search.placeholder": "Buscar pastas",
   "dialog.directory.empty": "Nenhuma pasta encontrada",
   "dialog.directory.action.selectFile": "Selecionar arquivo",
@@ -723,6 +726,8 @@ export const dict = {
   "session.messages.loadEarlier": "Carregar mensagens anteriores",
   "session.messages.loading": "Carregando mensagens...",
   "session.messages.jumpToLatest": "Ir para a mais recente",
+  "session.messages.workedFor": "Processado em {{duration}}",
+  "session.messages.workCompleted": "Resultados a seguir",
   "session.context.addToContext": "Adicionar {{selection}} ao contexto",
   "session.todo.title": "Tarefas",
   "session.todo.collapse": "Recolher",
@@ -969,6 +974,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agente",
   "settings.general.notifications.agent.description":
     "Mostrar notificação do sistema quando o agente concluir o trabalho ou precisar de atenção",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Permissões",
   "settings.general.notifications.permissions.description":
     "Mostrar notificação do sistema quando uma permissão for necessária",
@@ -1178,4 +1186,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Falha ao criar ícone de projeto persistente",
   "error.childStore.storeCreateFailed": "Falha ao criar armazenamento",
   "terminal.connectionLost.abnormalClose": "WebSocket fechado anormalmente: {{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

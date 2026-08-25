@@ -95,6 +95,7 @@ export type PromptInputV2Option = {
 export type PromptInputV2Suggestion = {
   id: string
   kind: "agent" | "command" | "file" | "reference" | "resource"
+  origin?: "server"
   label: string
   title?: string
   trigger?: string

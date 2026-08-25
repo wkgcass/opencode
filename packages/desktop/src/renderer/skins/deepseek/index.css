@@ -1,0 +1,469 @@
+/* DeepSeek Harness keeps the existing desktop structure and applies the
+ * reference product's quiet neutral shell, blue interaction colour, and
+ * restrained elevation. */
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] {
+  --deepseek-blue: #4d6bfe;
+  --deepseek-blue-hover: #4059e6;
+  --deepseek-blue-active: #354bc9;
+  --deepseek-blue-disabled: #b9c8f8;
+  --deepseek-ink: #0f1115;
+  --deepseek-text: #24272d;
+  --deepseek-muted: #69717d;
+  --deepseek-faint: #a1a8b2;
+  --deepseek-sidebar: #f7f8fa;
+  --deepseek-canvas: #ffffff;
+  --deepseek-row: #eceef0;
+  --deepseek-row-hover: #f0f1f3;
+  --deepseek-line: #dfe2e6;
+  --deepseek-line-soft: #e9ebee;
+  --deepseek-shadow: rgba(22, 31, 48, 0.1);
+  --deepseek-glow-core: rgba(77, 107, 254, 0.12);
+  --deepseek-glow-mid: rgba(77, 107, 254, 0.055);
+  --deepseek-logo-filter: none;
+  --deepseek-badge-background: var(--deepseek-ink);
+  --deepseek-badge-text: #fff;
+  --deepseek-new-session: var(--deepseek-canvas);
+  --deepseek-new-session-hover: #fbfbfc;
+  --deepseek-new-session-hover-border: #cfd3d8;
+  --deepseek-control: #f6f7f8;
+  --deepseek-control-disabled: #f5f6f7;
+  --deepseek-composer: rgba(255, 255, 255, 0.98);
+  --deepseek-submit: var(--deepseek-blue);
+  --deepseek-submit-hover: var(--deepseek-blue-hover);
+  --deepseek-submit-active: var(--deepseek-blue-active);
+  --deepseek-submit-disabled: var(--deepseek-blue-disabled);
+  --deepseek-submit-icon: #fff;
+  --deepseek-submit-disabled-icon: #fff;
+  --deepseek-submit-shadow: rgba(77, 107, 254, 0.28);
+  --deepseek-submit-hover-shadow: rgba(77, 107, 254, 0.34);
+  --deepseek-submit-active-shadow: rgba(77, 107, 254, 0.24);
+  --deepseek-submit-focus: rgba(77, 107, 254, 0.38);
+  --deepseek-sidebar-action: color-mix(in srgb, var(--deepseek-sidebar) 94%, white);
+  --deepseek-hover-overlay: rgba(15, 17, 21, 0.055);
+  --deepseek-tab-hover: rgba(15, 17, 21, 0.045);
+  --desktop-chrome: var(--deepseek-sidebar);
+  --desktop-panel: var(--deepseek-canvas);
+  --desktop-divider: var(--deepseek-line-soft);
+  --desktop-sidebar-width: 275px;
+  --desktop-titlebar-fade: var(--deepseek-sidebar);
+  --desktop-active-tab-accent: var(--deepseek-blue);
+  --v2-border-border-focus: var(--deepseek-blue);
+  --v2-icon-icon-accent: var(--deepseek-blue);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"][data-color-scheme="dark"] {
+  --deepseek-ink: #f5f6f7;
+  --deepseek-text: #eef0f3;
+  --deepseek-muted: #b8bec8;
+  --deepseek-faint: #858d99;
+  --deepseek-sidebar: #19191a;
+  --deepseek-canvas: #141416;
+  --deepseek-row: #2d2d30;
+  --deepseek-row-hover: #252528;
+  --deepseek-line: #44464c;
+  --deepseek-line-soft: #2b2c30;
+  --deepseek-shadow: rgba(0, 0, 0, 0.38);
+  --deepseek-glow-core: rgba(72, 101, 176, 0.22);
+  --deepseek-glow-mid: rgba(72, 101, 176, 0.09);
+  --deepseek-logo-filter: invert(1);
+  /* The brand image is inverted as one composited layer in dark mode, including the badge pseudo-element. */
+  --deepseek-badge-background: #000;
+  --deepseek-badge-text: #fff;
+  --deepseek-new-session: #474950;
+  --deepseek-new-session-hover: #353638;
+  --deepseek-new-session-hover-border: #4e4e50;
+  --deepseek-control: #353538;
+  --deepseek-control-disabled: #333438;
+  --deepseek-composer: #2d2d30;
+  --deepseek-submit: #679efe;
+  --deepseek-submit-hover: #73a7ff;
+  --deepseek-submit-active: #5a8fef;
+  --deepseek-submit-disabled: #435982;
+  --deepseek-submit-disabled-icon: #808082;
+  --deepseek-submit-shadow: rgba(103, 158, 254, 0.24);
+  --deepseek-submit-hover-shadow: rgba(103, 158, 254, 0.3);
+  --deepseek-submit-active-shadow: rgba(103, 158, 254, 0.2);
+  --deepseek-submit-focus: rgba(103, 158, 254, 0.38);
+  --deepseek-sidebar-action: #222225;
+  --deepseek-hover-overlay: rgba(255, 255, 255, 0.07);
+  --deepseek-tab-hover: rgba(255, 255, 255, 0.055);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] body,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="codex-app-shell"] {
+  color: var(--deepseek-text);
+  background: var(--deepseek-sidebar);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="titlebar-v2"] {
+  color: var(--deepseek-text);
+  background: var(--deepseek-sidebar);
+  border-bottom-color: var(--deepseek-line-soft);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-slot="titlebar-v2"]
+  [data-component="icon-button-v2"]:hover {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-hover-overlay);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="codex-app-sidebar"] {
+  color: var(--deepseek-text);
+  background: var(--deepseek-sidebar);
+  border-right: 0;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="codex-sidebar-brand"] {
+  position: relative;
+  display: block;
+  width: 190px;
+  height: 23px;
+  color: transparent;
+  background: url("./deepseek-logo.svg") left center / 123px auto no-repeat;
+  filter: var(--deepseek-logo-filter);
+  font-size: 0;
+  line-height: 0;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="codex-sidebar-brand"]::after {
+  content: "HARNESS";
+  position: absolute;
+  top: 4.5px;
+  left: 127px;
+  display: grid;
+  height: 14px;
+  width: fit-content;
+  padding-inline: 3px;
+  place-items: center;
+  border-radius: 2.5px;
+  color: var(--deepseek-badge-text);
+  background: var(--deepseek-badge-background);
+  font:
+    400 12px/1 ui-monospace,
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="sidebar-new-session"] {
+  width: calc(100% - 4px);
+  height: 39px;
+  margin-inline: 2px;
+  justify-content: center;
+  border: 1px solid var(--deepseek-line);
+  border-radius: 12px;
+  color: var(--deepseek-text);
+  background: var(--deepseek-new-session);
+  box-shadow: 0 1px 2px rgba(15, 17, 21, 0.015);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="sidebar-new-session"]:hover,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="sidebar-new-session"]:focus-visible {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-new-session-hover);
+  border-color: var(--deepseek-new-session-hover-border);
+  box-shadow: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="sidebar-new-session"]:active {
+  background: var(--deepseek-row);
+  box-shadow: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-row,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-session {
+  color: var(--deepseek-muted);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-row:hover,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-row:focus-visible,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-session:hover,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-session:focus-visible {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-row-hover);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-row[aria-current="page"],
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-session[aria-current="page"] {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-row);
+  box-shadow: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-action {
+  color: var(--deepseek-muted);
+  background: var(--deepseek-sidebar-action);
+  border: 1px solid transparent;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-action:hover,
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] .codex-app-sidebar-action:focus-visible {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-canvas);
+  border-color: var(--deepseek-line);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-dot"] {
+  border-color: var(--deepseek-blue);
+  box-shadow:
+    0 0 0 1px rgba(77, 107, 254, 0.18),
+    0 0 7px rgba(77, 107, 254, 0.32);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-slot="sidebar-drop-indicator"][data-active="true"]
+  [data-slot="sidebar-drop-indicator-line"] {
+  background: var(--deepseek-blue);
+  box-shadow: 0 0 5px rgba(77, 107, 254, 0.25);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="codex-main-workspace"],
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="new-session-panel-shell"],
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="session-panel-row"] {
+  background: var(--deepseek-sidebar);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="home-panel"],
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="session-new-design"],
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="session-panel-frame"] {
+  background: var(--deepseek-canvas);
+  border-color: var(--deepseek-line-soft);
+  box-shadow: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="desktop-new-session-design"] {
+  background:
+    radial-gradient(
+      ellipse 62% 27% at 51% 50%,
+      var(--deepseek-glow-core) 0%,
+      var(--deepseek-glow-mid) 46%,
+      transparent 78%
+    ),
+    var(--deepseek-canvas);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="desktop-new-session-hero"] {
+  top: 32.5%;
+  flex-direction: row;
+  justify-content: center;
+  gap: 11px;
+  padding: 0 24px;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="desktop-new-session-glyph"] {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  color: transparent;
+  background: var(--deepseek-ink);
+  -webkit-mask: url("./deepseek-mark.svg") center / contain no-repeat;
+  mask: url("./deepseek-mark.svg") center / contain no-repeat;
+  filter: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="desktop-new-session-prompt"] {
+  color: var(--deepseek-ink);
+  font-size: clamp(25px, 2.35vw, 31px);
+  font-weight: 430;
+  line-height: 1.2;
+  letter-spacing: -0.055em;
+  text-shadow: none;
+  text-wrap: balance;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="desktop-new-session-composer"] {
+  top: 42.5%;
+  bottom: auto;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"]
+  [data-component="prompt-input-v2"] {
+  min-height: 112px;
+  overflow: hidden;
+  border: 1px solid var(--deepseek-line);
+  border-radius: 19px;
+  background: var(--deepseek-composer);
+  box-shadow:
+    0 14px 34px var(--deepseek-shadow),
+    0 2px 7px rgba(22, 31, 48, 0.05);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="desktop-new-session-design"]
+  [data-component="session-new-composer"]
+  [data-component="prompt-input-v2"]:focus-within {
+  border-color: rgba(77, 107, 254, 0.48);
+  box-shadow:
+    0 14px 34px var(--deepseek-shadow),
+    0 0 0 3px rgba(77, 107, 254, 0.1);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="desktop-new-session-design"]
+  [data-component="prompt-input"] {
+  color: var(--deepseek-text);
+  caret-color: var(--deepseek-blue);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="desktop-new-session-design"]
+  [data-component="prompt-input"]::before {
+  color: var(--deepseek-faint);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="prompt-input-v2"]
+  [data-action="prompt-attach"] {
+  color: var(--deepseek-text);
+  background: var(--deepseek-control);
+  border-radius: 999px;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="prompt-input-v2"]
+  [data-action="prompt-attach"]:hover:not(:disabled) {
+  color: var(--deepseek-ink);
+  background: var(--deepseek-row);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="prompt-input-v2"]
+  [data-action="prompt-attach"]:disabled {
+  color: var(--deepseek-faint);
+  background: var(--deepseek-control-disabled);
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="prompt-submit"] {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px !important;
+  color: var(--deepseek-submit-icon) !important;
+  background-color: var(--deepseek-submit) !important;
+  background-image: none !important;
+  box-shadow: 0 2px 7px var(--deepseek-submit-shadow) !important;
+  opacity: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="prompt-submit"] [data-slot="icon-svg"] {
+  color: var(--deepseek-submit-icon) !important;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="prompt-submit"]:hover:not(:disabled) {
+  background-color: var(--deepseek-submit-hover) !important;
+  box-shadow: 0 3px 9px var(--deepseek-submit-hover-shadow) !important;
+  transform: translateY(-1px);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-action="prompt-submit"]:focus-visible:not(:disabled) {
+  outline: 2px solid var(--deepseek-submit-focus);
+  outline-offset: 2px;
+  background-color: var(--deepseek-submit-hover) !important;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="prompt-submit"]:active:not(:disabled) {
+  background-color: var(--deepseek-submit-active) !important;
+  box-shadow: 0 1px 4px var(--deepseek-submit-active-shadow) !important;
+  transform: translateY(0);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-action="prompt-submit"]:disabled {
+  color: var(--deepseek-submit-disabled-icon) !important;
+  background-color: var(--deepseek-submit-disabled) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-action="prompt-submit"]:disabled
+  [data-slot="icon-svg"] {
+  color: var(--deepseek-submit-disabled-icon) !important;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="button"][data-variant="primary"] {
+  color: #fff;
+  background: var(--deepseek-blue);
+  border-color: var(--deepseek-blue);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="button"][data-variant="primary"]:hover:not(:disabled) {
+  background: var(--deepseek-blue-hover);
+  border-color: var(--deepseek-blue-hover);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="button"][data-variant="primary"]:active:not(:disabled) {
+  background: var(--deepseek-blue-active);
+  border-color: var(--deepseek-blue-active);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"]
+  [data-component="button"][data-variant="primary"]:disabled {
+  color: rgba(255, 255, 255, 0.92);
+  background: var(--deepseek-blue-disabled);
+  border-color: var(--deepseek-blue-disabled);
+  cursor: not-allowed;
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="titlebar-tab-item"] {
+  --tab-base: transparent;
+  --tab-overlay: transparent;
+  color: var(--deepseek-muted);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="titlebar-tab-item"]:hover {
+  --tab-base: var(--deepseek-tab-hover) !important;
+  --tab-overlay: transparent !important;
+  color: var(--deepseek-ink);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="titlebar-tab-item"][data-active="true"] {
+  --tab-base: var(--deepseek-canvas) !important;
+  --tab-overlay: transparent !important;
+  --desktop-active-tab-accent: var(--deepseek-blue);
+  color: var(--deepseek-ink);
+}
+
+html[data-opencode-desktop="true"][data-skin="deepseek-harness"] ::selection {
+  color: var(--deepseek-ink);
+  background: rgba(77, 107, 254, 0.22);
+}
+
+@media (max-width: 900px) {
+  html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-component="desktop-new-session-hero"] {
+    top: 32%;
+  }
+
+  html[data-opencode-desktop="true"][data-skin="deepseek-harness"] [data-slot="desktop-new-session-composer"] {
+    top: 43%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-opencode-desktop="true"][data-skin="deepseek-harness"] *,
+  html[data-opencode-desktop="true"][data-skin="deepseek-harness"] *::before,
+  html[data-opencode-desktop="true"][data-skin="deepseek-harness"] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

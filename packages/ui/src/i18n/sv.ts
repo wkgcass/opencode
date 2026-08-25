@@ -194,4 +194,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Välj alla svar som gäller",
   "ui.question.singleHint": "Välj ett svar",
   "ui.question.custom.placeholder": "Skriv ditt svar...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

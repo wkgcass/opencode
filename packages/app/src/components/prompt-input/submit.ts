@@ -13,7 +13,6 @@ import { usePermission } from "@/context/permission"
 import { type ContextItem, type ImageAttachmentPart, type Prompt, type usePrompt } from "@/context/prompt"
 import { useSDK, type DirectorySDK } from "@/context/sdk"
 import { useSync, type DirectorySync } from "@/context/sync"
-import { Identifier } from "@/utils/id"
 import { Worktree as WorktreeState } from "@/utils/worktree"
 import { buildRequestParts } from "./build-request-parts"
 import { setCursorPosition } from "./editor-dom"
@@ -84,7 +83,7 @@ export async function sendFollowupDraft(input: FollowupSendInput) {
         return false
       }
 
-      const messageID = Identifier.ascending("message")
+      const messageID = input.serverSync.session.nextMessageID(input.draft.sessionID)
       await input.api.command({
         sessionID: input.draft.sessionID,
         id: messageID,
@@ -110,7 +109,7 @@ export async function sendFollowupDraft(input: FollowupSendInput) {
     }
   }
 
-  const messageID = input.messageID ?? Identifier.ascending("message")
+  const messageID = input.messageID ?? input.serverSync.session.nextMessageID(input.draft.sessionID)
   const encodedImages = await Promise.all(
     images.map(async (attachment) => ({
       ...attachment,
@@ -490,7 +489,7 @@ export function createPromptSubmit(input: PromptSubmitInput) {
 
     if (mode === "shell") {
       clearInput()
-      const eventID = Event.ID.create()
+      const eventID = serverSync().session.nextEventID(session.id)
       sdk()
         .api.session.shell({
           sessionID: session.id,
@@ -515,7 +514,7 @@ export function createPromptSubmit(input: PromptSubmitInput) {
       const customCommand = sync().data.command.find((c) => c.name === commandName)
       if (customCommand) {
         clearInput()
-        const messageID = Identifier.ascending("message")
+        const messageID = serverSync().session.nextMessageID(session.id)
         serverSync().session.set("session_status", session.id, { type: "busy" })
         sdk()
           .api.session.command({
@@ -545,7 +544,7 @@ export function createPromptSubmit(input: PromptSubmitInput) {
     }
 
     const commentItems = context.filter((item) => item.type === "file" && !!item.comment?.trim())
-    const messageID = Identifier.ascending("message")
+    const messageID = serverSync().session.nextMessageID(session.id)
 
     const removeOptimisticMessage = () => {
       sync().session.optimistic.remove({

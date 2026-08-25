@@ -1,11 +1,11 @@
-import { onCleanup } from "solid-js"
+import { createRoot, onCleanup } from "solid-js"
 
 export function createRefCountMap<T>(
   create: (key: string) => T,
   remove?: (key: string) => void,
   identity: (key: string) => string = (key) => key,
 ) {
-  const items = new Map<string, T>()
+  const items = new Map<string, { value: T; dispose: VoidFunction }>()
   const refCounts = new Map<string, number>()
 
   return (key: string) => {
@@ -14,6 +14,7 @@ export function createRefCountMap<T>(
       refCounts.set(id, (refCounts.get(id) ?? 0) - 1)
       if (refCounts.get(id) === 0) {
         remove?.(id)
+        items.get(id)?.dispose()
         items.delete(id)
         refCounts.delete(id)
       }
@@ -22,11 +23,11 @@ export function createRefCountMap<T>(
     const cached = items.get(id)
     if (cached) {
       refCounts.set(id, (refCounts.get(id) ?? 0) + 1)
-      return cached
+      return cached.value
     }
-    const item = create(key)
+    const item = createRoot((dispose) => ({ value: create(key), dispose }))
     items.set(id, item)
     refCounts.set(id, 1)
-    return item
+    return item.value
   }
 }

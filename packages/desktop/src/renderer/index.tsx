@@ -11,6 +11,7 @@ import {
   PlatformProvider,
   createDraftStore,
   ServerConnection,
+  SkinProvider,
   useCommand,
   useWslServers,
   useLanguage,
@@ -25,8 +26,10 @@ import pkg from "../../package.json"
 import { t } from "./i18n"
 import { initializationData } from "./initialization"
 import { DesktopFirstLaunchOnboarding } from "./onboarding"
+import { initializeSkinStyles } from "./skins"
 import { resetZoom, setPinchZoomEnabled, webviewZoom, zoomIn, zoomOut } from "./webview-zoom"
 import { windowFullscreen } from "./window-fullscreen"
+import { windowFocused } from "./window-focus"
 import { availableStartupServer, readyWslConnections } from "./wsl/connections"
 import "./styles.css"
 import { Splash } from "@opencode-ai/ui/logo"
@@ -60,6 +63,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   })
 }
 
+initializeSkinStyles()
 const [updaterState, setUpdaterState] = createSignal<UpdaterState>({ status: "disabled" })
 void window.api.updater.subscribe(setUpdaterState)
 
@@ -246,6 +250,21 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
 
     recordFatalRendererError: (error) => window.api.recordFatalRendererError(error),
 
+    getBarkDeviceKey: () => window.api.getBarkDeviceKey(),
+
+    setBarkDeviceKey: (deviceKey) => window.api.setBarkDeviceKey(deviceKey),
+
+    scheduleSessionReminder: (serverScope, directory, sessionID) =>
+      window.api.scheduleSessionReminder(serverScope, directory, sessionID),
+
+    cancelSessionReminder: (serverScope, sessionID) => window.api.cancelSessionReminder(serverScope, sessionID),
+
+    cancelDirectoryReminders: (serverScope, directory) => window.api.cancelDirectoryReminders(serverScope, directory),
+
+    onSessionReminderDue: (cb) => window.api.onSessionReminderDue(cb),
+
+    pushBarkSessionComplete: (title) => window.api.pushBarkSessionComplete(title),
+
     restart: async () => {
       await window.api.killSidecar().catch(() => undefined)
       window.api.relaunch()
@@ -295,6 +314,8 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
     webviewZoom,
 
     windowFullscreen,
+
+    windowFocused,
 
     getPinchZoomEnabled: () => window.api.getPinchZoomEnabled(),
 
@@ -430,7 +451,9 @@ function DesktopRoot(props: { windowState: DesktopWindowState }) {
         locale={locale.latest}
         onNativeTranslations={(bundle) => void window.api.setNativeTranslations(bundle).catch(() => undefined)}
       >
-        <Show when={true}>{(_) => <App />}</Show>
+        <SkinProvider>
+          <Show when={true}>{(_) => <App />}</Show>
+        </SkinProvider>
       </AppBaseProviders>
     </PlatformProvider>
   )

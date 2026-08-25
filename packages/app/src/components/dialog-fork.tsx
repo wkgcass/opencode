@@ -2,7 +2,9 @@ import { Component, createMemo } from "solid-js"
 import { useNavigate, useParams } from "@solidjs/router"
 import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
+import { useServerSDK } from "@/context/server-sdk"
 import { usePrompt } from "@/context/prompt"
+import { ServerConnection } from "@/context/server"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { Dialog } from "@opencode-ai/ui/dialog"
 import { List } from "@opencode-ai/ui/list"
@@ -11,9 +13,11 @@ import { extractPromptFromParts } from "@/utils/prompt"
 import type { TextPart as SDKTextPart } from "@opencode-ai/sdk/v2/client"
 import { base64Encode } from "@opencode-ai/core/util/encode"
 import { useLanguage } from "@/context/language"
+import { sessionHref } from "@/utils/session-route"
 
 interface ForkableMessage {
   id: string
+  messageID?: string
   text: string
   time: string
 }
@@ -27,6 +31,7 @@ export const DialogFork: Component = () => {
   const navigate = useNavigate()
   const sync = useSync()
   const sdk = useSDK()
+  const serverSDK = useServerSDK()
   const prompt = usePrompt()
   const dialog = useDialog()
   const language = useLanguage()
@@ -47,12 +52,20 @@ export const DialogFork: Component = () => {
 
       result.push({
         id: message.id,
+        messageID: message.id,
         text: textPart.text.replace(/\n/g, " ").slice(0, 200),
         time: formatTime(new Date(message.time.created)),
       })
     }
 
-    return result.reverse()
+    return [
+      {
+        id: "full-session",
+        text: language.t("dialog.fork.fullSession"),
+        time: "",
+      },
+      ...result.reverse(),
+    ]
   })
 
   const handleSelect = (item: ForkableMessage | undefined) => {
@@ -61,19 +74,20 @@ export const DialogFork: Component = () => {
     const sessionID = params.id
     if (!sessionID) return
 
-    const parts = sync().data.part[item.id] ?? []
-    const restored = extractPromptFromParts(parts, {
-      directory: sdk().directory,
-      attachmentName: language.t("common.attachment"),
-    })
+    const restored = item.messageID
+      ? extractPromptFromParts(sync().data.part[item.messageID] ?? [], {
+          directory: sdk().directory,
+          attachmentName: language.t("common.attachment"),
+        })
+      : undefined
     const dir = base64Encode(sdk().directory)
 
     sdk()
-      .api.session.fork({ sessionID, messageID: item.id })
+      .api.session.fork({ sessionID, ...(item.messageID ? { messageID: item.messageID } : {}) })
       .then((forked) => {
         dialog.close()
-        prompt.set(restored, undefined, { dir, id: forked.id })
-        navigate(`/${dir}/session/${forked.id}`)
+        if (restored) prompt.set(restored, undefined, { dir, id: forked.id })
+        navigate(sessionHref(ServerConnection.key(serverSDK().server), forked.id))
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err)

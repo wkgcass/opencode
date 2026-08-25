@@ -43,6 +43,35 @@ test("session settings use the remote server context", async ({ page }) => {
   await expect(dialog.getByRole("switch", { name: "Server A Model" })).toHaveCount(0)
 })
 
+test("server form fields keep focus inside the stacked settings dialog", async ({ page }) => {
+  await mockServers(page, [])
+  await configureServers(page)
+
+  await page.goto(`/server/${base64Encode(serverA)}/session/${sessionA.id}`)
+  await expect(page.getByText(sessionA.title).first()).toBeVisible()
+  await page.keyboard.press(process.platform === "darwin" ? "Meta+," : "Control+,")
+
+  const settings = page.locator(".settings-v2-dialog")
+  await settings.getByRole("tab", { name: "Servers" }).click()
+  await settings.getByRole("button", { name: "Add server" }).click()
+
+  const inputs = page.locator(".settings-v2-server-dialog input")
+  await expect(inputs).toHaveCount(4)
+  const values = ["server", "Remote", "alice", "secret"]
+  for (const [index, value] of values.entries()) {
+    const input = inputs.nth(index)
+    await input.click()
+    await expect(input).toBeFocused()
+    await input.fill(value)
+    await expect(input).toHaveValue(value)
+  }
+
+  await inputs.first().click()
+  await expect(inputs.first()).toBeFocused()
+  await inputs.first().fill("server.example")
+  await expect(inputs.first()).toHaveValue("server.example")
+})
+
 test("auto-accept responds for an unfocused server session", async ({ page }) => {
   const permissionRequests: string[] = []
   const permissionResponses: PermissionResponse[] = []

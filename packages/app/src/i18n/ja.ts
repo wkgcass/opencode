@@ -393,6 +393,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "コマンドの送信に失敗しました",
   "prompt.toast.promptSendFailed.title": "プロンプトの送信に失敗しました",
   "prompt.toast.promptSendFailed.description": "セッションを取得できませんでした",
+  "prompt.toast.agentSwitchFailed.title": "エージェントの切り替えに失敗しました",
+  "prompt.toast.modelSwitchFailed.title": "モデルの切り替えに失敗しました",
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{total}}個中{{enabled}}個が有効",
   "dialog.mcp.empty": "MCPが設定されていません",
@@ -404,6 +406,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "クリックして認証",
   "mcp.status.disabled": "無効",
   "dialog.fork.empty": "フォーク元のメッセージがありません",
+  "dialog.fork.fullSession": "セッション全体",
   "dialog.directory.search.placeholder": "フォルダを検索",
   "dialog.directory.empty": "フォルダが見つかりません",
   "dialog.directory.action.selectFile": "ファイルを選択",
@@ -718,6 +721,8 @@ export const dict = {
   "session.messages.loadEarlier": "以前のメッセージを読み込む",
   "session.messages.loading": "メッセージを読み込み中...",
   "session.messages.jumpToLatest": "最新へジャンプ",
+  "session.messages.workedFor": "処理時間 {{duration}}",
+  "session.messages.workCompleted": "結果は以下のとおりです",
   "session.context.addToContext": "{{selection}}をコンテキストに追加",
   "session.todo.title": "ToDo",
   "session.todo.collapse": "折りたたむ",
@@ -953,6 +958,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "エージェント",
   "settings.general.notifications.agent.description":
     "エージェントが完了したか、注意が必要な場合にシステム通知を表示します",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "権限",
   "settings.general.notifications.permissions.description": "権限が必要な場合にシステム通知を表示します",
   "settings.general.notifications.errors.title": "エラー",
@@ -1166,4 +1174,10 @@ export const dict = {
 
   "titlebar.update": "アップデート",
   "titlebar.updateVersion": "アップデート {{version}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

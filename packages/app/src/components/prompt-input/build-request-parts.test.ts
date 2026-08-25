@@ -3,6 +3,22 @@ import type { Prompt } from "@/context/prompt"
 import { buildRequestParts } from "./build-request-parts"
 
 describe("buildRequestParts", () => {
+  test("matches part ID format to the message ID", () => {
+    const build = (messageID: string) =>
+      buildRequestParts({
+        prompt: [{ type: "text", content: "hello", start: 0, end: 5 }],
+        context: [],
+        images: [],
+        text: "hello",
+        messageID,
+        sessionID: "ses_1",
+        sessionDirectory: "/repo",
+      }).requestParts[0]!.id
+
+    expect(build("msg-00000000000000abcdefghijklmn")).toStartWith("prt-")
+    expect(build("msg_000000000000abcdefghijklmn")).toMatch(/^prt_[0-9a-f]/)
+  })
+
   test("builds typed request and optimistic parts without cast path", () => {
     const prompt: Prompt = [
       { type: "text", content: "hello", start: 0, end: 5 },

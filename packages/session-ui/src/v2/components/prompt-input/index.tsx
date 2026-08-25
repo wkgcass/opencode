@@ -8,6 +8,7 @@ import { ButtonV2 } from "@opencode-ai/ui/v2/button-v2"
 import { Icon as IconV2 } from "@opencode-ai/ui/v2/icon"
 import { IconButtonV2 } from "@opencode-ai/ui/v2/icon-button-v2"
 import { KeybindV2 } from "@opencode-ai/ui/v2/keybind-v2"
+import { LoaderV2 } from "@opencode-ai/ui/v2/loader-v2"
 import { MenuV2 } from "@opencode-ai/ui/v2/menu-v2"
 import { TooltipV2 } from "@opencode-ai/ui/v2/tooltip-v2"
 import { AttachmentCardV2 } from "../attachment-card-v2"
@@ -40,6 +41,7 @@ export type PromptInputV2Props = {
   readOnly?: boolean
   borderUnderlay?: boolean
   class?: string
+  contextUsage?: JSX.Element
   modelControl?: JSX.Element
   variantControlVisible?: boolean
   attachKeybind?: string[]
@@ -160,7 +162,9 @@ export function PromptInputV2(props: PromptInputV2Props) {
             spellcheck={state.mode === "normal"}
             // @ts-expect-error
             autocomplete="off"
-            class="relative z-10 block min-h-[60px] max-h-[180px] w-full overflow-y-auto whitespace-pre-wrap bg-transparent px-4 pt-4 pb-2 text-[13px] font-[440] leading-5 text-v2-text-text-base focus:outline-none empty:before:content-['\200B'] [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-syntax-keyword"
+            class={
+              "relative z-10 block min-h-[60px] max-h-[180px] w-full overflow-y-auto whitespace-pre-wrap bg-transparent px-4 pt-4 pb-2 text-[13px] font-[440] leading-5 text-v2-text-text-base focus:outline-none empty:before:content-['\\200B'] [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-syntax-keyword"
+            }
             classList={{ "font-mono!": state.mode === "shell", "opacity-50": props.disabled }}
             onInput={(event) => {
               const cursor = promptInputV2Cursor(event.currentTarget)
@@ -195,8 +199,9 @@ export function PromptInputV2(props: PromptInputV2Props) {
           </Show>
         </div>
 
-        <div class="flex h-11 items-center px-2">
+        <div class="flex h-11 items-center gap-1 px-2">
           <div
+            data-slot="prompt-controls-start"
             class="flex min-w-0 flex-1 items-center gap-1"
             aria-hidden={state.mode === "shell"}
             inert={state.mode === "shell" ? true : undefined}
@@ -225,6 +230,15 @@ export function PromptInputV2(props: PromptInputV2Props) {
                 />
               )}
             </Show>
+          </div>
+          <div
+            data-slot="prompt-controls-end"
+            class="flex min-w-0 items-center gap-1 pr-2"
+            aria-hidden={state.mode === "shell"}
+            inert={state.mode === "shell" ? true : undefined}
+            style={buttons()}
+          >
+            {props.contextUsage}
             <Show
               when={props.modelControl}
               fallback={
@@ -544,6 +558,7 @@ function PromptInputV2ConfiguredSelect(props: {
         </Show>
       }
       onSelect={props.control.onSelect}
+      disabled={props.control.disabled?.()}
     />
   )
 }
@@ -555,6 +570,7 @@ export function PromptInputV2Select(props: {
   current: string
   currentIcon?: JSX.Element
   class?: string
+  disabled?: boolean
   onOpenChange?: (open: boolean) => void
   onSelect: (id: string) => void
 }) {
@@ -573,16 +589,23 @@ export function PromptInputV2Select(props: {
           as={ButtonV2}
           variant="ghost-muted"
           size="normal"
+          disabled={props.disabled}
           class={`max-w-[220px] justify-start ![font-weight:440] ${props.class ?? ""}`}
           aria-label={props.title}
         >
-          {props.currentIcon}
-          <span class="truncate capitalize leading-5">
-            {props.options.find((option) => option.id === props.current)?.label ?? props.current}
-          </span>
-          <span class="-ms-0.5 -me-1 flex shrink-0">
-            <IconV2 name="chevron-down" />
-          </span>
+          {props.disabled ? (
+            <LoaderV2 class="size-4 shrink-0" />
+          ) : (
+            <>
+              {props.currentIcon}
+              <span class="truncate capitalize leading-5">
+                {props.options.find((option) => option.id === props.current)?.label ?? props.current}
+              </span>
+              <span class="-ms-0.5 -me-1 flex shrink-0">
+                <IconV2 name="chevron-down" />
+              </span>
+            </>
+          )}
         </MenuV2.Trigger>
         <MenuV2.Portal>
           <MenuV2.Content>
@@ -655,7 +678,15 @@ export function PromptInputV2Popover(props: {
                 <PromptInputV2SuggestionIcon item={item} />
                 <span class="shrink-0 text-v2-text-text-base">{item.label}</span>
                 <Show when={item.description}>
-                  <span class="min-w-0 truncate text-v2-text-text-muted">{item.description}</span>
+                  <span
+                    class="min-w-0 text-v2-text-text-muted"
+                    classList={{
+                      "whitespace-normal break-words text-left": item.kind === "command",
+                      truncate: item.kind !== "command",
+                    }}
+                  >
+                    {item.description}
+                  </span>
                 </Show>
               </div>
               <Show when={item.keybind?.length}>
@@ -691,7 +722,7 @@ export function PromptInputV2SubmitButton(props: {
         tabIndex={props.mode === "normal" ? undefined : -1}
         icon={props.stopping ? "stop" : props.mode === "shell" ? "arrow-undo-down" : "arrow-up"}
         variant="primary"
-        class="size-7 rounded-md p-[6px] text-v2-icon-icon-muted shadow-[var(--v2-elevation-button-contrast)] disabled:opacity-50"
+        class="size-7 rounded-full p-[6px] text-v2-icon-icon-muted shadow-[var(--v2-elevation-button-contrast)] disabled:opacity-50"
         style={{
           "background-image":
             "linear-gradient(180deg,var(--v2-alpha-light-20) 0%,var(--v2-alpha-light-0) 100%),linear-gradient(90deg,var(--v2-background-bg-contrast) 0%,var(--v2-background-bg-contrast) 100%)",
@@ -713,7 +744,16 @@ export function PromptInputV2SubmitButton(props: {
 
 function PromptInputV2SuggestionIcon(props: { item: PromptInputV2Suggestion }) {
   if (props.item.kind === "agent") return <Icon name="brain" size="small" class="shrink-0 text-icon-info-active" />
-  if (props.item.kind === "command") return null
+  if (props.item.kind === "command") {
+    if (props.item.origin !== "server") return null
+    return (
+      <span
+        aria-hidden="true"
+        class="size-1.5 shrink-0 rounded-full"
+        style={{ "background-color": "light-dark(var(--v2-blue-600), var(--v2-yellow-600))" }}
+      />
+    )
+  }
   return (
     <FileIcon
       node={{ path: props.item.path ?? props.item.label, type: props.item.kind === "reference" ? "directory" : "file" }}

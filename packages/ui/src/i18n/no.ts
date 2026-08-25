@@ -74,6 +74,8 @@ export const dict: Record<Keys, string> = {
 
   "ui.messagePart.questions.dismissed": "Spørsmål avvist",
   "ui.messagePart.compaction": "Sesjon komprimert",
+  "ui.messagePart.compaction.started": "Komprimering av økten startet",
+  "ui.messagePart.compaction.failed": "Komprimering av økten mislyktes",
   "ui.messagePart.context.read.one": "{{count}} lest",
   "ui.messagePart.context.read.other": "{{count}} lest",
   "ui.messagePart.context.search.one": "{{count}} søk",
@@ -218,4 +220,5 @@ export const dict: Record<Keys, string> = {
   "ui.sessionTurn.diffs.showAll": "Vis alle",
   "ui.sessionTurn.diffs.showLess": "Vis færre",
   "ui.sessionTurn.diffs.more": "+{{count}} filer til",
+  "ui.sessionTurn.status.thought": "Thought",
 }

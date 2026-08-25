@@ -421,6 +421,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Komut gönderilemedi",
   "prompt.toast.promptSendFailed.title": "İstem gönderilemedi",
   "prompt.toast.promptSendFailed.description": "Oturum alınamadı",
+  "prompt.toast.agentSwitchFailed.title": "Ajan değiştirilemedi",
+  "prompt.toast.modelSwitchFailed.title": "Model değiştirilemedi",
 
   "dialog.mcp.title": "MCP'ler",
   "dialog.mcp.description": "Toplam {{total}} öğeden {{enabled}} tanesi etkin",
@@ -436,6 +438,7 @@ export const dict = {
   "mcp.status.disabled": "devre dışı",
 
   "dialog.fork.empty": "Dallandırılacak mesaj yok",
+  "dialog.fork.fullSession": "Tam oturum",
 
   "dialog.directory.search.placeholder": "Klasör ara",
   "dialog.directory.empty": "Klasör bulunamadı",
@@ -782,6 +785,8 @@ export const dict = {
   "session.messages.loadEarlier": "Önceki mesajları yükle",
   "session.messages.loading": "Mesajlar yükleniyor...",
   "session.messages.jumpToLatest": "En sona atla",
+  "session.messages.workedFor": "{{duration}} içinde işlendi",
+  "session.messages.workCompleted": "Sonuçlar aşağıdadır",
 
   "session.context.addToContext": "{{selection}} bağlama ekle",
   "session.todo.title": "Görevler",
@@ -1045,6 +1050,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Ajan",
   "settings.general.notifications.agent.description":
     "Ajan tamamlandığında veya dikkat gerektirdiğinde sistem bildirimi göster",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "İzinler",
   "settings.general.notifications.permissions.description": "İzin gerektiğinde sistem bildirimi göster",
   "settings.general.notifications.errors.title": "Hatalar",
@@ -1257,4 +1265,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Kalıcı proje simgesi oluşturulamadı",
   "error.childStore.storeCreateFailed": "Depo oluşturulamadı",
   "terminal.connectionLost.abnormalClose": "WebSocket anormal şekilde kapandı: {{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 } satisfies Partial<Record<Keys, string>>

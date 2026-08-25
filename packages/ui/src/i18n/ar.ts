@@ -99,6 +99,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "تم إهمال الأسئلة",
   "ui.messagePart.compaction": "تم اختصار الجلسة",
+  "ui.messagePart.compaction.started": "بدأ ضغط الجلسة",
+  "ui.messagePart.compaction.failed": "فشل ضغط الجلسة",
   "ui.messagePart.context.read.one": "{{count}} قراءة",
   "ui.messagePart.context.read.zero": "{{count}} قراءة",
   "ui.messagePart.context.read.two": "عدد القراءات: {{count}}",
@@ -230,4 +232,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "نسخ الخطأ",
   "ui.message.duration.seconds": "{{count}}ث",
   "ui.message.duration.minutesSeconds": "{{minutes}}د {{seconds}}ث",
+  "ui.sessionTurn.status.thought": "Thought",
 }

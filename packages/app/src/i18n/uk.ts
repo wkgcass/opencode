@@ -418,6 +418,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Не вдалося надіслати команду",
   "prompt.toast.promptSendFailed.title": "Не вдалося надіслати запит",
   "prompt.toast.promptSendFailed.description": "Не вдалося отримати сесію",
+  "prompt.toast.agentSwitchFailed.title": "Не вдалося змінити агента",
+  "prompt.toast.modelSwitchFailed.title": "Не вдалося змінити модель",
 
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{enabled}} з {{total}} увімкнено",
@@ -433,6 +435,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Натисніть для автентифікації",
 
   "dialog.fork.empty": "Немає повідомлень для відгалуження",
+  "dialog.fork.fullSession": "Повний сеанс",
 
   "dialog.directory.search.placeholder": "Пошук папок",
   "dialog.directory.empty": "Папок не знайдено",
@@ -804,6 +807,8 @@ export const dict = {
   "session.messages.loadEarlier": "Завантажити раніші повідомлення",
   "session.messages.loading": "Завантаження повідомлень...",
   "session.messages.jumpToLatest": "Перейти до останніх",
+  "session.messages.workedFor": "Оброблено за {{duration}}",
+  "session.messages.workCompleted": "Результати нижче",
 
   "session.context.addToContext": "Додати {{selection}} до контексту",
   "session.todo.title": "Завдання",
@@ -1145,6 +1150,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Агент",
   "settings.general.notifications.agent.description":
     "Показувати системне сповіщення, коли агент завершує роботу або потребує уваги",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Дозволи",
   "settings.general.notifications.permissions.description": "Показувати системне сповіщення, коли потрібен дозвіл",
   "settings.general.notifications.errors.title": "Помилки",
@@ -1264,4 +1272,10 @@ export const dict = {
   "workspace.reset.archived.one": "1 сесію буде заархівовано.",
   "workspace.reset.archived.many": "{{count}} сесій буде заархівовано.",
   "workspace.reset.note": "Це скине робочу область, щоб вона відповідала гілці за замовчуванням.",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

@@ -199,4 +199,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Odaberite sve primjenjive odgovore",
   "ui.question.singleHint": "Odaberite jedan odgovor",
   "ui.question.custom.placeholder": "Upišite svoj odgovor...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

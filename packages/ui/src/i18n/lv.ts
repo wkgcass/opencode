@@ -198,4 +198,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Izvēlies visas atbilstošās atbildes",
   "ui.question.singleHint": "Izvēlies vienu atbildi",
   "ui.question.custom.placeholder": "Ieraksti savu atbildi...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

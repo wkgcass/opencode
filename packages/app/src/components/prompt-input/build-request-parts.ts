@@ -89,10 +89,13 @@ const toOptimisticPart = (part: PromptRequestPart, sessionID: string, messageID:
 }
 
 export function buildRequestParts(input: BuildRequestPartsInput) {
+  // Match the session's ID format (learned from the message ID) so client part
+  // IDs stay orderable alongside server-generated part IDs.
+  const extended = Identifier.isExtended(input.messageID)
   const requestParts: PromptRequestPart[] = input.text.trim()
     ? [
         {
-          id: Identifier.ascending("part"),
+          id: Identifier.ascending("part", undefined, extended),
           type: "text",
           text: input.text,
         },
@@ -120,7 +123,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
           path,
         }
     return {
-      id: Identifier.ascending("part"),
+      id: Identifier.ascending("part", undefined, extended),
       type: "file",
       mime: attachment.mime ?? "text/plain",
       url: attachment.url ?? `file://${encodeFilePath(path)}${fileQuery(attachment.selection)}`,
@@ -131,7 +134,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
 
   const agents = input.prompt.filter(isAgentAttachment).map((attachment) => {
     return {
-      id: Identifier.ascending("part"),
+      id: Identifier.ascending("part", undefined, extended),
       type: "agent",
       name: attachment.name,
       source: {
@@ -151,7 +154,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
     used.add(url)
 
     const filePart = {
-      id: Identifier.ascending("part"),
+      id: Identifier.ascending("part", undefined, extended),
       type: "file",
       mime: "text/plain",
       url,
@@ -166,7 +169,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
       used.add(url)
       return [
         {
-          id: Identifier.ascending("part"),
+          id: Identifier.ascending("part", undefined, extended),
           type: "file",
           mime: "text/plain",
           url,
@@ -177,7 +180,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
 
     return [
       {
-        id: Identifier.ascending("part"),
+        id: Identifier.ascending("part", undefined, extended),
         type: "text",
         text: formatCommentNote({ path: item.path, selection: item.selection, comment }),
         synthetic: true,
@@ -196,7 +199,7 @@ export function buildRequestParts(input: BuildRequestPartsInput) {
 
   const images = input.images.map((attachment) => {
     return {
-      id: Identifier.ascending("part"),
+      id: Identifier.ascending("part", undefined, extended),
       type: "file",
       mime: attachment.mime,
       url: attachment.dataUrl,

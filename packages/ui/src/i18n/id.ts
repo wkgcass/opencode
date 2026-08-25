@@ -216,4 +216,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Pilih semua jawaban yang sesuai",
   "ui.question.singleHint": "Pilih satu jawaban",
   "ui.question.custom.placeholder": "Ketik jawaban Anda...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

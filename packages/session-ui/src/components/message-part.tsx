@@ -1758,16 +1758,193 @@ PART_MAPPING["text"] = function TextPartDisplay(props) {
 
 PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
   const data = useData()
+  const i18n = useI18n()
+  let root: HTMLDivElement | undefined
+  let reasoningContent: HTMLDivElement | undefined
+  let reasoningObserver: MutationObserver | undefined
+  let reasoningFrame: number | undefined
+  let reasoningSummary: HTMLSpanElement | undefined
+  let reasoningSummaryFrame: number | undefined
+  let layoutFrame: number | undefined
+  let followReasoning = true
   const part = () => props.part as ReasoningPart
   const streaming = createMemo(
-    () => props.message.role === "assistant" && typeof (props.message as AssistantMessage).time.completed !== "number",
+    () =>
+      typeof part().time.end !== "number" &&
+      props.message.role === "assistant" &&
+      typeof (props.message as AssistantMessage).time.completed !== "number",
   )
   const text = () => readPartText(data.store.part_text_accum_delta, part())
+  const currentLine = createMemo(() => {
+    const value = data.store.part_text_accum_delta?.[part().id] ?? part().text ?? ""
+    return value.slice(Math.max(value.lastIndexOf("\n"), value.lastIndexOf("\r")) + 1).trimStart()
+  })
+  const [open, setOpen] = createSignal(false)
+
+  const scrollReasoningSummaryToEnd = () => {
+    if (!reasoningSummary?.isConnected) return
+    if (reasoningSummaryFrame !== undefined) cancelAnimationFrame(reasoningSummaryFrame)
+    reasoningSummaryFrame = requestAnimationFrame(() => {
+      reasoningSummaryFrame = undefined
+      if (!reasoningSummary?.isConnected) return
+      reasoningSummary.scrollLeft =
+        reasoningSummary.scrollWidth > reasoningSummary.clientWidth
+          ? reasoningSummary.scrollWidth - reasoningSummary.clientWidth
+          : 0
+    })
+  }
+
+  const bindReasoningSummary = (element: HTMLSpanElement) => {
+    reasoningSummary = element
+    scrollReasoningSummaryToEnd()
+  }
+
+  const scrollReasoningToBottom = () => {
+    if (!followReasoning || !open() || !streaming() || !reasoningContent?.isConnected) return
+    if (reasoningFrame !== undefined) return
+    reasoningFrame = requestAnimationFrame(() => {
+      reasoningFrame = undefined
+      if (!followReasoning || !open() || !streaming() || !reasoningContent?.isConnected) return
+      reasoningContent.scrollTop = reasoningContent.scrollHeight
+    })
+  }
+
+  const handleReasoningScroll = () => {
+    if (!reasoningContent) return
+    if (reasoningContent.scrollHeight - reasoningContent.clientHeight - reasoningContent.scrollTop <= 1)
+      followReasoning = true
+  }
+
+  const handleReasoningWheel = (event: WheelEvent) => {
+    if (event.deltaY < 0) followReasoning = false
+  }
+
+  const handleReasoningKeyDown = (event: KeyboardEvent) => {
+    if (["ArrowUp", "PageUp", "Home"].includes(event.key)) followReasoning = false
+  }
+
+  const handleReasoningPointerMove = (event: PointerEvent) => {
+    if (event.buttons === 1) followReasoning = false
+  }
+
+  const bindReasoningContent = (element: HTMLDivElement) => {
+    reasoningContent = element
+    reasoningObserver?.disconnect()
+    reasoningObserver = new MutationObserver(scrollReasoningToBottom)
+    reasoningObserver.observe(element, { childList: true, subtree: true, characterData: true })
+    scrollReasoningToBottom()
+    props.onContentRendered?.()
+  }
+
+  const handleOpenChange = (value: boolean) => {
+    const scroll = (() => {
+      if (!value || streaming() || !root?.isConnected) return
+      const viewport = root.parentElement?.closest<HTMLElement>(
+        '.scroll-view__viewport, [data-slot="session-turn-content"]',
+      )
+      if (!viewport) return
+      const viewportRect = viewport.getBoundingClientRect()
+      const header = viewport.querySelector<HTMLElement>("[data-session-title]")
+      return {
+        viewport,
+        rootTop: root.getBoundingClientRect().top,
+        top: header ? Math.max(viewportRect.top, header.getBoundingClientRect().bottom) : viewportRect.top,
+        bottom: viewportRect.bottom,
+      }
+    })()
+
+    setOpen(value)
+    if (value && streaming()) {
+      followReasoning = true
+      scrollReasoningToBottom()
+    }
+    if (layoutFrame !== undefined) cancelAnimationFrame(layoutFrame)
+    // Kobalte mounts the content before the virtual timeline finishes measuring and repositioning its row.
+    layoutFrame = requestAnimationFrame(() => {
+      props.onContentRendered?.()
+      layoutFrame = requestAnimationFrame(() => {
+        layoutFrame = requestAnimationFrame(() => {
+          layoutFrame = undefined
+          if (!scroll || !root?.isConnected) return
+
+          const viewportRect = scroll.viewport.getBoundingClientRect()
+          const header = scroll.viewport.querySelector<HTMLElement>("[data-session-title]")
+          const top = header ? Math.max(viewportRect.top, header.getBoundingClientRect().bottom) : viewportRect.top
+          const rootRect = root.getBoundingClientRect()
+          if (scroll.rootTop >= scroll.top && scroll.rootTop + rootRect.height <= scroll.bottom) return
+
+          const trigger = root.querySelector<HTMLElement>('[data-slot="collapsible-trigger"]')
+          const delta =
+            rootRect.height <= viewportRect.bottom - top
+              ? rootRect.bottom - viewportRect.bottom + 10
+              : (trigger?.getBoundingClientRect().top ?? rootRect.top) - top
+          if (Math.abs(delta) <= 0.5) return
+          scroll.viewport.scrollBy({ top: delta, behavior: "smooth" })
+        })
+      })
+    })
+  }
+
+  createEffect(() => {
+    streaming()
+    handleOpenChange(false)
+  })
+
+  createEffect(() => {
+    currentLine()
+    if (!streaming() || open()) return
+    scrollReasoningSummaryToEnd()
+  })
+
+  onCleanup(() => {
+    if (layoutFrame !== undefined) cancelAnimationFrame(layoutFrame)
+    if (reasoningFrame !== undefined) cancelAnimationFrame(reasoningFrame)
+    if (reasoningSummaryFrame !== undefined) cancelAnimationFrame(reasoningSummaryFrame)
+    reasoningObserver?.disconnect()
+  })
 
   return (
     <Show when={text()}>
-      <div data-component="reasoning-part" data-timeline-part-id={part().id}>
-        <PacedMarkdown text={text()} cacheKey={part().id} streaming={streaming()} />
+      <div
+        ref={root}
+        data-component="reasoning-part"
+        data-streaming={streaming() ? "" : undefined}
+        data-timeline-part-id={part().id}
+      >
+        <Collapsible open={open()} onOpenChange={handleOpenChange} variant="ghost" class="reasoning-collapsible">
+          <Collapsible.Trigger>
+            <span data-slot="reasoning-part-title">
+              <TextShimmer
+                text={i18n.t(streaming() ? "ui.sessionTurn.status.thinking" : "ui.sessionTurn.status.thought")}
+                active={streaming()}
+              />
+            </span>
+            <Collapsible.Arrow />
+            <Show when={streaming() && !open() && currentLine()}>
+              <span ref={bindReasoningSummary} data-slot="reasoning-part-summary">
+                <TextShimmer text={currentLine()} active />
+              </span>
+            </Show>
+          </Collapsible.Trigger>
+          <Collapsible.Content>
+            <div
+              ref={bindReasoningContent}
+              data-slot="reasoning-part-content"
+              data-scrollable
+              tabIndex={0}
+              role="region"
+              aria-label={i18n.t("ui.scrollView.ariaLabel")}
+              onScroll={handleReasoningScroll}
+              onWheel={handleReasoningWheel}
+              onKeyDown={handleReasoningKeyDown}
+              onPointerMove={handleReasoningPointerMove}
+            >
+              <Show when={streaming()} fallback={<Markdown text={text()} cacheKey={part().id} streaming={false} />}>
+                <PacedMarkdown text={text()} cacheKey={part().id} streaming={streaming()} />
+              </Show>
+            </div>
+          </Collapsible.Content>
+        </Collapsible>
       </div>
     </Show>
   )
@@ -2088,12 +2265,51 @@ ToolRegistry.register({
     const i18n = useI18n()
     const pending = () => props.status === "pending" || props.status === "running"
     const sawPending = pending()
+    const command = createMemo(() => props.input.command ?? props.metadata.command ?? "")
+    const output = createMemo(() => stripAnsi(props.output || props.metadata.output || "").replace(/\r\n?/g, "\n"))
     const text = createMemo(() => {
-      const cmd = props.input.command ?? props.metadata.command ?? ""
-      const out = stripAnsi(props.output || props.metadata.output || "").replace(/\r\n?/g, "\n")
-      return `$ ${cmd}${out ? "\n\n" + out : ""}`
+      return `$ ${command()}${output() ? "\n\n" + output() : ""}`
     })
     const [copied, setCopied] = createSignal(false)
+    let scroll: HTMLDivElement | undefined
+    let scrollFrame: number | undefined
+    let followOutput = true
+
+    const scrollOutputToBottom = () => {
+      if (!followOutput || !pending() || !scroll?.isConnected) return
+      if (scrollFrame !== undefined) return
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = undefined
+        if (!followOutput || !pending() || !scroll?.isConnected) return
+        scroll.scrollTop = scroll.scrollHeight
+      })
+    }
+
+    const handleScroll = () => {
+      if (!scroll) return
+      if (scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop <= 1) followOutput = true
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0) followOutput = false
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (["ArrowUp", "PageUp", "Home"].includes(event.key)) followOutput = false
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.buttons === 1) followOutput = false
+    }
+
+    createEffect(() => {
+      output()
+      scrollOutputToBottom()
+    })
+
+    onCleanup(() => {
+      if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame)
+    })
 
     const handleCopy = async () => {
       const content = text()
@@ -2109,14 +2325,16 @@ ToolRegistry.register({
         {...props}
         icon="console"
         allowOpenWhilePending
+        forceOpen={pending() && !!output()}
+        forceClose={!pending() && sawPending}
         trigger={(open) => (
           <div data-slot="basic-tool-tool-info-structured">
             <div data-slot="basic-tool-tool-info-main">
               <span data-slot="basic-tool-tool-title">
                 <TextShimmer text={i18n.t("ui.tool.shell")} active={pending()} />
               </span>
-              <Show when={!open() && props.input.command}>
-                <ShellSubmessage text={props.input.command} animate={sawPending} />
+              <Show when={!open() && command()}>
+                <ShellSubmessage text={command()} animate={sawPending} />
               </Show>
             </div>
           </div>
@@ -2136,11 +2354,19 @@ ToolRegistry.register({
             </TooltipV2>
           </div>
           <div
+            ref={(element) => {
+              scroll = element
+              scrollOutputToBottom()
+            }}
             data-slot="bash-scroll"
             data-scrollable
             tabIndex={0}
             role="region"
             aria-label={i18n.t("ui.scrollView.ariaLabel")}
+            onScroll={handleScroll}
+            onWheel={handleWheel}
+            onKeyDown={handleKeyDown}
+            onPointerMove={handlePointerMove}
           >
             <pre data-slot="bash-pre">
               <code>{text()}</code>

@@ -414,6 +414,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "傳送命令失敗",
   "prompt.toast.promptSendFailed.title": "傳送提示失敗",
   "prompt.toast.promptSendFailed.description": "無法取得工作階段",
+  "prompt.toast.agentSwitchFailed.title": "切換代理失敗",
+  "prompt.toast.modelSwitchFailed.title": "切換模型失敗",
 
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "已啟用 {{enabled}} / {{total}}",
@@ -429,6 +431,7 @@ export const dict = {
   "mcp.status.disabled": "已停用",
 
   "dialog.fork.empty": "沒有可用於分支的訊息",
+  "dialog.fork.fullSession": "完整會話",
 
   "dialog.directory.search.placeholder": "搜尋資料夾",
   "dialog.directory.empty": "找不到資料夾",
@@ -762,6 +765,8 @@ export const dict = {
   "session.messages.loadingEarlier": "正在載入更早的訊息...",
   "session.messages.loadEarlier": "載入更早的訊息",
   "session.messages.loading": "正在載入訊息...",
+  "session.messages.workedFor": "已處理{{duration}}",
+  "session.messages.workCompleted": "結果如下",
 
   "session.messages.jumpToLatest": "跳到最新",
   "session.context.addToContext": "將 {{selection}} 新增到上下文",
@@ -1006,6 +1011,8 @@ export const dict = {
   "sound.option.yup06": "Yup 06",
   "settings.general.notifications.agent.title": "代理程式",
   "settings.general.notifications.agent.description": "當代理程式完成或需要注意時顯示系統通知",
+  "settings.general.notifications.bark.title": "Bark 裝置金鑰",
+  "settings.general.notifications.bark.description": "工作階段完成一分鐘後仍未讀時推送到 Bark；留空則停用",
   "settings.general.notifications.permissions.title": "權限",
   "settings.general.notifications.permissions.description": "當需要權限時顯示系統通知",
   "settings.general.notifications.errors.title": "錯誤",
@@ -1220,4 +1227,10 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "建立持續性專案圖示失敗",
   "error.childStore.storeCreateFailed": "建立儲存區失敗",
   "terminal.connectionLost.abnormalClose": "WebSocket 異常關閉：{{code}}",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 } satisfies Partial<Record<Keys, string>>

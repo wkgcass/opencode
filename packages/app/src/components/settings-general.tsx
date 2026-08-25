@@ -12,6 +12,7 @@ import { useParams } from "@solidjs/router"
 import { useLanguage } from "@/context/language"
 import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
+import { skinColorSchemeOptions, skinColorSchemeSettingsLocked, skinSettingsLocked } from "@/context/skin"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
 import { useUpdaterAction } from "./updater-action"
@@ -31,6 +32,7 @@ import { decode64 } from "@/utils/base64"
 import { playSoundById, SOUND_OPTIONS } from "@/utils/sound"
 import { ExternalLink } from "./external-link"
 import { SettingsList } from "./settings-list"
+import { SettingsSkinSelect, skinSettingsText } from "./settings-skin-select"
 
 let demoSoundState = {
   cleanup: undefined as (() => void) | undefined,
@@ -203,10 +205,18 @@ export const SettingsGeneral: Component = () => {
     void update.catch(() => setPinchZoom(!checked))
   }
 
-  const colorSchemeOptions = createMemo((): { value: ColorScheme; label: string }[] => [
-    { value: "system", label: language.t("theme.scheme.system") },
-    { value: "light", label: language.t("theme.scheme.light") },
-    { value: "dark", label: language.t("theme.scheme.dark") },
+  const colorSchemeOptions = createMemo((): { value: ColorScheme; label: string }[] => {
+    const available = skinColorSchemeOptions()
+    return [
+      { value: "system" as const, label: language.t("theme.scheme.system") },
+      { value: "light" as const, label: language.t("theme.scheme.light") },
+      { value: "dark" as const, label: language.t("theme.scheme.dark") },
+    ].filter((option) => available.some((scheme) => scheme === option.value))
+  })
+
+  const followupOptions = createMemo((): { value: "queue" | "steer"; label: string }[] => [
+    { value: "queue", label: language.t("settings.general.row.followup.option.queue") },
+    { value: "steer", label: language.t("settings.general.row.followup.option.steer") },
   ])
 
   const languageOptions = createMemo(() =>
@@ -382,6 +392,24 @@ export const SettingsGeneral: Component = () => {
             />
           </div>
         </SettingsRow>
+
+        <SettingsRow
+          title={language.t("settings.general.row.followup.title")}
+          description={language.t("settings.general.row.followup.description")}
+        >
+          <Select
+            data-action="settings-followup"
+            options={followupOptions()}
+            current={followupOptions().find((option) => option.value === settings.general.followup())}
+            value={(option) => option.value}
+            label={(option) => option.label}
+            onSelect={(option) => option && settings.general.setFollowup(option.value)}
+            variant="secondary"
+            size="small"
+            triggerVariant="settings"
+            triggerStyle={{ "min-width": "180px" }}
+          />
+        </SettingsRow>
       </SettingsList>
     </div>
   )
@@ -469,6 +497,7 @@ export const SettingsGeneral: Component = () => {
             current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
             value={(o) => o.value}
             label={(o) => o.label}
+            disabled={skinColorSchemeSettingsLocked()}
             onSelect={(option) => option && theme.setColorScheme(option.value)}
             variant="secondary"
             size="small"
@@ -492,6 +521,7 @@ export const SettingsGeneral: Component = () => {
             current={themeOptions().find((o) => o.id === theme.themeId())}
             value={(o) => o.id}
             label={(o) => o.name}
+            disabled={skinSettingsLocked()}
             onSelect={(option) => {
               if (!option) return
               theme.setTheme(option.id)
@@ -501,6 +531,15 @@ export const SettingsGeneral: Component = () => {
             triggerVariant="settings"
           />
         </SettingsRow>
+
+        <Show when={desktop()}>
+          <SettingsRow
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
+          >
+            <SettingsSkinSelect variant="legacy" />
+          </SettingsRow>
+        </Show>
 
         <SettingsRow
           title={language.t("settings.general.row.uiFont.title")}

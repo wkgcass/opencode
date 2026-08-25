@@ -1,6 +1,7 @@
 import { createEffect, Suspense, type ParentProps } from "solid-js"
 import { createStore } from "solid-js/store"
 import { DebugBar } from "@/components/debug-bar"
+import { DesktopWorkspace } from "@/components/desktop-workspace"
 import { TabsInfoPopup } from "@/components/help-button"
 import { Titlebar, type TitlebarUpdate } from "@/components/titlebar"
 import { usePlatform } from "@/context/platform"
@@ -24,6 +25,7 @@ export default function NewLayout(props: ParentProps) {
 
   return (
     <div
+      data-component="codex-app-shell"
       class="relative bg-v2-background-bg-deep flex-1 min-h-0 min-w-0 flex flex-col select-none [&_input]:select-text [&_textarea]:select-text [&_[contenteditable]]:select-text"
       style={{
         "padding-top": "env(safe-area-inset-top, 0px)",
@@ -33,15 +35,15 @@ export default function NewLayout(props: ParentProps) {
       <Titlebar
         update={update}
         debugTools={
-          import.meta.env.DEV
+          import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BAR === "1"
             ? { visible: state.debugTools, toggle: () => setState("debugTools", (value) => !value) }
             : undefined
         }
       />
-      <main class="flex-1 min-h-0 min-w-0 overflow-x-hidden flex flex-col items-start contain-strict">
+      <DesktopWorkspace>
         <Suspense>{props.children}</Suspense>
-      </main>
-      {import.meta.env.DEV && state.debugTools && <DebugBar inline />}
+      </DesktopWorkspace>
+      {import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BAR === "1" && state.debugTools && <DebugBar inline />}
       <TabsInfoPopup />
       <ToastRegion v2 />
     </div>

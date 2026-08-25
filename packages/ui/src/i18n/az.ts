@@ -194,4 +194,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Uyğun gələn bütün cavabları seçin",
   "ui.question.singleHint": "Bir cavab seçin",
   "ui.question.custom.placeholder": "Cavabınızı yazın...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

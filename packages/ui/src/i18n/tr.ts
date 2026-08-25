@@ -101,6 +101,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Sorular kapatıldı",
   "ui.messagePart.compaction": "Oturum sıkıştırıldı",
+  "ui.messagePart.compaction.started": "Oturum sıkıştırma başladı",
+  "ui.messagePart.compaction.failed": "Oturum sıkıştırma başarısız oldu",
   "ui.messagePart.context.read.one": "{{count}} okuma",
   "ui.messagePart.context.read.other": "{{count}} okuma",
   "ui.messagePart.context.search.one": "{{count}} arama",
@@ -220,4 +222,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "Hatayı kopyala",
   "ui.message.duration.seconds": "{{count}} sn",
   "ui.message.duration.minutesSeconds": "{{minutes}} dk {{seconds}} sn",
+  "ui.sessionTurn.status.thought": "Thought",
 } satisfies Partial<Record<Keys, string>>

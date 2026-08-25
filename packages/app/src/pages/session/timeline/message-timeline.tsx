@@ -4,10 +4,12 @@ import {
   createSignal,
   For,
   Index,
+  Match,
   on,
   onCleanup,
   onMount,
   Show,
+  Switch,
   type Accessor,
   type JSX,
 } from "solid-js"
@@ -17,8 +19,10 @@ import { useNavigate } from "@solidjs/router"
 import { useMutation } from "@tanstack/solid-query"
 import { createVirtualizer, defaultRangeExtractor, elementScroll, type VirtualItem } from "@tanstack/solid-virtual"
 import { Accordion } from "@opencode-ai/ui/accordion"
+import { Collapsible } from "@opencode-ai/ui/collapsible"
 import { Button } from "@opencode-ai/ui/button"
 import { Card } from "@opencode-ai/ui/card"
+import { Markdown } from "@opencode-ai/session-ui/markdown"
 import {
   ContextToolGroup,
   Message,
@@ -77,6 +81,7 @@ import { observeElementOffsetReconnectAware } from "./observe-element-offset"
 import { createTimelineProjection } from "./projection"
 import { MessageComment, SummaryDiff, TimelineRow, TimelineRowMap } from "./rows"
 import { filterVirtualIndexes } from "./virtual-items"
+import { formatWorkDuration } from "./work-duration"
 
 const emptyMessages: MessageType[] = []
 const emptyParts: PartType[] = []
@@ -139,6 +144,62 @@ function TimelineThinkingRow(props: { reasoningHeading?: string; showReasoningSu
         <TextReveal text={props.reasoningHeading} class="session-turn-thinking-heading" travel={25} duration={700} />
       </Show>
     </div>
+  )
+}
+
+function TimelineCompactionRow(props: {
+  message: TimelineRowMap["Compaction"]["message"]
+  onContentRendered?: () => void
+}) {
+  const language = useLanguage()
+  const [open, setOpen] = createSignal(false)
+
+  return (
+    <Switch>
+      <Match when={props.message.status === "running"}>
+        <div data-slot="session-turn-thinking">
+          <TextShimmer text={language.t("ui.messagePart.compaction.started")} />
+        </div>
+      </Match>
+      <Match when={props.message.status === "completed"}>
+        <div data-component="reasoning-part">
+          <div data-component="compaction-part">
+            <Collapsible
+              open={open()}
+              onOpenChange={(value) => {
+                setOpen(value)
+                props.onContentRendered?.()
+              }}
+              variant="ghost"
+              class="reasoning-collapsible"
+            >
+              <Collapsible.Trigger style={{ width: "100%", height: "auto" }}>
+                <span data-slot="compaction-part-divider">
+                  <span data-slot="compaction-part-line" />
+                  <span style={{ display: "inline-flex", "align-items": "center" }}>
+                    <span data-slot="compaction-part-label" class="text-12-regular text-text-weak">
+                      <TextShimmer text={language.t("ui.messagePart.compaction")} active={false} />
+                    </span>
+                    <Collapsible.Arrow />
+                  </span>
+                  <span data-slot="compaction-part-line" />
+                </span>
+              </Collapsible.Trigger>
+              <Collapsible.Content>
+                <div data-slot="reasoning-part-content" data-scrollable tabIndex={0} role="region">
+                  <Markdown text={props.message.summary} cacheKey={props.message.id} streaming={false} />
+                </div>
+              </Collapsible.Content>
+            </Collapsible>
+          </div>
+        </div>
+      </Match>
+      <Match when={props.message.status === "failed"}>
+        <div data-slot="session-turn-thinking">
+          <TextShimmer text={language.t("ui.messagePart.compaction.failed")} active={false} />
+        </div>
+      </Match>
+    </Switch>
   )
 }
 
@@ -1152,13 +1213,65 @@ export function MessageTimeline(props: {
           <TimelineRowFrame row={turnDividerRow}>
             <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
               <div data-slot="session-turn-compaction">
-                <MessageDivider
-                  label={language.t(
-                    turnDividerRow().label === "compaction" ? "ui.messagePart.compaction" : "ui.message.interrupted",
-                  )}
-                />
+                <MessageDivider label={language.t("ui.message.interrupted")} />
               </div>
             </div>
+          </TimelineRowFrame>
+        )
+      }
+      case "Compaction": {
+        const compactionRow = row as Accessor<TimelineRowByTag<"Compaction">>
+        return (
+          <TimelineRowFrame row={compactionRow}>
+            <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+              <TimelineCompactionRow message={compactionRow().message} onContentRendered={onSizeChange} />
+            </div>
+          </TimelineRowFrame>
+        )
+      }
+      case "WorkHistory": {
+        const workHistoryRow = row as Accessor<TimelineRowByTag<"WorkHistory">>
+        const key = () => `work-history:${workHistoryRow().userMessageID}`
+        const open = createMemo(() => toolOpen[key()] === true)
+        return (
+          <TimelineRowFrame row={workHistoryRow}>
+            <Accordion
+              collapsible
+              data-scope="work-history"
+              value={open() ? [key()] : []}
+              onChange={(value) => {
+                setToolOpen(key(), value.includes(key()))
+                onSizeChange?.()
+              }}
+            >
+              <Accordion.Item value={key()}>
+                <Accordion.Header class="px-4 md:px-5">
+                  <Accordion.Trigger>
+                    <span data-slot="work-history-label">
+                      {language.t("session.messages.workedFor", {
+                        duration: formatWorkDuration(turnDurationMs(workHistoryRow().userMessageID) ?? 0),
+                      })}
+                    </span>
+                    <Icon
+                      name="chevron-down"
+                      size="small"
+                      class="transition-transform duration-150"
+                      classList={{ "-rotate-90": !open() }}
+                    />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Content>
+                  <For each={workHistoryRow().rows}>
+                    {(historyRow) => <TimelineRowView row={historyRow} onSizeChange={onSizeChange} />}
+                  </For>
+                  <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+                    <div data-slot="session-turn-compaction">
+                      <MessageDivider label={language.t("session.messages.workCompleted")} />
+                    </div>
+                  </div>
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
           </TimelineRowFrame>
         )
       }
@@ -1472,10 +1585,9 @@ export function MessageTimeline(props: {
                       "gap-3": !settings.general.newLayoutDesigns(),
                     }}
                   >
-                    <SessionContextUsage
-                      placement="bottom"
-                      buttonAppearance={settings.general.newLayoutDesigns() ? "v2" : "default"}
-                    />
+                    <Show when={!settings.general.newLayoutDesigns()}>
+                      <SessionContextUsage placement="bottom" />
+                    </Show>
                     <Show when={!parentID()}>
                       <Show
                         when={settings.general.newLayoutDesigns()}

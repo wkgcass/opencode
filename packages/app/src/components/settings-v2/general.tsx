@@ -7,6 +7,7 @@ import { TextInputV2 } from "@opencode-ai/ui/v2/text-input-v2"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
+import { skinColorSchemeOptions, skinColorSchemeSettingsLocked, skinSettingsLocked } from "@/context/skin"
 import { useUpdaterAction } from "../updater-action"
 import { useSettings } from "@/context/settings"
 import { ExternalLink } from "../external-link"
@@ -25,9 +26,11 @@ import {
   type ShellSettingsController,
   type SoundSettingsController,
 } from "./general-controllers"
+import { SettingsSkinSelect, skinSettingsText } from "../settings-skin-select"
 import "./settings-v2.css"
 
 const schemeOptions: ("system" | "light" | "dark")[] = ["system", "light", "dark"]
+const followupOptions: ("queue" | "steer")[] = ["queue", "steer"]
 const fontSettings = {
   ui: {
     action: "settings-ui-font",
@@ -121,6 +124,11 @@ const ShellSetting: Component<{ controller: ShellSettingsController }> = (props)
 
 const AppearanceSection: Component<{ controller: AppearanceSettingsController }> = (props) => {
   const language = useLanguage()
+  const platform = usePlatform()
+  const desktop = createMemo(() => platform.platform === "desktop")
+  const availableSchemeOptions = createMemo(() =>
+    schemeOptions.filter((option) => skinColorSchemeOptions().some((scheme) => scheme === option)),
+  )
   return (
     <div class="settings-v2-section">
       <h3 class="settings-v2-section-title">{language.t("settings.general.section.appearance")}</h3>
@@ -132,10 +140,11 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
           <SelectV2
             appearance="inline"
             data-action="settings-color-scheme"
-            options={schemeOptions}
-            current={schemeOptions.find((option) => option === props.controller.scheme.current())}
+            options={availableSchemeOptions()}
+            current={availableSchemeOptions().find((option) => option === props.controller.scheme.current())}
             placement="bottom-end"
             gutter={6}
+            disabled={skinColorSchemeSettingsLocked()}
             label={(option) => {
               if (option === "system") return language.t("theme.scheme.system")
               if (option === "light") return language.t("theme.scheme.light")
@@ -165,9 +174,19 @@ const AppearanceSection: Component<{ controller: AppearanceSettingsController }>
             gutter={6}
             value={(option) => option.id}
             label={(option) => option.name}
+            disabled={skinSettingsLocked()}
             onSelect={props.controller.theme.select}
           />
         </SettingsRowV2>
+
+        <Show when={desktop()}>
+          <SettingsRowV2
+            title={skinSettingsText(language.locale()).title}
+            description={skinSettingsText(language.locale()).description}
+          >
+            <SettingsSkinSelect variant="v2" />
+          </SettingsRowV2>
+        </Show>
 
         <FontSetting kind="ui" fonts={props.controller.fonts} />
         <FontSetting kind="code" fonts={props.controller.fonts} />
@@ -292,6 +311,20 @@ export const SettingsGeneralV2: Component<{
     { initialValue: false },
   )
 
+  const barkAvailable = createMemo(
+    () => desktop() && platform.getBarkDeviceKey !== undefined && platform.setBarkDeviceKey !== undefined,
+  )
+  const [barkDeviceKey, { mutate: setBarkDeviceKey }] = createResource(
+    barkAvailable,
+    () => platform.getBarkDeviceKey?.().catch(() => "") ?? "",
+    { initialValue: "" },
+  )
+
+  const onBarkDeviceKeyInput = (value: string) => {
+    setBarkDeviceKey(value)
+    void platform.setBarkDeviceKey?.(value).catch(() => undefined)
+  }
+
   const onPinchZoomChange = (checked: boolean) => {
     setPinchZoom(checked)
     const update = platform.setPinchZoomEnabled?.(checked)
@@ -367,6 +400,22 @@ export const SettingsGeneralV2: Component<{
               onChange={(checked) => settings.general.setEditToolPartsExpanded(checked)}
             />
           </div>
+        </SettingsRowV2>
+
+        <SettingsRowV2
+          title={language.t("settings.general.row.followup.title")}
+          description={language.t("settings.general.row.followup.description")}
+        >
+          <SelectV2
+            appearance="inline"
+            data-action="settings-followup"
+            options={followupOptions}
+            current={followupOptions.find((option) => option === settings.general.followup())}
+            placement="bottom-end"
+            gutter={6}
+            label={(option) => language.t(`settings.general.row.followup.option.${option}`)}
+            onSelect={(option) => option && settings.general.setFollowup(option)}
+          />
         </SettingsRowV2>
 
         <Show when={mobile() && import.meta.env.VITE_OPENCODE_CHANNEL !== "prod"}>
@@ -458,6 +507,27 @@ export const SettingsGeneralV2: Component<{
             />
           </div>
         </SettingsRowV2>
+
+        <Show when={barkAvailable()}>
+          <SettingsRowV2
+            title={language.t("settings.general.notifications.bark.title")}
+            description={language.t("settings.general.notifications.bark.description")}
+          >
+            <div class="w-full sm:w-[220px]">
+              <TextInputV2
+                data-action="settings-notifications-bark-device-key"
+                type="password"
+                appearance="base"
+                value={barkDeviceKey.latest}
+                onInput={(event) => onBarkDeviceKeyInput(event.currentTarget.value)}
+                placeholder="device_key"
+                spellcheck={false}
+                autocomplete="off"
+                aria-label={language.t("settings.general.notifications.bark.title")}
+              />
+            </div>
+          </SettingsRowV2>
+        </Show>
 
         <SettingsRowV2
           title={language.t("settings.general.notifications.permissions.title")}

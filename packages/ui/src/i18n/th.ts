@@ -95,6 +95,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "ละทิ้งคำถามแล้ว",
   "ui.messagePart.compaction": "บีบอัดเซสชันแล้ว",
+  "ui.messagePart.compaction.started": "เริ่มบีบอัดเซสชันแล้ว",
+  "ui.messagePart.compaction.failed": "บีบอัดเซสชันไม่สำเร็จ",
   "ui.messagePart.context.read.one": "อ่าน {{count}} รายการ",
   "ui.messagePart.context.read.other": "อ่าน {{count}} รายการ",
   "ui.messagePart.context.search.one": "ค้นหา {{count}} รายการ",
@@ -214,4 +216,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "คัดลอกข้อผิดพลาด",
   "ui.message.duration.seconds": "{{count}} วินาที",
   "ui.message.duration.minutesSeconds": "{{minutes}} นาที {{seconds}} วินาที",
+  "ui.sessionTurn.status.thought": "Thought",
 }

@@ -14,7 +14,7 @@ import contextMenu from "electron-context-menu"
 import type { ServerReadyData } from "../preload/types"
 import { checkAppExists, resolveAppPath } from "./apps"
 import { CHANNEL } from "./constants"
-import { registerIpcHandlers, sendDeepLinks, sendMenuCommand } from "./ipc"
+import { registerIpcHandlers, sendDeepLinks, sendMenuCommand, sendSessionReminderDue } from "./ipc"
 import { forwardInitializationFailure } from "./initialization"
 import { exportDebugLogs, initCrashReporter, initLogging, startNetLog, write as writeLog } from "./logging"
 import { createMenu } from "./menu"
@@ -49,6 +49,8 @@ import { migrate } from "./migrate"
 import { cleanupStoreFiles } from "./store-cleanup"
 import { startBackgroundCli } from "./background-cli"
 import { setNativeTranslations } from "./native-translations"
+import { getBarkDeviceKey, pushBarkSessionComplete, setBarkDeviceKey } from "./bark"
+import { createCompletionReminderScheduler } from "./completion-reminder-scheduler"
 
 const APP_NAMES: Record<string, string> = {
   dev: "OpenCode Dev",
@@ -280,6 +282,13 @@ const main = Effect.gen(function* () {
     checkForUpdates: () => void showUpdaterDialog(updater, true),
     relaunch,
   }
+  const completionReminders = createCompletionReminderScheduler({
+    send: async (serverScope, directory, sessionID, count) => {
+      const win = getLastFocusedWindow()
+      if (!win) return
+      sendSessionReminderDue(win, serverScope, directory, sessionID, count)
+    },
+  })
   registerIpcHandlers({
     killSidecar: () => killSidecar(),
     relaunch,
@@ -310,6 +319,16 @@ const main = Effect.gen(function* () {
     setNativeTranslations: (bundle) => {
       if (setNativeTranslations(bundle)) createMenu(menuDeps)
     },
+    getBarkDeviceKey,
+    setBarkDeviceKey,
+    scheduleSessionReminder: (serverScope, directory, sessionID) =>
+      completionReminders.schedule(serverScope, directory, sessionID, (error) =>
+        logger.warn("session reminder failed", error),
+      ),
+    cancelSessionReminder: (serverScope, sessionID) => completionReminders.cancelSession(serverScope, sessionID),
+    cancelDirectoryReminders: (serverScope, directory) => completionReminders.cancelDirectory(serverScope, directory),
+    pushBarkSessionComplete: (title) =>
+      pushBarkSessionComplete(title).catch((error) => logger.warn("Bark notification failed", error)),
   })
   registerWslIpcHandlers(wslServers)
   void updater.start()

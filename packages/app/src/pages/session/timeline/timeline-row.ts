@@ -3,6 +3,11 @@ import type { PartGroup } from "@opencode-ai/session-ui/message-part"
 import { Data, Equal } from "effect"
 
 export type SummaryDiff = SnapshotFileDiff & { file: string }
+export type CompactionMessage = {
+  id: string
+  status: "running" | "completed" | "failed"
+  summary: string
+}
 
 export namespace TimelineRow {
   export class TurnGap extends Data.TaggedClass("TurnGap")<{
@@ -17,12 +22,20 @@ export namespace TimelineRow {
   }> {}
   export class TurnDivider extends Data.TaggedClass("TurnDivider")<{
     userMessageID: string
-    label: "compaction" | "interrupted"
+    label: "interrupted"
+  }> {}
+  export class Compaction extends Data.TaggedClass("Compaction")<{
+    userMessageID: string
+    message: CompactionMessage
   }> {}
   export class AssistantPart extends Data.TaggedClass("AssistantPart")<{
     userMessageID: string
     group: PartGroup
     previousAssistantPart: boolean
+  }> {}
+  export class WorkHistory extends Data.TaggedClass("WorkHistory")<{
+    userMessageID: string
+    rows: (AssistantPart | TurnDivider)[]
   }> {}
   export class Thinking extends Data.TaggedClass("Thinking")<{
     userMessageID: string
@@ -45,7 +58,9 @@ export namespace TimelineRow {
     | CommentStrip
     | UserMessage
     | TurnDivider
+    | Compaction
     | AssistantPart
+    | WorkHistory
     | Thinking
     | DiffSummary
     | Error
@@ -61,8 +76,12 @@ export namespace TimelineRow {
         return `user-message:${row.userMessageID}`
       case "TurnDivider":
         return `turn-divider:${row.userMessageID}:${row.label}`
+      case "Compaction":
+        return `compaction:${row.message.id}`
       case "AssistantPart":
         return `assistant-part:${row.userMessageID}:${row.group.key}`
+      case "WorkHistory":
+        return `work-history:${row.userMessageID}`
       case "Thinking":
         return `thinking:${row.userMessageID}`
       case "DiffSummary":

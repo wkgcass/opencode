@@ -33,6 +33,7 @@ export interface BasicToolProps {
   onOpenChange?: (open: boolean) => void
   forceOpen?: boolean
   allowOpenWhilePending?: boolean
+  forceClose?: boolean
   defer?: boolean
   locked?: boolean
   animated?: boolean
@@ -121,11 +122,29 @@ export function BasicTool(props: BasicToolProps) {
     props.onOpenChange?.(value)
   }
 
-  createEffect(() => {
-    if (!props.forceOpen) return
-    if (open()) return
-    setOpen(true)
-  })
+  createEffect(
+    on(
+      () => props.forceOpen,
+      (value, previous) => {
+        // Streaming output can reevaluate a true condition; only its rising edge may override user intent.
+        if (!value || previous) return
+        if (open()) return
+        setOpen(true)
+      },
+    ),
+  )
+
+  createEffect(
+    on(
+      () => props.forceClose,
+      (value) => {
+        if (!value) return
+        if (!open()) return
+        setOpen(false)
+      },
+      { defer: true },
+    ),
+  )
 
   createEffect(
     on(

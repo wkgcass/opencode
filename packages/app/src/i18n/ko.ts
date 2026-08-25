@@ -282,6 +282,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "명령 전송 실패",
   "prompt.toast.promptSendFailed.title": "프롬프트 전송 실패",
   "prompt.toast.promptSendFailed.description": "세션을 가져올 수 없습니다",
+  "prompt.toast.agentSwitchFailed.title": "에이전트 전환 실패",
+  "prompt.toast.modelSwitchFailed.title": "모델 전환 실패",
   "dialog.mcp.title": "MCP",
   "dialog.mcp.description": "{{total}}개 중 {{enabled}}개 활성화됨",
   "dialog.mcp.empty": "구성된 MCP 없음",
@@ -293,6 +295,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "클릭하여 인증",
   "mcp.status.disabled": "비활성화됨",
   "dialog.fork.empty": "분기할 메시지 없음",
+  "dialog.fork.fullSession": "전체 세션",
   "dialog.directory.search.placeholder": "폴더 검색",
   "dialog.directory.empty": "폴더 없음",
   "dialog.directory.action.selectFile": "파일 선택",
@@ -494,6 +497,8 @@ export const dict = {
   "session.messages.loadEarlier": "이전 메시지 로드",
   "session.messages.loading": "메시지 로드 중...",
   "session.messages.jumpToLatest": "최신으로 이동",
+  "session.messages.workedFor": "{{duration}} 동안 처리함",
+  "session.messages.workCompleted": "결과는 다음과 같습니다",
   "session.context.addToContext": "컨텍스트에 {{selection}} 추가",
   "session.todo.title": "할 일",
   "session.todo.collapse": "접기",
@@ -678,6 +683,9 @@ export const dict = {
   "sound.option.yup06": "네 06",
   "settings.general.notifications.agent.title": "에이전트",
   "settings.general.notifications.agent.description": "에이전트가 완료되거나 주의가 필요할 때 시스템 알림 표시",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "권한",
   "settings.general.notifications.permissions.description": "권한이 필요할 때 시스템 알림 표시",
   "settings.general.notifications.errors.title": "오류",
@@ -1049,7 +1057,6 @@ export const dict = {
   "settings.general.row.pinchZoom.description": "트랙패드 핀치 및 Ctrl-스크롤 제스처로 확대/축소 허용",
   "settings.updates.action.downloading": "다운로드 중...",
   "settings.updates.action.installing": "설치 중...",
-
   "command.logs.export": "로그 내보내기",
 
   "help.tabs.toast.ariaLabel": "탭을 소개합니다. 탭으로 작업과 활성 세션을 정리하세요",
@@ -1164,4 +1171,10 @@ export const dict = {
 
   "desktop.picker.error.notSelected": "선택기에서 파일을 선택하지 않았습니다",
   "desktop.picker.error.sizeLimit": "선택한 첨부 파일이 {{limit}} MB 제한을 초과합니다",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 }

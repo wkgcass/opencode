@@ -25,6 +25,43 @@
 }
 
 @layer components {
+  [data-component="accordion"][data-scope="work-history"] {
+    width: 100%;
+
+    > [data-slot="accordion-item"] {
+      > [data-slot="accordion-header"] {
+        border-bottom: 0.5px solid var(--v2-border-border-base);
+
+        > [data-slot="accordion-trigger"] {
+          width: fit-content;
+          justify-content: flex-start;
+          gap: 6px;
+          padding-inline: 0;
+          border: 0 !important;
+          border-radius: 0 !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          cursor: pointer;
+        }
+      }
+
+      > [data-slot="accordion-content"] {
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+    }
+
+    [data-slot="work-history-label"] {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 20px;
+      color: var(--text-weak);
+    }
+  }
+
   [data-component="getting-started"] {
     container-type: inline-size;
     container-name: getting-started;

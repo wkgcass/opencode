@@ -301,6 +301,8 @@ export const dict = {
   "prompt.toast.commandSendFailed.title": "Befehl konnte nicht gesendet werden",
   "prompt.toast.promptSendFailed.title": "Eingabe konnte nicht gesendet werden",
   "prompt.toast.promptSendFailed.description": "Sitzung konnte nicht abgerufen werden",
+  "prompt.toast.agentSwitchFailed.title": "Agent konnte nicht gewechselt werden",
+  "prompt.toast.modelSwitchFailed.title": "Modell konnte nicht gewechselt werden",
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} von {{total}} aktiviert",
   "dialog.mcp.empty": "Keine MCPs konfiguriert",
@@ -312,6 +314,7 @@ export const dict = {
   "mcp.auth.clickToAuthenticate": "Zum Authentifizieren klicken",
   "mcp.status.disabled": "deaktiviert",
   "dialog.fork.empty": "Keine Nachrichten zum Abzweigen vorhanden",
+  "dialog.fork.fullSession": "Vollständige Sitzung",
   "dialog.directory.search.placeholder": "Ordner durchsuchen",
   "dialog.directory.empty": "Keine Ordner gefunden",
   "dialog.directory.action.selectFile": "Datei auswählen",
@@ -616,6 +619,8 @@ export const dict = {
   "session.messages.loadEarlier": "Frühere Nachrichten laden",
   "session.messages.loading": "Nachrichten werden geladen…",
   "session.messages.jumpToLatest": "Zur neuesten Nachricht springen",
+  "session.messages.workedFor": "Verarbeitet in {{duration}}",
+  "session.messages.workCompleted": "Ergebnisse folgen",
   "session.context.addToContext": "{{selection}} zum Kontext hinzufügen",
   "session.todo.title": "Aufgaben",
   "session.todo.collapse": "Einklappen",
@@ -862,6 +867,9 @@ export const dict = {
   "settings.general.notifications.agent.title": "Agent",
   "settings.general.notifications.agent.description":
     "Systembenachrichtigung anzeigen, wenn der Agent fertig ist oder Aufmerksamkeit benötigt",
+  "settings.general.notifications.bark.title": "Bark device key",
+  "settings.general.notifications.bark.description":
+    "Push to Bark when a completed session remains unread for one minute; leave blank to disable",
   "settings.general.notifications.permissions.title": "Berechtigungen",
   "settings.general.notifications.permissions.description":
     "Systembenachrichtigung anzeigen, wenn eine Berechtigung erforderlich ist",
@@ -1182,4 +1190,10 @@ export const dict = {
   "help.tabs.persistence": "Wenn Sie die App erneut öffnen, sind Ihre Tabs weiterhin geöffnet.",
   "help.tabs.worktrees":
     "Das neue Design unterstützt Git-Worktrees noch nicht. Diese Funktion folgt in Kürze. Wenn Sie das bisherige Layout vorerst weiterverwenden möchten, können Sie in den Einstellungen zwischen den Layouts wechseln. Beachten Sie jedoch, dass das neue Layout in einigen Wochen dauerhaft verwendet wird.",
+  "session.server.connecting": "Connecting to {{server}}",
+  "session.server.connecting.description": "This tab will load automatically when the server is ready.",
+  "session.error.serverUnavailable": "Couldn’t reach {{server}}",
+  "session.error.serverUnavailable.description": "The server may still be starting. Wait a moment, then try again.",
+  "session.error.serverUnavailable.retry": "Try again",
+  "session.tab.connecting": "Connecting…",
 } satisfies Partial<Record<Keys, string>>

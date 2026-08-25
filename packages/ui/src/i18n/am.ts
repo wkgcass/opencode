@@ -193,4 +193,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "የሚመለከተውን ሁሉንም መልሶች ይምረጡ",
   "ui.question.singleHint": "አንድ መልስ ምረጥ",
   "ui.question.custom.placeholder": "መልስዎን ይተይቡ...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }

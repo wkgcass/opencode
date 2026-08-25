@@ -52,6 +52,7 @@ export function createPromptModelSelection(input: { agent: () => { model?: Model
 
   const selection = {
     ready: models.ready,
+    switching: () => false,
     current,
     recent: recentModels,
     list: models.list,

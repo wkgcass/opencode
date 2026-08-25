@@ -100,6 +100,8 @@ export const dict = {
 
   "ui.messagePart.questions.dismissed": "Pitanja odbačena",
   "ui.messagePart.compaction": "Sesija sažeta",
+  "ui.messagePart.compaction.started": "Sažimanje sesije započeto",
+  "ui.messagePart.compaction.failed": "Sažimanje sesije nije uspjelo",
   "ui.messagePart.context.read.one": "{{count}} čitanje",
   "ui.messagePart.context.read.few": "{{count}} čitanja",
   "ui.messagePart.context.read.other": "{{count}} čitanja",
@@ -222,4 +224,5 @@ export const dict = {
   "ui.toolErrorCard.copyError": "Kopiraj grešku",
   "ui.message.duration.seconds": "{{count}}s",
   "ui.message.duration.minutesSeconds": "{{minutes}}m {{seconds}}s",
+  "ui.sessionTurn.status.thought": "Thought",
 } satisfies Partial<Record<Keys, string>>

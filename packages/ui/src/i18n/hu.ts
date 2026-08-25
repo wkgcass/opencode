@@ -196,4 +196,7 @@ export const dict: Record<string, string> = {
   "ui.question.multiHint": "Válassza ki az összes megfelelő választ",
   "ui.question.singleHint": "Válasszon ki egy választ",
   "ui.question.custom.placeholder": "Írja be a választ...",
+  "ui.messagePart.compaction.started": "Session compaction started",
+  "ui.messagePart.compaction.failed": "Session compaction failed",
+  "ui.sessionTurn.status.thought": "Thought",
 }
