@@ -1772,6 +1772,8 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
   let reasoningContent: HTMLDivElement | undefined
   let reasoningObserver: MutationObserver | undefined
   let reasoningFrame: number | undefined
+  let reasoningSummary: HTMLSpanElement | undefined
+  let reasoningSummaryFrame: number | undefined
   let layoutFrame: number | undefined
   let followReasoning = true
   const part = () => props.part as ReasoningPart
@@ -1782,7 +1784,29 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
       typeof (props.message as AssistantMessage).time.completed !== "number",
   )
   const text = () => readPartText(data.store.part_text_accum_delta, part())
-  const [open, setOpen] = createSignal(streaming())
+  const currentLine = createMemo(() => {
+    const value = data.store.part_text_accum_delta?.[part().id] ?? part().text ?? ""
+    return value.slice(Math.max(value.lastIndexOf("\n"), value.lastIndexOf("\r")) + 1).trimStart()
+  })
+  const [open, setOpen] = createSignal(false)
+
+  const scrollReasoningSummaryToEnd = () => {
+    if (!reasoningSummary?.isConnected) return
+    if (reasoningSummaryFrame !== undefined) cancelAnimationFrame(reasoningSummaryFrame)
+    reasoningSummaryFrame = requestAnimationFrame(() => {
+      reasoningSummaryFrame = undefined
+      if (!reasoningSummary?.isConnected) return
+      reasoningSummary.scrollLeft =
+        reasoningSummary.scrollWidth > reasoningSummary.clientWidth
+          ? reasoningSummary.scrollWidth - reasoningSummary.clientWidth
+          : 0
+    })
+  }
+
+  const bindReasoningSummary = (element: HTMLSpanElement) => {
+    reasoningSummary = element
+    scrollReasoningSummaryToEnd()
+  }
 
   const scrollReasoningToBottom = () => {
     if (!followReasoning || !open() || !streaming() || !reasoningContent?.isConnected) return
@@ -1818,8 +1842,6 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
     reasoningObserver = new MutationObserver(scrollReasoningToBottom)
     reasoningObserver.observe(element, { childList: true, subtree: true, characterData: true })
     scrollReasoningToBottom()
-    // Streaming reasoning starts open, so Kobalte does not emit an initial
-    // open-change event. Measure the mounted body for virtualized timelines.
     props.onContentRendered?.()
   }
 
@@ -1872,21 +1894,32 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
     })
   }
 
-  createEffect((previous) => {
-    const value = streaming()
-    if (value !== previous) handleOpenChange(value)
-    return value
-  }, streaming())
+  createEffect(() => {
+    streaming()
+    handleOpenChange(false)
+  })
+
+  createEffect(() => {
+    currentLine()
+    if (!streaming() || open()) return
+    scrollReasoningSummaryToEnd()
+  })
 
   onCleanup(() => {
     if (layoutFrame !== undefined) cancelAnimationFrame(layoutFrame)
     if (reasoningFrame !== undefined) cancelAnimationFrame(reasoningFrame)
+    if (reasoningSummaryFrame !== undefined) cancelAnimationFrame(reasoningSummaryFrame)
     reasoningObserver?.disconnect()
   })
 
   return (
     <Show when={text()}>
-      <div ref={root} data-component="reasoning-part" data-timeline-part-id={part().id}>
+      <div
+        ref={root}
+        data-component="reasoning-part"
+        data-streaming={streaming() ? "" : undefined}
+        data-timeline-part-id={part().id}
+      >
         <Collapsible open={open()} onOpenChange={handleOpenChange} variant="ghost" class="reasoning-collapsible">
           <Collapsible.Trigger>
             <span data-slot="reasoning-part-title">
@@ -1896,6 +1929,11 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
               />
             </span>
             <Collapsible.Arrow />
+            <Show when={streaming() && !open() && currentLine()}>
+              <span ref={bindReasoningSummary} data-slot="reasoning-part-summary">
+                <TextShimmer text={currentLine()} active />
+              </span>
+            </Show>
           </Collapsible.Trigger>
           <Collapsible.Content>
             <div

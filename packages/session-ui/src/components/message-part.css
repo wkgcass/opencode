@@ -297,11 +297,14 @@
       width: fit-content;
       max-width: 100%;
       height: 32px;
-      gap: 2px;
+      gap: 0;
+      justify-content: flex-start;
+      text-align: left;
       color: var(--text-weak);
       cursor: pointer;
 
       [data-slot="collapsible-arrow"] {
+        width: 16px;
         opacity: 1;
       }
     }
@@ -311,12 +314,30 @@
     }
   }
 
-  [data-slot="reasoning-part-title"] {
-    min-width: 0;
+  &[data-streaming] [data-component="collapsible"].reasoning-collapsible > [data-slot="collapsible-trigger"] {
+    width: 100%;
+  }
+
+  [data-slot="reasoning-part-title"],
+  [data-slot="reasoning-part-summary"] {
     font-family: var(--font-family-sans);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     line-height: 20px;
+  }
+
+  [data-slot="reasoning-part-title"] {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  [data-slot="reasoning-part-summary"] {
+    min-width: 0;
+    flex: 1 1 0;
+    margin-left: 2px;
+    overflow: hidden;
+    white-space: pre;
+    text-align: left;
   }
 
   [data-slot="reasoning-part-content"] {

@@ -184,7 +184,7 @@ test("reasoning is collapsed into a bounded scrollable panel", async ({ page }) 
     .toBeLessThan(2)
 })
 
-test("streaming reasoning expands, follows its bottom, then collapses on completion", async ({ page }) => {
+test("streaming reasoning stays collapsed with a live current-line summary", async ({ page }) => {
   const reasoningID = "prt_reasoning_streaming"
   const timeline = await setupTimeline(page, {
     messages: reasoningTimelineMessages(reasoningID, false),
@@ -194,6 +194,10 @@ test("streaming reasoning expands, follows its bottom, then collapses on complet
 
   const reasoning = page.locator(`[data-timeline-part-id="${reasoningID}"]`)
   const trigger = reasoning.locator('[data-slot="collapsible-trigger"]')
+  const title = reasoning.locator('[data-slot="reasoning-part-title"]')
+  const arrow = reasoning.locator('[data-slot="collapsible-arrow"]')
+  const summary = reasoning.locator('[data-slot="reasoning-part-summary"]')
+  const summaryShimmer = summary.locator('[data-component="text-shimmer"]')
   const content = reasoning.locator('[data-slot="reasoning-part-content"]')
   const viewport = page.locator(".scroll-view__viewport").filter({ has: reasoning })
 
@@ -202,8 +206,57 @@ test("streaming reasoning expands, follows its bottom, then collapses on complet
     element.scrollTop = element.scrollHeight
   })
 
-  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect(trigger).toHaveAttribute("aria-expanded", "false")
   await expect(trigger).toContainText("Thinking")
+  await expect(summaryShimmer).toHaveAttribute("aria-label", "Reasoning line 99")
+  await expect(content).toBeHidden()
+  await expect(trigger).toHaveCSS("justify-content", "flex-start")
+  await expect(summary).toHaveCSS("text-align", "left")
+  await expect(title.locator('[data-component="text-shimmer"]')).toHaveAttribute("data-active", "true")
+  await expect(summaryShimmer).toHaveAttribute("data-active", "true")
+  const fonts = await Promise.all(
+    [title, summary].map((element) =>
+      element.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return [style.fontFamily, style.fontSize, style.fontWeight, style.lineHeight]
+      }),
+    ),
+  )
+  expect(fonts[1]).toEqual(fonts[0])
+
+  const positions = await Promise.all(
+    [title, arrow, summary].map((element) => element.boundingBox().then((box) => box?.x ?? Number.POSITIVE_INFINITY)),
+  )
+  expect(positions[0]).toBeLessThan(positions[1])
+  expect(positions[1]).toBeLessThan(positions[2])
+  const [triggerBox, titleBox] = await Promise.all([trigger.boundingBox(), title.boundingBox()])
+  expect(Math.abs((triggerBox?.x ?? 0) - (titleBox?.x ?? Number.POSITIVE_INFINITY))).toBeLessThan(1)
+
+  await timeline.send(partDelta(reasoningID, "\n   Fresh streaming line"))
+
+  await expect(summaryShimmer).toHaveAttribute("aria-label", "Fresh streaming line")
+  await expect.poll(() => summary.evaluate((element) => element.scrollLeft)).toBe(0)
+
+  await timeline.send(partDelta(reasoningID, " " + "long ".repeat(200) + "visible tail"))
+
+  await expect(summaryShimmer).toHaveAttribute("aria-label", /visible tail$/)
+  await expect
+    .poll(() => summary.evaluate((element) => element.scrollWidth - element.clientWidth - element.scrollLeft))
+    .toBeLessThan(2)
+
+  await timeline.send(partDelta(reasoningID, "\nNext line"))
+
+  await expect(summaryShimmer).toHaveAttribute("aria-label", "Next line")
+  await expect.poll(() => summary.evaluate((element) => element.scrollLeft)).toBe(0)
+
+  await timeline.send(partDelta(reasoningID, " updated"))
+
+  await expect(summaryShimmer).toHaveAttribute("aria-label", "Next line updated")
+
+  await trigger.click()
+
+  await expect(trigger).toHaveAttribute("aria-expanded", "true")
+  await expect(summary).toBeHidden()
   await expect(content).toBeVisible()
   await expect
     .poll(() => viewport.evaluate((element) => element.scrollHeight - element.clientHeight - element.scrollTop))
